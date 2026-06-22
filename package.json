@@ -1,0 +1,23 @@
+{
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "corepack yarn workspace web dev",
+    "build": "corepack yarn workspace web build",
+    "start": "corepack yarn workspace web start"
+  },
+  "resolutions": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "kysely": "0.28.17"
+  },
+  "devDependencies": {
+    "eslint": "^9.27.0",
+    "oxfmt": "^0.35.0",
+    "oxlint": "^1.50.0",
+    "typescript-eslint": "^8.33.0"
+  },
+  "packageManager": "yarn@4.12.0"
+}
+

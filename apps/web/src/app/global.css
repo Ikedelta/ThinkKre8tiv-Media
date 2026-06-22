@@ -1,0 +1,297 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+    --brand-gold: #FCD20F;
+    --brand-gold-soft: rgba(252, 210, 15, 0.1);
+    --brand-midnight: #000000;
+    --brand-midnight-rgb: 0, 0, 0;
+
+    --background: hsl(0 0% 100%);
+    --foreground: hsl(0 0% 0%);
+    --card: hsl(0 0% 100%);
+    --card-foreground: hsl(0 0% 0%);
+    --popover: hsl(0 0% 100%);
+    --popover-foreground: hsl(0 0% 0%);
+    --primary: hsl(356 69% 49%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(54 98% 90%);
+    --secondary-foreground: hsl(20 10% 10%);
+    --muted: hsl(40 10% 96%);
+    --muted-foreground: hsl(20 10% 40%);
+    --accent: hsl(156 100% 26%);
+    --accent-foreground: hsl(0 0% 100%);
+    --destructive: hsl(0 84.2% 60.2%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(40 10% 90%);
+    --input: hsl(40 10% 90%);
+    --ring: hsl(356 69% 49%);
+    --radius: 0.5rem;
+    --chart-1: hsl(356 69% 49%);
+    --chart-2: hsl(156 100% 26%);
+    --chart-3: hsl(54 98% 90%);
+    --chart-4: hsl(43 74% 66%);
+    --chart-5: hsl(27 87% 67%);
+    --sidebar: hsl(0 0% 98%);
+    --sidebar-foreground: hsl(0 0% 26.1%);
+    --sidebar-primary: hsl(0 0% 10%);
+    --sidebar-primary-foreground: hsl(0 0% 98%);
+    --sidebar-accent: hsl(0 0% 95.9%);
+    --sidebar-accent-foreground: hsl(0 0% 10%);
+    --sidebar-border: hsl(0 0% 91%);
+    --sidebar-ring: hsl(0 0% 60%);
+}
+
+.dark {
+    --brand-gold: #FCD20F;
+    --brand-gold-soft: rgba(252, 210, 15, 0.15);
+    --brand-midnight: #000000;
+    --brand-midnight-rgb: 0, 0, 0;
+
+    --background: hsl(220 20% 5%);
+    --foreground: hsl(0 0% 98%);
+    --card: hsl(220 20% 8%);
+    --card-foreground: hsl(0 0% 98%);
+    --popover: hsl(220 20% 8%);
+    --popover-foreground: hsl(0 0% 98%);
+    --primary: hsl(356 69% 49%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(54 30% 15%);
+    --secondary-foreground: hsl(0 0% 98%);
+    --muted: hsl(220 15% 10%);
+    --muted-foreground: hsl(220 10% 65%);
+    --accent: hsl(156 100% 20%);
+    --accent-foreground: hsl(0 0% 98%);
+    --destructive: hsl(0 62.8% 30.6%);
+    --destructive-foreground: hsl(0 0% 98%);
+    --border: hsl(220 20% 12%);
+    --input: hsl(220 20% 12%);
+    --ring: hsl(356 69% 49%);
+    --chart-1: hsl(356 69% 49%);
+    --chart-2: hsl(156 100% 20%);
+    --chart-3: hsl(54 30% 15%);
+    --chart-4: hsl(280 65% 60%);
+    --chart-5: hsl(340 75% 55%);
+    --sidebar: hsl(220 20% 5%);
+    --sidebar-foreground: hsl(0 0% 90%);
+    --sidebar-primary: hsl(356 69% 49%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(220 20% 10%);
+    --sidebar-accent-foreground: hsl(0 0% 90%);
+    --sidebar-border: hsl(220 20% 10%);
+    --sidebar-ring: hsl(356 69% 49%);
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--color-card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+    
+    --color-brand-gold: var(--brand-gold);
+    --color-brand-gold-soft: var(--brand-gold-soft);
+    --color-brand-midnight: var(--brand-midnight);
+
+    --color-indigo-50: #FEFBE8;
+    --color-indigo-100: #FEF9C3;
+    --color-indigo-200: #FEF08A;
+    --color-indigo-300: #FDE047;
+    --color-indigo-400: #FACC15;
+    --color-indigo-500: #EAB308;
+    --color-indigo-600: #D22630;
+    --color-indigo-700: #9E1B23;
+    --color-indigo-800: #7A141A;
+    --color-indigo-900: #5C0D11;
+    --color-indigo-950: #3B0508;
+
+    --color-blue-50: #FEFBE8;
+    --color-blue-100: #FEF9C3;
+    --color-blue-200: #FEF08A;
+    --color-blue-300: #FDE047;
+    --color-blue-400: #FACC15;
+    --color-blue-500: #EAB308;
+    --color-blue-600: #D22630;
+    --color-blue-700: #9E1B23;
+    --color-blue-800: #7A141A;
+    --color-blue-900: #5C0D11;
+    --color-blue-950: #3B0508;
+
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+    
+    --font-serif: var(--font-mtn), sans-serif;
+    --font-sans: var(--font-mtn), sans-serif;
+    --font-montserrat: var(--font-mtn), sans-serif;
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-mtn), sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-mtn), sans-serif;
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .fixed.inset-0, .fixed.inset-0 * {
+        visibility: visible;
+    }
+    .fixed.inset-0 {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: white !important;
+    }
+    .print\:hidden {
+        display: none !important;
+    }
+}
+
+@keyframes gradient-x {
+    0%, 100% {
+        background-size: 200% 200%;
+        background-position: left center;
+    }
+    50% {
+        background-size: 200% 200%;
+        background-position: right center;
+    }
+}
+
+.animate-gradient-x {
+    animation: gradient-x 6s ease infinite;
+}
+
+.print-guide-crop {
+    position: relative;
+}
+
+.print-guide-crop::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 12px;
+    height: 12px;
+    border-top: 1px solid var(--brand-gold);
+    border-left: 1px solid var(--brand-gold);
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.print-guide-crop::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 12px;
+    height: 12px;
+    border-bottom: 1px solid var(--brand-gold);
+    border-right: 1px solid var(--brand-gold);
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+.registration-mark {
+    width: 24px;
+    height: 24px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    position: relative;
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.registration-mark::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -4px;
+    right: -4px;
+    height: 1px;
+    background: currentColor;
+    transform: translateY(-50%);
+}
+
+.registration-mark::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    bottom: -4px;
+    width: 1px;
+    background: currentColor;
+    transform: translateX(-50%);
+}
+
+/* Monochromatic overrides for hardcoded legacy navy colors */
+.text-\[\#001F3F\] {
+    color: var(--foreground) !important;
+}
+.bg-\[\#001F3F\] {
+    background-color: var(--primary) !important;
+}
+.bg-\[\#001F3F\]\/10 {
+    background-color: var(--secondary) !important;
+}
+.hover\:bg-\[\#002a52\]:hover {
+    background-color: var(--primary) !important;
+    opacity: 0.9;
+}
+.hover\:text-\[\#001F3F\]:hover {
+    color: var(--foreground) !important;
+    opacity: 0.85;
+}
+.text-\[\#001F3F\]\/10 {
+    color: var(--muted-foreground) !important;
+    opacity: 0.25;
+}
+.bg-\[\#001F3F\]\/10 {
+    background-color: var(--brand-gold-soft) !important;
+}
+
