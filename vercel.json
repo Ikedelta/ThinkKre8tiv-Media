@@ -1,0 +1,6 @@
+{
+  "buildCommand": "corepack enable && corepack yarn workspace web build",
+  "installCommand": "corepack enable && corepack yarn install --immutable",
+  "outputDirectory": "apps/web/.next",
+  "framework": "nextjs"
+}
