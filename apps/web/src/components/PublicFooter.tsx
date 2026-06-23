@@ -3,6 +3,8 @@ import { Printer, MapPin, Phone, Mail, MessageCircle, Clock, ChevronRight } from
 
 const exploreLinks = [
   { label: 'Services', href: '/services' },
+  { label: 'Submit Print Job', href: '/submit' },
+  { label: 'Track Order Status', href: '/track' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];

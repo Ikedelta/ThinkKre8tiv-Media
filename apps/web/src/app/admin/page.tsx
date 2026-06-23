@@ -212,7 +212,7 @@ export default function AdminDashboardPage() {
       {/* Quick links */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'New Quotation', href: '/admin/quotations/new', icon: FileText },
+          { label: 'All Submitted Jobs', href: '/admin/quotations', icon: FileText },
           { label: 'Record Payment', href: '/admin/receipts', icon: CreditCard },
           { label: 'Manage Customers', href: '/admin/customers', icon: Users },
           { label: 'View Reports', href: '/admin/reports', icon: TrendingUp },

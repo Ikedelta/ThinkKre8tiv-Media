@@ -28,11 +28,11 @@ interface Quotation {
 }
 
 const statusConfig: Record<string, { label: string; color: string }> = {
-  draft: { label: 'Draft', color: 'bg-slate-100 text-slate-600' },
-  sent: { label: 'Sent', color: 'bg-blue-100 text-blue-700' },
-  accepted: { label: 'Accepted', color: 'bg-green-100 text-green-700' },
-  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700' },
-  converted: { label: 'Converted', color: 'bg-purple-100 text-purple-700' },
+  draft: { label: 'Submitted', color: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350' },
+  sent: { label: 'Proofing', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+  accepted: { label: 'Printing', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
+  rejected: { label: 'Finishing', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
+  converted: { label: 'Completed', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
 };
 
 export default function QuotationsPage() {
@@ -89,14 +89,14 @@ export default function QuotationsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Quotations</h1>
+          <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Submitted Print Jobs</h1>
           <p className="text-slate-500 mt-0.5 text-sm font-medium">
-            Create and manage price quotations
+            Monitor client designs and print calibrations
           </p>
         </div>
-        <Link href="/admin/quotations/new">
-          <Button className="bg-indigo-600 hover:bg-indigo-700 font-bold w-full sm:w-auto text-white">
-            <Plus size={16} className="mr-2" /> New Quotation
+        <Link href="/submit">
+          <Button className="bg-[#D22630] hover:bg-[#D22630]/90 font-bold w-full sm:w-auto text-white">
+            <Plus size={16} className="mr-2" /> Submit Print Job
           </Button>
         </Link>
       </div>
@@ -136,7 +136,7 @@ export default function QuotationsPage() {
           <table className="w-full min-w-[600px]">
             <thead className="bg-slate-50 dark:bg-slate-950">
               <tr>
-                {['Quotation #', 'Customer', 'Amount', 'Valid Until', 'Status', 'Actions'].map(
+                {['Job Code', 'Customer', 'Amount', 'Submitted Date', 'Status', 'Actions'].map(
                   (h) => (
                     <th
                       key={h}
@@ -199,9 +199,9 @@ export default function QuotationsPage() {
                               onClick={() =>
                                 updateStatusMutation.mutate({ id: q.id, status: 'sent' })
                               }
-                              className="px-2 py-1 text-xs font-bold bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1"
+                              className="px-2 py-1 text-[10px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                             >
-                              <Send size={12} /> Send
+                              Start Proofing
                             </button>
                           )}
                           {q.status === 'sent' && (
@@ -209,9 +209,29 @@ export default function QuotationsPage() {
                               onClick={() =>
                                 updateStatusMutation.mutate({ id: q.id, status: 'accepted' })
                               }
-                              className="px-2 py-1 text-xs font-bold bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors flex items-center gap-1"
+                              className="px-2 py-1 text-[10px] font-bold bg-yellow-50 hover:bg-yellow-100 text-yellow-800 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
                             >
-                              <Check size={12} /> Accept
+                              Send to Press
+                            </button>
+                          )}
+                          {q.status === 'accepted' && (
+                            <button
+                              onClick={() =>
+                                updateStatusMutation.mutate({ id: q.id, status: 'rejected' })
+                              }
+                              className="px-2 py-1 text-[10px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              Finish Printing
+                            </button>
+                          )}
+                          {q.status === 'rejected' && (
+                            <button
+                              onClick={() =>
+                                updateStatusMutation.mutate({ id: q.id, status: 'converted' })
+                              }
+                              className="px-2 py-1 text-[10px] font-bold bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                            >
+                              Complete Job
                             </button>
                           )}
                           <button
@@ -287,17 +307,33 @@ export default function QuotationsPage() {
                     {q.status === 'draft' && (
                       <button
                         onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'sent' })}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold bg-blue-50 text-blue-600 rounded-lg border border-blue-200 transition-colors"
+                        className="flex-1 py-1.5 text-[10px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg border border-blue-200 transition-colors cursor-pointer"
                       >
-                        <Send size={13} /> Send
+                        Start Proofing
                       </button>
                     )}
                     {q.status === 'sent' && (
                       <button
                         onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'accepted' })}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-2 text-xs font-bold bg-green-50 text-green-600 rounded-lg border border-green-200 transition-colors"
+                        className="flex-1 py-1.5 text-[10px] font-bold bg-yellow-50 hover:bg-yellow-100 text-yellow-800 rounded-lg border border-yellow-250 transition-colors cursor-pointer"
                       >
-                        <Check size={13} /> Accept
+                        Send to Press
+                      </button>
+                    )}
+                    {q.status === 'accepted' && (
+                      <button
+                        onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'rejected' })}
+                        className="flex-1 py-1.5 text-[10px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg border border-purple-200 transition-colors cursor-pointer"
+                      >
+                        Finish Printing
+                      </button>
+                    )}
+                    {q.status === 'rejected' && (
+                      <button
+                        onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'converted' })}
+                        className="flex-1 py-1.5 text-[10px] font-bold bg-green-50 hover:bg-green-100 text-green-700 rounded-lg border border-green-200 transition-colors cursor-pointer"
+                      >
+                        Complete Job
                       </button>
                     )}
                     <button

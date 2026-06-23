@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
+  { label: 'Track Order', href: '/track' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
@@ -30,16 +31,22 @@ export default function PublicNav() {
     <nav className={cn(
       "fixed w-full top-0 left-0 z-50 transition-all duration-300 border-b",
       isScrolled 
-        ? "bg-background/90 backdrop-blur-xl shadow-sm border-border/80 py-3 md:py-3.5" 
-        : "bg-background/30 backdrop-blur-sm border-transparent py-5 md:py-5.5"
+        ? "bg-background/90 backdrop-blur-xl shadow-sm border-border/80 py-1.5 md:py-2" 
+        : "bg-background/30 backdrop-blur-sm border-transparent py-3 md:py-4"
     )}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16 items-center">
+        <div className={cn(
+          "flex justify-between items-center transition-all duration-300",
+          isScrolled ? "h-14 sm:h-16" : "h-18 sm:h-22"
+        )}>
           <Link href="/" className="flex items-center group py-1">
             <img 
               src="/logo.png" 
               alt="Think Kre8tiv Printing Press Logo" 
-              className="h-12 sm:h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-103" 
+              className={cn(
+                "w-auto object-contain transition-all duration-300 group-hover:scale-105",
+                isScrolled ? "h-12 sm:h-14" : "h-16 sm:h-20"
+              )} 
             />
           </Link>
 
@@ -63,16 +70,10 @@ export default function PublicNav() {
             <span className="w-px h-5 bg-border/60" />
 
             <Link
-              href="/account/signin"
-              className="text-xs lg:text-sm font-semibold text-muted-foreground hover:text-foreground transition-colors"
+              href="/submit"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground px-4.5 py-2.5 rounded-lg shadow-sm transition-all hover:translate-y-[-1px] active:translate-y-0 cursor-pointer"
             >
-              Login
-            </Link>
-            <Link
-              href="/quote"
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-bold bg-primary hover:bg-primary/90 text-primary-foreground px-4.5 py-2.5 rounded-lg shadow-sm transition-all hover:translate-y-[-1px] active:translate-y-0"
-            >
-              Request Quote
+              Submit Print Job
             </Link>
           </div>
 
@@ -107,14 +108,9 @@ export default function PublicNav() {
             </Link>
           ))}
           <div className="pt-4 border-t border-border flex flex-col gap-3 mt-2">
-            <Link href="/account/signin" onClick={() => setIsMenuOpen(false)}>
-              <button className="w-full border border-border text-foreground font-semibold py-2 rounded-lg hover:bg-muted transition-colors text-xs">
-                Customer Login
-              </button>
-            </Link>
-            <Link href="/quote" onClick={() => setIsMenuOpen(false)}>
-              <button className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity text-xs">
-                Request Quote
+            <Link href="/submit" onClick={() => setIsMenuOpen(false)}>
+              <button className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity text-xs cursor-pointer">
+                Submit Print Job
               </button>
             </Link>
           </div>

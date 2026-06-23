@@ -28,7 +28,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Quotations', href: '/admin/quotations', icon: FileText },
+  { name: 'Submitted Jobs', href: '/admin/quotations', icon: FileText },
   { name: 'Invoices', href: '/admin/invoices', icon: Receipt },
   { name: 'Receipts', href: '/admin/receipts', icon: CreditCard },
   { name: 'Customers', href: '/admin/customers', icon: Users },
