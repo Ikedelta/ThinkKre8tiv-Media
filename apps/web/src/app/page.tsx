@@ -47,6 +47,18 @@ const CAROUSEL_SLIDES = [
     desc: 'Durable weather-resistant roll-ups, outdoor banners, and backlit storefront signage.',
     tag: 'Outdoor Media',
   },
+  {
+    image: '/images/custom-tie.jpg',
+    title: 'Custom Brand Apparel',
+    desc: 'Premium yellow & black striped ties and embroidered caps with bespoke logos.',
+    tag: 'Merchandise',
+  },
+  {
+    image: '/images/custom-mirror.jpg',
+    title: 'Bespoke Etched Mirrors',
+    desc: 'Elegant framed gold mirrors featuring custom wisdom and prudence etching.',
+    tag: 'Souvenirs',
+  },
 ];
 
 const EXPERTISE = [
@@ -110,6 +122,16 @@ const GALLERY_ITEMS = [
     image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=400&q=80',
     category: 'Finishing',
     title: 'Precision Die Cutting',
+  },
+  {
+    image: '/images/custom-cap.jpg',
+    category: 'Apparel',
+    title: 'Branded Caps',
+  },
+  {
+    image: '/images/custom-keychains.jpg',
+    category: 'Souvenirs',
+    title: 'Engraved Keychains',
   },
 ];
 

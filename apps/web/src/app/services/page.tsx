@@ -15,6 +15,7 @@ import {
   Zap,
   Calculator,
   Info,
+  Gift,
 } from 'lucide-react';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
@@ -25,6 +26,10 @@ const IMG_VEHICLE = 'https://images.unsplash.com/photo-1508974239320-0a029497e82
 const IMG_SIGNAGE = 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80';
 const IMG_EVENT = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80';
 const IMG_DIGITAL = 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=600&q=80';
+const IMG_MERCH_TIE = '/images/custom-tie.jpg';
+const IMG_MERCH_MIRROR = '/images/custom-mirror.jpg';
+const IMG_MERCH_CAP = '/images/custom-cap.jpg';
+const IMG_MERCH_KEYCHAINS = '/images/custom-keychains.jpg';
 
 const servicesList = [
   {
@@ -123,6 +128,22 @@ const servicesList = [
       'Express site teardown crews',
     ],
   },
+  {
+    title: 'Promotional Merchandise',
+    icon: Gift,
+    image: IMG_MERCH_TIE,
+    tag: 'Custom Souvenirs',
+    tagColor: 'bg-secondary text-foreground border-border',
+    description:
+      'Premium custom-branded merchandise, including branded ties, caps, keychains, and framed mirrors to elevate your brand identity.',
+    features: [
+      'High-quality custom apparel',
+      'Precision engraved keychains',
+      'Elegant framed mirrors',
+      'Custom packaging & boxing',
+      'Flexible minimum order quantities',
+    ],
+  },
 ];
 
 // Portfolio list to infuse directly
@@ -180,16 +201,46 @@ const projectsList = [
     desc: 'Annual stakeholder reports, corporate folders, and employee card layouts.',
     review: 'Perfect bind layout with clear tone distribution. Excellent color management.',
     client: 'ECG Communications'
+  },
+  {
+    title: 'MMARIMA MMA Custom Ties',
+    category: 'Promotional Merchandise',
+    image: IMG_MERCH_TIE,
+    specs: { size: 'Standard Tie', media: 'Silk Blend', speed: '14 Days delivery' },
+    desc: 'Custom yellow and black striped ties with embroidered school logo, packed in premium black boxes.',
+    review: 'The ties are of exceptional quality, perfectly capturing our brand colors and logo.',
+    client: 'MMARIMA MMA'
+  },
+  {
+    title: '88 MATE MASIE Framed Mirror',
+    category: 'Promotional Merchandise',
+    image: IMG_MERCH_MIRROR,
+    specs: { size: 'Custom Dimensions', media: 'Gold Frame, Glass', speed: '7 Days fabrication' },
+    desc: 'Elegant framed mirror with etched logo and text "A symbol of wisdom, knowledge and prudence".',
+    review: 'A beautiful and meaningful piece. The etching is flawless.',
+    client: 'Mate Masie Corp'
+  },
+  {
+    title: 'MMARIMA MMA Branded Cap',
+    category: 'Promotional Merchandise',
+    image: IMG_MERCH_CAP,
+    specs: { size: 'Adjustable', media: 'Cotton & Mesh', speed: '10 Days delivery' },
+    desc: 'Stylish black and yellow caps featuring high-quality embroidery of the MMARIMA MMA logo.',
+    review: 'Comfortable and vibrant. The embroidery really stands out.',
+    client: 'MMARIMA MMA'
+  },
+  {
+    title: 'Mirch Hotel Keychains',
+    category: 'Promotional Merchandise',
+    image: IMG_MERCH_KEYCHAINS,
+    specs: { size: 'Standard', media: 'Acrylic & Wood', speed: '5 Days dispatch' },
+    desc: 'Premium engraved keychains for hotel rooms, available in wood and frosted acrylic finishes.',
+    review: 'These keychains add a luxurious touch to our guest experience.',
+    client: 'Mirch Hotel Greece'
   }
 ];
 
 export default function ServicesPage() {
-  // Calculator State
-  const [calcService, setCalcService] = useState('Large Format Printing');
-  const [calcWidth, setCalcWidth] = useState(1);
-  const [calcHeight, setCalcHeight] = useState(1);
-  const [calcQty, setCalcQty] = useState(1);
-  const [calcFinishing, setCalcFinishing] = useState('Standard Matte');
 
   // Expanded portfolio items per service drawer state
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
@@ -201,38 +252,6 @@ export default function ServicesPage() {
     }));
   };
 
-  // Estimate Calculation Logic
-  const getEstimate = () => {
-    let rate = 150; // default large format rate per sq meter
-    let isAreaBased = true;
-
-    if (calcService === '3D Signage & Fabrication') {
-      rate = 450; // base rate per unit
-      isAreaBased = false;
-    } else if (calcService === 'Corporate Branding') {
-      rate = 75; // base rate per unit
-      isAreaBased = false;
-    } else if (calcService === 'Digital Printing') {
-      rate = 5; // base rate per page/item
-      isAreaBased = false;
-    } else if (calcService === 'Vehicle Graphics') {
-      rate = 320; // per sq meter
-      isAreaBased = true;
-    } else if (calcService === 'Event & Exhibition setups') {
-      rate = 850; // base setup cost
-      isAreaBased = false;
-    }
-
-    let multiplier = 1;
-    if (calcFinishing === 'Premium Gloss') multiplier = 1.25;
-    if (calcFinishing === 'UV Protective Shell') multiplier = 1.45;
-
-    const baseAmount = isAreaBased
-      ? (calcWidth * calcHeight) * rate
-      : rate;
-
-    return Math.round(baseAmount * calcQty * multiplier);
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden pt-20">
@@ -365,122 +384,6 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Pricing Estimator Section */}
-      <section className="py-20 bg-slate-50/40 border-y border-border/40 relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(0,0,0,0.02)_0%,transparent_50%)] pointer-events-none" />
-        
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Left Content */}
-            <div className="lg:col-span-5 space-y-6 print-guide-crop p-3">
-              <div className="w-12 h-12 bg-secondary border border-border rounded-xl flex items-center justify-center">
-                <Calculator className="text-foreground" size={24} />
-              </div>
-              <h2 className="text-3xl font-black tracking-tight text-foreground">Instant Pricing Estimator</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed font-medium">
-                Select your required brand specs, dimensions, and quantity parameters to generate a live cost breakdown estimate.
-              </p>
-              <div className="flex items-start gap-2.5 text-xs text-muted-foreground bg-background p-4 rounded-xl border border-border shadow-sm">
-                <Info size={14} className="text-foreground flex-shrink-0 mt-0.5" />
-                <p className="leading-relaxed font-medium text-[11px]">
-                  Estimates are calculated using standard media weights. Complex design layouts, urgent priority delivery, and custom install details are calculated upon review.
-                </p>
-              </div>
-            </div>
-
-            {/* Right Estimator Widget Panel */}
-            <div className="lg:col-span-7 bg-slate-50/60 dark:bg-slate-900/40 border border-border/80 hover:border-foreground/20 hover:shadow-[0_15px_30px_rgba(0,0,0,0.08)] p-6 sm:p-8 rounded-3xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300 backdrop-blur-md">
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Service Type</label>
-                  <select
-                    value={calcService}
-                    onChange={(e) => setCalcService(e.target.value)}
-                    className="w-full bg-background border border-border rounded-xl px-3 py-3 text-xs focus:border-[#D22630] outline-none transition-all text-foreground font-extrabold"
-                  >
-                    {servicesList.map((s) => (
-                      <option key={s.title} value={s.title}>{s.title}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {(calcService === 'Large Format Printing' || calcService === 'Vehicle Graphics') && (
-                  <div className="grid grid-cols-2 gap-3 animate-fade-in">
-                    <div>
-                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Width (m)</label>
-                      <input
-                        type="number"
-                        min="0.5"
-                        step="0.5"
-                        value={calcWidth}
-                        onChange={(e) => setCalcWidth(Number(e.target.value))}
-                        className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-xs text-foreground font-extrabold text-center focus:border-[#D22630] outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Height (m)</label>
-                      <input
-                        type="number"
-                        min="0.5"
-                        step="0.5"
-                        value={calcHeight}
-                        onChange={(e) => setCalcHeight(Number(e.target.value))}
-                        className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-xs text-foreground font-extrabold text-center focus:border-[#D22630] outline-none"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Quantity</label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={calcQty}
-                      onChange={(e) => setCalcQty(Math.max(1, Number(e.target.value)))}
-                      className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-xs text-foreground font-extrabold text-center focus:border-[#D22630] outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Coating Finish</label>
-                    <select
-                      value={calcFinishing}
-                      onChange={(e) => setCalcFinishing(e.target.value)}
-                      className="w-full bg-background border border-border rounded-xl px-3 py-3 text-xs text-foreground font-extrabold focus:border-[#D22630] outline-none"
-                    >
-                      <option value="Standard Matte">Matte (Standard)</option>
-                      <option value="Premium Gloss">Gloss (+25%)</option>
-                      <option value="UV Protective Shell">UV Seal (+45%)</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Estimate Output Display */}
-              <div className="flex flex-col justify-between bg-slate-950 dark:bg-black/60 border border-white/5 dark:border-white/10 rounded-2xl p-5 sm:p-6 text-center text-white shadow-xl">
-                <div>
-                  <p className="text-[10px] font-extrabold text-white/50 uppercase tracking-widest mb-2">Estimated Total</p>
-                  <p className="text-3xl sm:text-4xl font-black text-[#FCD20F] tracking-tight">
-                    GH₵{getEstimate().toLocaleString()}
-                  </p>
-                  <p className="text-[9px] text-white/40 font-bold mt-1">Excludes VAT (15%)</p>
-                </div>
-                <div className="pt-4">
-                  <Link
-                    href={`/quote?service=${encodeURIComponent(calcService)}&qty=${calcQty}&finish=${encodeURIComponent(calcFinishing)}`}
-                    className="block"
-                  >
-                    <button className="w-full flex items-center justify-center gap-1.5 bg-[#D22630] hover:bg-[#D22630]/95 text-white font-extrabold py-3.5 px-4 rounded-xl text-xs transition-all shadow-md active:translate-y-0 cursor-pointer">
-                      Submit Estimated Order <ChevronRight size={14} />
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* CTA Banner */}
       <section className="py-20 bg-background text-center border-t border-border/40">

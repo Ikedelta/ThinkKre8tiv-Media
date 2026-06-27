@@ -27,16 +27,14 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Submitted Jobs', href: '/admin/quotations', icon: FileText },
-  { name: 'Invoices', href: '/admin/invoices', icon: Receipt },
-  { name: 'Receipts', href: '/admin/receipts', icon: CreditCard },
-  { name: 'Customers', href: '/admin/customers', icon: Users },
-  { name: 'Reports', href: '/admin/reports', icon: FileBarChart },
-  { name: 'Users & Roles', href: '/admin/users', icon: UserCog },
-  { name: 'SMS Center', href: '/admin/sms', icon: MessageSquare },
-  { name: 'Website CMS', href: '/admin/cms', icon: Globe },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Customer Orders', href: '/admin', icon: LayoutDashboard },
+  { name: 'Billing & Receipts', href: '/admin/receipts', icon: Receipt },
+  { name: 'Submitted Files', href: '/admin/quotations', icon: FileText },
+  { name: 'Services List', href: '/admin/services', icon: FileBarChart },
+  { name: 'Staff List', href: '/admin/staff', icon: Users },
+  { name: 'User Accounts', href: '/admin/users', icon: UserCog },
+  { name: 'Edit Website', href: '/admin/cms', icon: Globe },
+  { name: 'My Profile', href: '/admin/profile', icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -98,6 +96,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className="flex-1 px-3.5 py-5 space-y-0.5 overflow-y-auto">
+          <div className="px-3 mb-3">
+            <h3 className={cn("text-xs font-bold tracking-wider uppercase", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
+              Manage Site
+            </h3>
+          </div>
           {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
@@ -110,21 +113,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className={cn(
                   'flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative',
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/20 font-semibold'
+                    ? 'bg-[#E04D1B]/10 text-[#E04D1B] border border-[#E04D1B]/20 font-semibold'
                     : theme === 'dark'
                       ? 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-indigo-600'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-[#E04D1B]'
                 )}
               >
                 <item.icon
                   size={16}
                   className={cn(
-                    isActive ? 'text-white' : 'group-hover:text-indigo-600 transition-colors'
+                    isActive ? 'text-[#E04D1B]' : 'group-hover:text-[#E04D1B] transition-colors'
                   )}
                 />
                 <span className="text-sm">{item.name}</span>
                 {isActive && (
-                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-[#E04D1B]" />
                 )}
               </Link>
             );
@@ -132,19 +135,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className={cn(
-          "p-4 border-t flex-shrink-0",
+          "p-5 border-t flex-shrink-0",
           theme === 'dark' ? 'border-slate-800' : 'border-slate-100'
         )}>
-          <div className={cn(
-            "flex items-center gap-2.5 px-3 py-2.5 rounded-xl",
-            theme === 'dark' ? 'bg-slate-900/60' : 'bg-slate-50'
-          )}>
-            <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 bg-secondary border border-border">
-              <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-6 h-6 object-contain" />
-            </div>
-            <div>
-              <p className={cn("text-xs font-bold", theme === 'dark' ? 'text-white' : 'text-slate-800')}>Admin Panel</p>
-              <p className="text-[10px] text-slate-400 font-medium">Think Kre8tive</p>
+          <div className="px-1">
+            <h3 className={cn("text-[10px] font-bold tracking-wider uppercase mb-2", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
+              SMS Credit Balance
+            </h3>
+            <div className="flex items-center justify-between">
+              <span className={cn("text-xl font-black", theme === 'dark' ? 'text-white' : 'text-slate-800')}>
+                0 <span className="text-xs font-medium text-slate-500">pts</span>
+              </span>
+              <button className="text-[#E04D1B] hover:text-orange-400 text-xs font-bold transition-colors">
+                Refresh
+              </button>
             </div>
           </div>
         </div>
