@@ -43,21 +43,54 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { invoice_id, customer_id, amount, payment_method, payment_date, notes } = body;
+    const { invoice_id, customer_id, customer_name, amount, payment_method, payment_date, notes } = body;
+
+    let finalCustomerId = customer_id;
+    let finalInvoiceId = invoice_id;
+
+    // Handle customer_name if provided
+    if (!finalCustomerId && customer_name) {
+      const [existing] = await sql`SELECT id FROM customers WHERE name ILIKE ${customer_name} LIMIT 1`;
+      if (existing) {
+        finalCustomerId = existing.id;
+      } else {
+        const [newCustomer] = await sql`INSERT INTO customers (name) VALUES (${customer_name}) RETURNING id`;
+        finalCustomerId = newCustomer.id;
+      }
+    }
+
+    if (!finalCustomerId) {
+      return Response.json({ error: 'Customer is required' }, { status: 400 });
+    }
+
+    // Handle missing invoice_id (standalone receipt creation)
+    if (!finalInvoiceId) {
+      const invoice_number = `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const [invoice] = await sql`
+        INSERT INTO invoices (
+          customer_id, invoice_number, subtotal, vat_rate, vat_amount,
+          discount_amount, total_amount, balance_due, amount_paid, due_date, notes, status, approval_status
+        ) VALUES (
+          ${finalCustomerId}, ${invoice_number}, ${amount}, 0, 0,
+          0, ${amount}, 0, ${amount}, ${new Date().toISOString()}, ${notes ?? 'Auto-generated for standalone receipt'}, 'paid', 'approved'
+        ) RETURNING *
+      `;
+      finalInvoiceId = invoice.id;
+    }
 
     const [{ count }] = await sql`SELECT COUNT(*) as count FROM receipts`;
     const receipt_number = `TK-RCT-${String(Number(count) + 1).padStart(4, '0')}`;
 
     const [payment] = await sql`
       INSERT INTO payments (invoice_id, amount, payment_method, payment_date, notes)
-      VALUES (${invoice_id}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null})
+      VALUES (${finalInvoiceId}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null})
       RETURNING *
     `;
 
-    // Create receipt with pending approval — do NOT update invoice balance yet
+    // Create receipt with pending approval
     const [receipt] = await sql`
       INSERT INTO receipts (invoice_id, customer_id, payment_id, receipt_number, amount, payment_method, payment_date, notes, approval_status)
-      VALUES (${invoice_id}, ${customer_id}, ${payment.id}, ${receipt_number}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, 'pending')
+      VALUES (${finalInvoiceId}, ${finalCustomerId}, ${payment.id}, ${receipt_number}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, 'pending')
       RETURNING *
     `;
 

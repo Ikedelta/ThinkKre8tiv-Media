@@ -8,33 +8,30 @@ import {
   Briefcase,
   AlertCircle,
   FileText,
-  CreditCard,
-  ArrowRight,
-  Clock,
   Users,
+  Plus,
+  ChevronRight,
+  MoreHorizontal
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
-  design: 'bg-slate-200 dark:bg-slate-800/60 text-slate-700 dark:text-slate-350',
-  printing: 'bg-slate-200 dark:bg-slate-800/60 text-slate-700 dark:text-slate-350',
-  finishing: 'bg-slate-300 dark:bg-slate-700/60 text-slate-800 dark:text-slate-200',
-  delivery: 'bg-slate-300 dark:bg-slate-700/60 text-slate-800 dark:text-slate-200',
-  completed: 'bg-slate-900 dark:bg-slate-100 text-white dark:text-black font-semibold',
-  paid: 'bg-slate-900 dark:bg-slate-100 text-white dark:text-black font-semibold',
-  unpaid: 'bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300',
-  partial: 'bg-slate-200 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300',
-  overdue: 'bg-slate-100 dark:bg-slate-800 border border-slate-400 dark:border-slate-600 text-slate-900 dark:text-white',
+  pending: 'bg-amber-100 text-amber-800 border-amber-200',
+  draft: 'bg-slate-100 text-slate-700 border-slate-200',
+  printing: 'bg-blue-100 text-blue-800 border-blue-200',
+  completed: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  paid: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  unpaid: 'bg-rose-100 text-rose-800 border-rose-200',
+  overdue: 'bg-rose-100 text-rose-800 border-rose-200',
 };
 
 export default function AdminDashboardPage() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [activeTab, setActiveTab] = useState<'print-jobs' | 'invoices' | 'customers'>('print-jobs');
+
+  useEffect(() => setMounted(true), []);
 
   const { data: invoices = [] } = useQuery<any[]>({
     queryKey: ['invoices'],
@@ -46,189 +43,248 @@ export default function AdminDashboardPage() {
     enabled: mounted,
   });
 
-  const totalRevenue = invoices.reduce((s: number, i: any) => s + Number(i.amount_paid || 0), 0);
-  const outstanding = invoices.reduce((s: number, i: any) => s + Number(i.balance_due || 0), 0);
-  const pendingInvoices = invoices.filter((i: any) => i.approval_status === 'pending');
-  const unpaidCount = invoices.filter(
-    (i: any) => i.status === 'unpaid' || i.status === 'overdue'
-  ).length;
-
-  const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
-
-  const stats = [
-    {
-      label: 'Total Revenue',
-      value: fmt(totalRevenue),
-      icon: TrendingUp,
-      color: 'text-emerald-600 dark:text-emerald-400',
-      bg: 'bg-emerald-50 dark:bg-emerald-950/30',
-      href: '/admin/reports',
+  const { data: quotations = [] } = useQuery<any[]>({
+    queryKey: ['quotations'],
+    queryFn: async () => {
+      const r = await fetch('/api/quotations');
+      if (!r.ok) throw new Error('Failed');
+      return r.json();
     },
-    {
-      label: 'Outstanding',
-      value: fmt(outstanding),
-      icon: AlertCircle,
-      color: 'text-red-500 dark:text-red-400',
-      bg: 'bg-red-50 dark:bg-red-950/30',
-      href: '/admin/invoices',
-    },
-  ];
+    enabled: mounted,
+  });
 
-  const recentInvoices = invoices.slice(0, 6);
+  const { data: customers = [] } = useQuery<any[]>({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const r = await fetch('/api/customers');
+      if (!r.ok) throw new Error('Failed');
+      return r.json();
+    },
+    enabled: mounted,
+  });
 
   if (!mounted) return null;
 
+  // Key Metrics Calculation
+  const totalRevenue = invoices.reduce((s: number, i: any) => s + Number(i.amount_paid || 0), 0);
+  const outstanding = invoices.reduce((s: number, i: any) => s + Number(i.balance_due || 0), 0);
+  const pendingInvoices = invoices.filter((i: any) => i.approval_status === 'pending');
+  const activePrintJobs = quotations.filter((q: any) => q.status !== 'completed' && q.status !== 'rejected').length;
+
+  const fmt = (n: number) => `GH₵${Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+  const recentInvoices = invoices.slice(0, 10);
+  const recentQuotations = quotations.slice(0, 10);
+  const recentCustomers = customers.slice(0, 10);
+
   return (
-    <div className="space-y-8 pb-10">
-      {/* Header — single action button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 max-w-[1400px] mx-auto pb-12 font-sans">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">Dashboard</h1>
-          <p className="text-sm text-slate-400 mt-0.5 font-medium">Business overview</p>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Overview</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your print operations, billing, and customers.</p>
         </div>
-        <Link href="/admin/invoices/new">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-indigo-600/10 hover:shadow-indigo-600/20 active:scale-95">
-            <FileText size={15} /> New Invoice
-          </button>
-        </Link>
       </div>
 
-      {/* Pending approvals alert */}
-      {pendingInvoices.length > 0 && (
-        <div className="flex items-center gap-4 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/50 rounded-2xl px-5 py-4">
-          <AlertCircle size={20} className="text-amber-500 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-amber-800 dark:text-amber-400">
-              {pendingInvoices.length} invoice{pendingInvoices.length !== 1 ? 's' : ''} awaiting approval
-            </p>
-            <p className="text-xs text-amber-600 dark:text-amber-500 font-medium">
-              Review and approve to activate them
-            </p>
-          </div>
-          <Link
-            href="/admin/invoices"
-            className="flex-shrink-0 text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline flex items-center gap-1"
-          >
-            Review <ArrowRight size={12} />
-          </Link>
-        </div>
-      )}
-
-      {/* 2-column stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {stats.map((stat) => (
-          <Link href={stat.href} key={stat.label}>
-            <Card className="border border-slate-100 dark:border-slate-850 bg-white dark:bg-slate-900 shadow-sm hover:border-indigo-200 dark:hover:border-indigo-900/40 hover:shadow transition-all cursor-pointer rounded-2xl">
-              <CardContent className="p-5">
-                <div
-                  className={cn(
-                    'w-10 h-10 rounded-xl flex items-center justify-center mb-4',
-                    stat.bg
-                  )}
-                >
-                  <stat.icon size={18} className={stat.color} />
-                </div>
-                <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-                  {stat.label}
-                </p>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{stat.value}</p>
-              </CardContent>
-            </Card>
-          </Link>
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Revenue', value: fmt(totalRevenue), secondary: `${invoices.length} total invoices` },
+          { label: 'Outstanding Balance', value: fmt(outstanding), secondary: `${pendingInvoices.length} awaiting approval`, alert: pendingInvoices.length > 0 },
+          { label: 'Active Print Jobs', value: activePrintJobs.toString(), secondary: 'Currently in progress' },
+          { label: 'Total Customers', value: customers.length.toString(), secondary: 'Registered clients' },
+        ].map((stat, i) => (
+          <Card key={i} className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-lg bg-white dark:bg-slate-900">
+            <CardContent className="p-5">
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{stat.label}</p>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{stat.value}</h3>
+              </div>
+              <p className={cn("text-xs mt-2", stat.alert ? "text-rose-600 font-medium" : "text-slate-500 dark:text-slate-500")}>
+                {stat.secondary}
+              </p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* Full-width table */}
-      <div>
-        {/* Recent Invoices */}
-        <Card className="border border-slate-100 dark:border-slate-850 bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden">
-          <div className="flex items-center justify-between px-5 py-4.5 border-b border-slate-100 dark:border-slate-850">
-            <div className="flex items-center gap-2">
-              <FileText size={16} className="text-slate-400 dark:text-slate-500" />
-              <h2 className="text-sm font-bold text-slate-800 dark:text-white">Recent Invoices</h2>
-            </div>
-            <Link
-              href="/admin/invoices"
-              className="flex items-center gap-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700"
-            >
-              View all <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="divide-y divide-slate-50 dark:divide-slate-850">
-            {recentInvoices.length === 0 ? (
-              <div className="px-5 py-12 text-center">
-                <p className="text-sm font-medium text-slate-400">No invoices yet</p>
-                <Link
-                  href="/admin/invoices/new"
-                  className="text-xs text-indigo-600 font-semibold hover:underline mt-1 block"
-                >
-                  Create first invoice →
-                </Link>
-              </div>
-            ) : (
-              recentInvoices.map((inv: any) => (
-                <div
-                  key={inv.id}
-                  className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors"
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-bold text-slate-800 dark:text-slate-200 truncate">
-                        {inv.customer_name}
-                      </p>
-                      {inv.approval_status === 'pending' && (
-                        <span className="flex-shrink-0 text-[8px] font-bold bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded uppercase tracking-wider">
-                          Pending
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">{inv.invoice_number}</p>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-                    <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{fmt(inv.total_amount)}</p>
-                    <Badge
-                      className={cn(
-                        'border-none text-[9px] font-bold uppercase tracking-wider shadow-none px-2.5 py-1 rounded-full',
-                        statusColors[inv.status] || 'bg-slate-100 text-slate-600'
-                      )}
-                    >
-                      {inv.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))
+      {/* Tabbed Activity Feed */}
+      <div className="mt-8 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
+        <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-4 flex gap-6">
+          <button
+            onClick={() => setActiveTab('print-jobs')}
+            className={cn(
+              "py-4 text-sm font-medium border-b-2 transition-colors",
+              activeTab === 'print-jobs' ? "border-indigo-600 text-indigo-600 dark:text-indigo-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             )}
-          </div>
-          {unpaidCount > 0 && (
-            <div className="px-5 py-3.5 bg-red-50/60 dark:bg-red-950/10 border-t border-red-100 dark:border-red-950/30">
-              <p className="text-xs font-semibold text-red-500">
-                {unpaidCount} invoice{unpaidCount !== 1 ? 's' : ''} require attention
-              </p>
+          >
+            Recent Print Jobs
+          </button>
+          <button
+            onClick={() => setActiveTab('invoices')}
+            className={cn(
+              "py-4 text-sm font-medium border-b-2 transition-colors",
+              activeTab === 'invoices' ? "border-indigo-600 text-indigo-600 dark:text-indigo-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            )}
+          >
+            Recent Invoices
+          </button>
+          <button
+            onClick={() => setActiveTab('customers')}
+            className={cn(
+              "py-4 text-sm font-medium border-b-2 transition-colors",
+              activeTab === 'customers' ? "border-indigo-600 text-indigo-600 dark:text-indigo-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+            )}
+          >
+            New Customers
+          </button>
+        </div>
+
+        <div className="p-0">
+          {/* Print Jobs Tab */}
+          {activeTab === 'print-jobs' && (
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {recentQuotations.length === 0 ? (
+                <div className="p-8 text-center text-sm text-slate-500">No print jobs found.</div>
+              ) : (
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400">
+                    <tr>
+                      <th className="px-6 py-3 font-medium">Job ID</th>
+                      <th className="px-6 py-3 font-medium">Customer</th>
+                      <th className="px-6 py-3 font-medium">Amount</th>
+                      <th className="px-6 py-3 font-medium">Status</th>
+                      <th className="px-6 py-3 font-medium text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {recentQuotations.map((job: any) => (
+                      <tr key={job.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{job.quotation_number}</td>
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{job.customer_name}</td>
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{fmt(job.total_amount)}</td>
+                        <td className="px-6 py-4">
+                          <Badge className={cn('border font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none', statusColors[job.status] || statusColors.draft)}>
+                            {job.status || 'draft'}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link href={`/admin/quotations?id=${job.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            View details
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {recentQuotations.length > 0 && (
+                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 text-right">
+                  <Link href="/admin/quotations" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-end gap-1">
+                    View all print jobs <ChevronRight size={16} />
+                  </Link>
+                </div>
+              )}
             </div>
           )}
-        </Card>
-      </div>
 
-      {/* Quick links */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: 'All Submitted Jobs', href: '/admin/quotations', icon: FileText },
-          { label: 'Record Payment', href: '/admin/receipts', icon: CreditCard },
-          { label: 'Manage Customers', href: '/admin/customers', icon: Users },
-          { label: 'View Reports', href: '/admin/reports', icon: TrendingUp },
-        ].map(({ label, href, icon: Icon }) => (
-          <Link key={label} href={href}>
-            <div className="flex items-center gap-3 px-4 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-900/40 hover:bg-indigo-600/5 dark:hover:bg-indigo-600/5 transition-all group cursor-pointer shadow-sm">
-              <Icon
-                size={16}
-                className="text-slate-400 group-hover:text-indigo-600 transition-colors flex-shrink-0"
-              />
-              <span className="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-white transition-colors">
-                {label}
-              </span>
+          {/* Invoices Tab */}
+          {activeTab === 'invoices' && (
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {recentInvoices.length === 0 ? (
+                <div className="p-8 text-center text-sm text-slate-500">No invoices found.</div>
+              ) : (
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400">
+                    <tr>
+                      <th className="px-6 py-3 font-medium">Invoice #</th>
+                      <th className="px-6 py-3 font-medium">Customer</th>
+                      <th className="px-6 py-3 font-medium">Total</th>
+                      <th className="px-6 py-3 font-medium">Status</th>
+                      <th className="px-6 py-3 font-medium text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {recentInvoices.map((inv: any) => (
+                      <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{inv.invoice_number}</td>
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{inv.customer_name}</td>
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{fmt(inv.total_amount)}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex gap-2">
+                            <Badge className={cn('border font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none', statusColors[inv.status] || statusColors.draft)}>
+                              {inv.status || 'draft'}
+                            </Badge>
+                            {inv.approval_status === 'pending' && (
+                              <Badge className="border border-amber-200 bg-amber-50 text-amber-700 font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none">
+                                Pending
+                              </Badge>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link href={`/admin/invoices?id=${inv.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            View details
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {recentInvoices.length > 0 && (
+                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 text-right">
+                  <Link href="/admin/invoices" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-end gap-1">
+                    View all invoices <ChevronRight size={16} />
+                  </Link>
+                </div>
+              )}
             </div>
-          </Link>
-        ))}
+          )}
+
+          {/* Customers Tab */}
+          {activeTab === 'customers' && (
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {recentCustomers.length === 0 ? (
+                <div className="p-8 text-center text-sm text-slate-500">No customers found.</div>
+              ) : (
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400">
+                    <tr>
+                      <th className="px-6 py-3 font-medium">Customer Name</th>
+                      <th className="px-6 py-3 font-medium">Email / Contact</th>
+                      <th className="px-6 py-3 font-medium">Orders</th>
+                      <th className="px-6 py-3 font-medium text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {recentCustomers.map((cust: any) => (
+                      <tr key={cust.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{cust.name}</td>
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{cust.email || cust.phone || 'N/A'}</td>
+                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{cust.invoice_count || 0} orders</td>
+                        <td className="px-6 py-4 text-right">
+                          <Link href={`/admin/customers?id=${cust.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                            View profile
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {recentCustomers.length > 0 && (
+                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 text-right">
+                  <Link href="/admin/customers" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-end gap-1">
+                    View all customers <ChevronRight size={16} />
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -31,9 +31,8 @@ const navItems: NavItem[] = [
   { name: 'Billing & Receipts', href: '/admin/receipts', icon: Receipt },
   { name: 'Submitted Files', href: '/admin/quotations', icon: FileText },
   { name: 'Services List', href: '/admin/services', icon: FileBarChart },
-  { name: 'Staff List', href: '/admin/staff', icon: Users },
   { name: 'User Accounts', href: '/admin/users', icon: UserCog },
-  { name: 'Edit Website', href: '/admin/cms', icon: Globe },
+  { name: 'CMS (Edit Website)', href: '/admin/cms', icon: Globe },
   { name: 'My Profile', href: '/admin/profile', icon: Settings },
 ];
 
@@ -227,10 +226,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         theme === 'dark' ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'
       )}>
         {[
-          { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-          { name: 'Invoices', href: '/admin/invoices', icon: Receipt },
-          { name: 'Customers', href: '/admin/customers', icon: Users },
-          { name: 'Receipts', href: '/admin/receipts', icon: CreditCard },
+          { name: 'Orders', href: '/admin', icon: LayoutDashboard },
+          { name: 'Receipts', href: '/admin/receipts', icon: Receipt },
+          { name: 'Files', href: '/admin/quotations', icon: FileText },
+          { name: 'Profile', href: '/admin/profile', icon: Settings },
         ].map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -240,11 +239,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               className={cn(
                 "flex flex-col items-center justify-center flex-1 h-full rounded-xl transition-all",
                 isActive 
-                  ? "text-indigo-600 dark:text-indigo-400 font-bold" 
+                  ? "text-[#E04D1B] font-bold" 
                   : theme === 'dark' ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800"
               )}
             >
-              <item.icon size={18} className={cn(isActive && "text-indigo-600 dark:text-indigo-400")} />
+              <item.icon size={18} className={cn(isActive && "text-[#E04D1B]")} />
               <span className="text-[10px] mt-1">{item.name}</span>
             </Link>
           );
@@ -254,7 +253,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           className={cn(
             "flex flex-col items-center justify-center flex-1 h-full rounded-xl transition-all",
             isSidebarOpen 
-              ? "text-indigo-600 dark:text-indigo-400 font-bold" 
+              ? "text-[#E04D1B] font-bold" 
               : theme === 'dark' ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800"
           )}
         >

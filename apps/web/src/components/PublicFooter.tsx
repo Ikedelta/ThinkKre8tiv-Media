@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Printer, MapPin, Phone, Mail, MessageCircle, Clock, ChevronRight } from 'lucide-react';
+import { siteInfo } from '@/data/content';
 
 const exploreLinks = [
   { label: 'Services', href: '/services' },
@@ -49,18 +50,18 @@ export default function PublicFooter() {
             <ul className="space-y-3.5 text-sm text-muted-foreground">
               <li className="flex items-start gap-2.5">
                 <MapPin size={15} className="mt-0.5 text-foreground shrink-0" />
-                <span>Osu Oxford Street, Accra, Ghana</span>
+                <span>{siteInfo.contact.address}</span>
               </li>
               <li>
-                <a href="tel:+233245559000" className="flex items-center gap-2.5 hover:text-foreground transition-colors">
+                <a href={`tel:${siteInfo.contact.phone}`} className="flex items-center gap-2.5 hover:text-foreground transition-colors">
                   <Phone size={15} className="text-foreground shrink-0" />
-                  <span>+233 24 555 9000</span>
+                  <span>{siteInfo.contact.phone}</span>
                 </a>
               </li>
               <li>
-                <a href="mailto:hello@thinkkre8tive.com" className="flex items-center gap-2.5 hover:text-foreground transition-colors">
+                <a href={`mailto:${siteInfo.contact.email}`} className="flex items-center gap-2.5 hover:text-foreground transition-colors">
                   <Mail size={15} className="text-foreground shrink-0" />
-                  <span>hello@thinkkre8tive.com</span>
+                  <span>{siteInfo.contact.email}</span>
                 </a>
               </li>
               <li>

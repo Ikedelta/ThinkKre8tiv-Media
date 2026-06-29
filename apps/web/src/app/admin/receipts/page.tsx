@@ -1,105 +1,128 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  Plus,
-  Search,
-  X,
-  Download,
-  Printer,
-  TrendingUp,
-  AlertCircle,
-  FileText,
-  CheckCircle2,
-  XCircle,
-  Clock,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Search, ChevronDown, Eye, Download, Trash2, Plus, Receipt as ReceiptIcon, X, CheckCircle2, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-
-interface Receipt {
-  id: string;
-  receipt_number: string;
-  invoice_id: string;
-  invoice_number: string;
-  customer_id: string;
-  customer_name: string;
-  customer_email: string;
-  amount: number;
-  payment_method: string;
-  payment_date: string;
-  notes: string;
-  approval_status: string;
-  created_at: string;
-}
 
 interface Invoice {
   id: string;
   invoice_number: string;
-  customer_id: string;
   customer_name: string;
-  balance_due: number;
+  customer_email: string;
   total_amount: number;
+  created_at: string;
+  status: string;
+  approval_status: string;
 }
 
-const methodConfig: Record<string, { label: string; color: string }> = {
-  bank_transfer: { label: 'Bank Transfer', color: 'bg-blue-100 text-blue-700' },
-  cash: { label: 'Cash', color: 'bg-green-100 text-green-700' },
-  card: { label: 'Card', color: 'bg-purple-100 text-purple-700' },
-  mobile: { label: 'Mobile Money', color: 'bg-teal-100 text-teal-700' },
-  cheque: { label: 'Cheque', color: 'bg-orange-100 text-orange-700' },
-};
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+}
 
-export default function ReceiptsPage() {
+export default function BillingAndReceiptsPage() {
+  const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
-  const [showForm, setShowForm] = useState(false);
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState('');
-  const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
-  const [amount, setAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
-  const [paymentDate, setPaymentDate] = useState('');
-  const [notes, setNotes] = useState('');
   const queryClient = useQueryClient();
 
-  const { data: receipts = [], isLoading } = useQuery<Receipt[]>({
-    queryKey: ['receipts'],
-    queryFn: async () => {
-      const res = await fetch('/api/receipts');
-      if (!res.ok) throw new Error('Failed');
-      return res.json();
-    },
-  });
+  // Unified Modal states
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+  const [generateType, setGenerateType] = useState<'invoice' | 'receipt'>('invoice');
+  const [viewDocId, setViewDocId] = useState<string | null>(null);
 
-  const { data: receiptDetails, isLoading: isLoadingDetails } = useQuery<any>({
-    queryKey: ['receipt-details', selectedReceiptId],
-    queryFn: async () => {
-      if (!selectedReceiptId) return null;
-      const res = await fetch(`/api/receipts?id=${selectedReceiptId}`);
-      if (!res.ok) throw new Error('Failed');
-      return res.json();
-    },
-    enabled: !!selectedReceiptId,
-  });
+  // Form states
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [lineItems, setLineItems] = useState([{ id: '1', description: '', quantity: 1, unit_price: 0 }]);
 
-  const { data: invoices = [] } = useQuery<Invoice[]>({
+  // Calculations
+  const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+  const vatRate = 0.15; // 15% VAT
+  const vatAmount = subtotal * vatRate;
+  const grandTotal = subtotal + vatAmount;
+
+  useEffect(() => setMounted(true), []);
+
+  const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
     queryKey: ['invoices'],
     queryFn: async () => {
       const res = await fetch('/api/invoices');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
+    enabled: mounted,
   });
 
-  const unpaidInvoices = invoices.filter((i) => Number(i.balance_due) > 0);
-  const selectedInvoice = invoices.find((i) => i.id === selectedInvoiceId);
+
+  const { data: viewedDoc } = useQuery({
+    queryKey: ['invoice', viewDocId],
+    queryFn: async () => {
+      if (!viewDocId) return null;
+      const res = await fetch(`/api/invoices?id=${viewDocId}`);
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    enabled: !!viewDocId,
+  });
+
+  const resetForm = () => {
+    setIsGenerateOpen(false);
+    setCustomerName('');
+    setCustomerEmail('');
+    setCustomerPhone('');
+    setDueDate('');
+    setLineItems([{ id: '1', description: '', quantity: 1, unit_price: 0 }]);
+  };
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const isInvoice = generateType === 'invoice';
+      const endpoint = isInvoice ? '/api/invoices' : '/api/receipts';
+      
+      const payload = {
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
+        invoice_number: `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        subtotal: subtotal,
+        total_amount: grandTotal,
+        amount: grandTotal, // for receipt
+        vat_rate: vatRate * 100,
+        vat_amount: vatAmount,
+        due_date: dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        notes: isInvoice ? '' : 'Direct receipt generated',
+        items: lineItems.map(item => ({
+          description: item.description,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total_price: item.quantity * item.unit_price
+        }))
+      };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      toast.success(`${generateType === 'invoice' ? 'Invoice' : 'Receipt'} created successfully!`);
+      resetForm();
+    },
+    onError: () => toast.error(`Failed to create ${generateType}`),
+  });
 
   const approveMutation = useMutation({
     mutationFn: async ({ id, approval_status }: { id: string; approval_status: string }) => {
-      const res = await fetch('/api/receipts', {
+      const res = await fetch('/api/invoices', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, approval_status, approved_by: 'Admin' }),
@@ -107,583 +130,603 @@ export default function ReceiptsPage() {
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
-    onSuccess: (_, vars) => {
-      queryClient.invalidateQueries({ queryKey: ['receipts'] });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      toast.success(
-        vars.approval_status === 'approved'
-          ? '✅ Receipt approved & invoice updated!'
-          : 'Receipt rejected'
-      );
+      toast.success('Invoice approved!');
     },
     onError: () => toast.error('Failed to update approval'),
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (data: object) => {
-      const res = await fetch('/api/receipts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/invoices?id=${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['receipts'] });
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      toast.success('Payment recorded — pending admin approval');
-      closeForm();
+      setViewDocId(null);
+      toast.success('Document deleted');
     },
-    onError: () => toast.error('Failed to create receipt'),
+    onError: () => toast.error('Failed to delete document'),
   });
 
-  const closeForm = () => {
-    setShowForm(false);
-    setSelectedInvoiceId('');
-    setAmount('');
-    setPaymentMethod('bank_transfer');
-    setPaymentDate('');
-    setNotes('');
-  };
+  if (!mounted) return null;
 
-  const handleInvoiceChange = (invoiceId: string) => {
-    setSelectedInvoiceId(invoiceId);
-    const inv = invoices.find((i) => i.id === invoiceId);
-    if (inv) setAmount(String(inv.balance_due));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedInvoiceId || !amount) {
-      toast.error('Select invoice and enter amount');
-      return;
-    }
-    if (!selectedInvoice) return;
-    const payload: Record<string, unknown> = {
-      invoice_id: selectedInvoiceId,
-      customer_id: selectedInvoice.customer_id,
-      amount: parseFloat(amount),
-      payment_method: paymentMethod,
-      notes,
-    };
-    if (paymentDate) payload.payment_date = paymentDate;
-    createMutation.mutate(payload);
-  };
-
-  const filtered = receipts.filter(
-    (r) =>
-      r.receipt_number.toLowerCase().includes(search.toLowerCase()) ||
-      r.customer_name.toLowerCase().includes(search.toLowerCase()) ||
-      r.invoice_number.toLowerCase().includes(search.toLowerCase())
+  const filtered = invoices.filter(
+    (i) =>
+      i.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
+      i.customer_name.toLowerCase().includes(search.toLowerCase()) ||
+      (i.customer_email && i.customer_email.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const pendingReceipts = receipts.filter((r) => r.approval_status === 'pending');
+  const totalDocuments = invoices.length;
+  const estimatedRevenue = invoices.reduce((s, i) => s + Number(i.total_amount), 0);
+  const pendingApproval = invoices.filter(i => i.approval_status === 'pending').length;
+  const paidInvoices = invoices.filter(i => i.status === 'paid').length;
 
-  const totalReceived = receipts.reduce((sum, r) => sum + Number(r.amount), 0);
-  const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
+  const fmt = (n: number) => `GH₵${Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-[#001F3F] tracking-tight">Receipts</h1>
-          <p className="text-slate-500 mt-0.5 text-sm font-medium">
-            Record payments and generate receipts
-          </p>
+    <div className="min-h-full bg-slate-50 dark:bg-[#06080D] text-slate-900 dark:text-slate-300 font-sans p-6 lg:p-10 selection:bg-[#FF5722]/30">
+      
+      {/* Hide main UI when printing */}
+      <div className="print:hidden">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Invoices & Receipts</h1>
+            <p className="text-slate-500 text-sm font-medium">
+              Approve before sending — drafts are held until admin approves
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => { setGenerateType('invoice'); setIsGenerateOpen(true); }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#FF5722] hover:bg-[#FF7043] text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-[#FF5722]/20"
+            >
+              <Plus size={16} strokeWidth={3} /> Invoice
+            </button>
+            <button 
+              onClick={() => { setGenerateType('receipt'); setIsGenerateOpen(true); }}
+              className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-transparent border border-slate-200 dark:border-[#FF5722]/40 hover:border-[#FF5722] text-[#FF5722] text-sm font-bold rounded-lg transition-colors shadow-sm dark:shadow-none"
+            >
+              <ReceiptIcon size={16} /> Receipt
+            </button>
+          </div>
         </div>
-        <Button
-          onClick={() => setShowForm(true)}
-          className="bg-[#001F3F] hover:bg-[#002a52] font-bold w-full sm:w-auto"
-        >
-          <Plus size={16} className="mr-2" /> Record Payment
-        </Button>
-      </div>
 
-      {/* Pending alert */}
-      {pendingReceipts.length > 0 && (
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-4">
-          <Clock size={18} className="text-amber-500 flex-shrink-0" />
-          <p className="text-sm font-bold text-amber-800 flex-1">
-            {pendingReceipts.length} receipt{pendingReceipts.length !== 1 ? 's' : ''} awaiting admin
-            approval
-          </p>
-          <p className="text-xs text-amber-600 font-medium">Approve to update invoice balances</p>
+        {/* 4 Metric Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Documents</p>
+            <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{totalDocuments}</p>
+          </div>
+          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Estimated Revenue</p>
+            <p className="text-3xl font-black text-[#FF5722]">{fmt(estimatedRevenue)}</p>
+          </div>
+          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Pending Approval</p>
+            <p className="text-3xl font-black text-amber-500">{pendingApproval}</p>
+          </div>
+          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Paid Invoices</p>
+            <p className="text-3xl font-black text-emerald-600 dark:text-emerald-500">{paidInvoices}</p>
+          </div>
         </div>
-      )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
-                <FileText size={18} />
-              </div>
-            </div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-              Total Receipts
-            </p>
-            <p className="text-2xl font-black text-[#001F3F]">{receipts.length}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-green-50 text-green-600">
-                <TrendingUp size={18} />
-              </div>
-            </div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-              Total Received
-            </p>
-            <p className="text-2xl font-black text-green-600">{fmt(totalReceived)}</p>
-          </CardContent>
-        </Card>
-        <Card className="border-none shadow-sm col-span-2 lg:col-span-1">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 rounded-xl bg-orange-50 text-orange-600">
-                <AlertCircle size={18} />
-              </div>
-            </div>
-            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-              Pending Invoices
-            </p>
-            <p className="text-2xl font-black text-orange-500">{unpaidInvoices.length}</p>
-          </CardContent>
-        </Card>
-      </div>
+        {/* Search */}
+        <div className="flex flex-col lg:flex-row gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={18} />
+            <input
+              type="text"
+              placeholder="Search by customer, email, or invoice number..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-slate-800/80 rounded-xl text-sm text-slate-900 dark:text-slate-200 focus:border-[#FF5722] focus:ring-1 focus:ring-[#FF5722] dark:focus:border-[#FF5722]/50 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-all shadow-sm dark:shadow-none"
+            />
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Filter:</span>
+            <button className="flex items-center justify-between min-w-[130px] px-4 py-3 bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 transition-colors shadow-sm dark:shadow-none">
+              All Types <ChevronDown size={14} className="text-slate-400 dark:text-slate-500" />
+            </button>
+            <button className="flex items-center justify-between min-w-[130px] px-4 py-3 bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 transition-colors shadow-sm dark:shadow-none">
+              All Statuses <ChevronDown size={14} className="text-slate-400 dark:text-slate-500" />
+            </button>
+          </div>
+        </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-        <input
-          type="text"
-          placeholder="Search receipts..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-        />
-      </div>
-
-      {/* Desktop Table */}
-      <Card className="border border-slate-100 shadow-none overflow-hidden hidden md:block">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
-            <thead className="bg-slate-50">
-              <tr>
-                {[
-                  'Receipt #',
-                  'Invoice #',
-                  'Customer',
-                  'Amount',
-                  'Method',
-                  'Date',
-                  'Approval',
-                  '',
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="px-4 py-3 text-left text-[10px] font-bold text-slate-400 uppercase tracking-widest"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {isLoading ? (
-                Array(4)
-                  .fill(0)
-                  .map((_, i) => (
-                    <tr key={i}>
-                      <td colSpan={7} className="px-4 py-4">
-                        <div className="h-4 bg-slate-100 rounded" />
-                      </td>
-                    </tr>
-                  ))
-              ) : filtered.length === 0 ? (
+        {/* Data Table */}
+        <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800/50 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
+          <div className="overflow-x-auto">
+            <table className="w-full whitespace-nowrap text-sm text-left">
+              <thead className="border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-[#080B12]">
                 <tr>
-                  <td colSpan={7} className="px-4 py-16 text-center text-slate-400 font-bold">
-                    No receipts found
-                  </td>
+                  <th className="px-6 py-4">Document #</th>
+                  <th className="px-6 py-4">Customer</th>
+                  <th className="px-6 py-4">Amount</th>
+                  <th className="px-6 py-4 flex items-center gap-1">Date <ChevronDown size={12} /></th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Approval</th>
+                  <th className="px-6 py-4">Actions</th>
                 </tr>
-              ) : (
-                filtered.map((r) => {
-                  const isPending = r.approval_status === 'pending';
-                  const isApproved = r.approval_status === 'approved';
-                  const dateStr = r.payment_date ? r.payment_date.split('T')[0] : '—';
-                  const methodCfg = methodConfig[r.payment_method] || {
-                    label: r.payment_method,
-                    color: 'bg-slate-100 text-slate-700',
-                  };
-                  return (
-                    <tr
-                      key={r.id}
-                      className={cn(
-                        'hover:bg-slate-50/50 transition-colors',
-                        isPending && 'bg-amber-50/20'
-                      )}
-                    >
-                      <td className="px-4 py-3 font-bold text-green-600 text-sm">
-                        {r.receipt_number}
-                      </td>
-                      <td className="px-4 py-3 font-bold text-blue-600 text-sm">
-                        {r.invoice_number}
-                      </td>
-                      <td className="px-4 py-3">
-                        <p className="font-bold text-slate-900 text-sm">{r.customer_name}</p>
-                        <p className="text-xs text-slate-500">{r.customer_email}</p>
-                      </td>
-                      <td className="px-4 py-3 font-black text-[#001F3F] text-sm">
-                        {fmt(r.amount)}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Badge
-                          className={`border-none text-[10px] font-bold uppercase tracking-wider ${methodCfg.color}`}
-                        >
-                          {methodCfg.label}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-slate-500 text-sm font-medium">{dateStr}</td>
-                      <td className="px-4 py-3">
-                        {isPending ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                            <Clock size={9} /> Pending
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">Loading documents...</td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">No documents found</td>
+                  </tr>
+                ) : (
+                  filtered.map((doc) => {
+                    const dateStr = doc.created_at ? doc.created_at.split('T')[0] : '—';
+                    const isPending = doc.approval_status === 'pending';
+                    
+                    return (
+                      <tr key={doc.id} className="hover:bg-slate-50 dark:hover:bg-[#0D121F] transition-colors group">
+                        <td className="px-6 py-5">
+                          <div className="font-bold text-[#FF5722] mb-1">{doc.invoice_number}</div>
+                          <div className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                            <FileText size={10} /> Invoice
+                          </div>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="font-bold text-slate-900 dark:text-slate-200 mb-0.5">{doc.customer_name}</div>
+                          <div className="text-xs text-slate-500">{doc.customer_email || '—'}</div>
+                        </td>
+                        <td className="px-6 py-5 font-bold text-slate-900 dark:text-slate-200">
+                          {fmt(doc.total_amount)}
+                        </td>
+                        <td className="px-6 py-5 text-slate-500 dark:text-slate-400 font-medium">
+                          {dateStr.replace(/-/g, '/')}
+                        </td>
+                        <td className="px-6 py-5">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#1A2235] text-slate-600 dark:text-slate-300 text-[10px] font-bold tracking-wider uppercase border border-slate-200 dark:border-none">
+                            {doc.status || 'Draft'}
                           </span>
-                        ) : isApproved ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                            <CheckCircle2 size={9} /> Approved
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
-                            <XCircle size={9} /> Rejected
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-0.5">
-                          {isPending && (
-                            <>
-                              <button
-                                onClick={() =>
-                                  approveMutation.mutate({ id: r.id, approval_status: 'approved' })
-                                }
-                                className="p-1.5 hover:bg-green-50 text-slate-300 hover:text-green-600 rounded-lg transition-colors"
-                                title="Approve"
-                              >
-                                <CheckCircle2 size={15} />
-                              </button>
-                              <button
-                                onClick={() =>
-                                  approveMutation.mutate({ id: r.id, approval_status: 'rejected' })
-                                }
-                                className="p-1.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-lg transition-colors"
-                                title="Reject"
-                              >
-                                <XCircle size={15} />
-                              </button>
-                            </>
+                        </td>
+                        <td className="px-6 py-5">
+                          {isPending ? (
+                            <span className="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-500 text-xs font-bold">
+                              <span className="w-1.5 h-1.5 rounded-full border border-amber-600 dark:border-amber-500" /> Pending
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-500 text-xs font-bold">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" /> Approved
+                            </span>
                           )}
-                          <button
-                            onClick={() => setSelectedReceiptId(r.id)}
-                            className="p-1.5 hover:bg-blue-50 text-slate-300 hover:text-blue-600 rounded-lg transition-colors"
-                            title="Print/View"
-                          >
-                            <Printer size={14} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="flex items-center gap-3">
+                            {isPending && (
+                              <button
+                                onClick={() => approveMutation.mutate({ id: doc.id, approval_status: 'approved' })}
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white text-amber-600 dark:text-amber-500 border border-amber-200 dark:border-amber-500/20 rounded-full text-xs font-bold transition-all"
+                              >
+                                <CheckCircle2 size={12} /> Approve
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => setViewDocId(doc.id)}
+                              className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors"
+                            >
+                              <Eye size={14} /> View
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setViewDocId(doc.id);
+                                setTimeout(() => window.print(), 500);
+                              }}
+                              className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-bold transition-colors"
+                            >
+                              <Download size={14} /> PDF
+                            </button>
+                            <button 
+                              onClick={() => {
+                                if (confirm('Are you sure you want to delete this document?')) {
+                                  deleteMutation.mutate(doc.id);
+                                }
+                              }}
+                              className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white rounded-full transition-all border border-rose-100 dark:border-rose-500/20"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </Card>
-
-      {/* Mobile Cards */}
-      <div className="md:hidden space-y-3">
-        {isLoading ? (
-          Array(3)
-            .fill(0)
-            .map((_, i) => <div key={i} className="h-24 bg-slate-100 rounded-2xl" />)
-        ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 font-bold">No receipts found</div>
-        ) : (
-          filtered.map((r) => {
-            const dateStr = r.payment_date ? r.payment_date.split('T')[0] : '—';
-            const methodCfg = methodConfig[r.payment_method] || {
-              label: r.payment_method,
-              color: 'bg-slate-100 text-slate-700',
-            };
-            return (
-              <Card
-                key={r.id}
-                onClick={() => setSelectedReceiptId(r.id)}
-                className="border border-slate-100 shadow-sm cursor-pointer hover:border-blue-200 transition-all"
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <p className="font-bold text-green-600 text-sm">{r.receipt_number}</p>
-                      <p className="text-xs text-blue-600 font-bold">{r.invoice_number}</p>
-                      <p className="font-bold text-slate-900 text-sm mt-0.5">{r.customer_name}</p>
-                    </div>
-                    <div className="text-right flex-shrink-0 ml-3">
-                      <p className="font-black text-[#001F3F] text-base">{fmt(r.amount)}</p>
-                      <Badge
-                        className={`border-none text-[10px] font-bold uppercase tracking-wider mt-1 ${methodCfg.color}`}
-                      >
-                        {methodCfg.label}
-                      </Badge>
-                      <p className="text-xs text-slate-400 mt-1">{dateStr}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
       </div>
 
-      {/* Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-            <div className="flex items-center justify-between p-6 border-b border-slate-100">
-              <h2 className="font-montserrat font-black text-lg text-[#001F3F]">Record Payment</h2>
-              <button
-                onClick={closeForm}
-                className="p-2 hover:bg-slate-100 rounded-lg text-slate-400"
-              >
+      {/* --- Modals Below (Hidden when not active) */}
+      {/* Generate Invoice/Receipt Modal */}
+      {isGenerateOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden animate-fade-in">
+          <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800 w-full max-w-6xl rounded-2xl shadow-2xl flex flex-col max-h-[95vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-6">
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <ReceiptIcon className="text-[#FF5722]" size={24} />
+                  Generate {generateType === 'invoice' ? 'Invoice' : 'Receipt'}
+                </h2>
+                <div className="flex items-center bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-200 dark:border-slate-700/50">
+                  <button 
+                    onClick={() => setGenerateType('invoice')}
+                    className={cn("px-4 py-1.5 text-xs font-bold rounded-full transition-all", generateType === 'invoice' ? "bg-[#FF5722] text-white shadow-sm" : "text-slate-500 hover:text-slate-900 dark:hover:text-white")}
+                  >
+                    Invoice
+                  </button>
+                  <button 
+                    onClick={() => setGenerateType('receipt')}
+                    className={cn("px-4 py-1.5 text-xs font-bold rounded-full transition-all", generateType === 'receipt' ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm" : "text-slate-500 hover:text-slate-900 dark:hover:text-white")}
+                  >
+                    Receipt
+                  </button>
+                </div>
+                <p className="text-xs font-medium text-slate-400 hidden sm:block">• Requires admin approval before sending</p>
+              </div>
+              <button onClick={resetForm} className="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
-                  Invoice *
-                </label>
-                <select
-                  required
-                  value={selectedInvoiceId}
-                  onChange={(e) => handleInvoiceChange(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
-                >
-                  <option value="">Select an invoice...</option>
-                  {unpaidInvoices.map((i) => (
-                    <option key={i.id} value={i.id}>
-                      {i.invoice_number} — {i.customer_name} (Bal: {fmt(i.balance_due)})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {selectedInvoice && (
-                <div className="bg-blue-50 rounded-xl p-3 text-sm">
-                  <p className="text-blue-800 font-bold">{selectedInvoice.customer_name}</p>
-                  <p className="text-blue-600">
-                    Balance Due: <strong>{fmt(selectedInvoice.balance_due)}</strong>
-                  </p>
+            
+            <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+              {/* Left Column: Form */}
+              <div className="w-full md:w-[55%] p-6 overflow-y-auto space-y-8 bg-white dark:bg-[#0B0F19]">
+                
+                {/* Quick Fill Section */}
+                <div className="bg-orange-50/50 dark:bg-[#FF5722]/5 border border-orange-100 dark:border-[#FF5722]/20 rounded-xl p-5">
+                  <h3 className="text-[10px] font-extrabold text-[#FF5722] uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <Search size={12} /> Quick Fill From Requests Or Customers
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Linked Service Request</label>
+                      <select className="w-full bg-white dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none">
+                        <option>-- Don't link request --</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Existing Customer Profile</label>
+                      <select className="w-full bg-white dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none">
+                        <option>-- Don't link profile --</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-              )}
 
-              <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
-                  Amount (GH₵) *
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={amount}
-                  min={1}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="0"
-                />
+                {/* Client Information */}
+                <div>
+                  <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+                    Client Information
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Customer Name <span className="text-red-500">*</span></label>
+                      <input 
+                        required
+                        type="text"
+                        placeholder="e.g. John Doe"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Email Address <span className="text-red-500">*</span></label>
+                      <input 
+                        required
+                        type="email"
+                        placeholder="e.g. client@email.com"
+                        value={customerEmail}
+                        onChange={(e) => setCustomerEmail(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Phone Number</label>
+                      <input 
+                        type="text"
+                        placeholder="e.g. +233 50 000 0000"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Payment Due Date</label>
+                      <input 
+                        type="date"
+                        value={dueDate}
+                        onChange={(e) => setDueDate(e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Line Items */}
+                <div>
+                  <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">
+                      Line Items
+                    </h3>
+                    <button 
+                      onClick={() => setLineItems([...lineItems, { id: Math.random().toString(), description: '', quantity: 1, unit_price: 0 }])}
+                      className="text-xs font-bold text-[#FF5722] hover:text-[#FF7043] flex items-center gap-1"
+                    >
+                      <Plus size={14} /> Add Item
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {lineItems.map((item, index) => (
+                      <div key={item.id} className="flex gap-3 items-start">
+                        <div className="flex-1">
+                          <input 
+                            type="text"
+                            placeholder="Description"
+                            value={item.description}
+                            onChange={(e) => {
+                              const newItems = [...lineItems];
+                              newItems[index].description = e.target.value;
+                              setLineItems(newItems);
+                            }}
+                            className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                          />
+                        </div>
+                        <div className="w-20">
+                          <input 
+                            type="number"
+                            min="1"
+                            placeholder="Qty"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const newItems = [...lineItems];
+                              newItems[index].quantity = parseInt(e.target.value) || 0;
+                              setLineItems(newItems);
+                            }}
+                            className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                          />
+                        </div>
+                        <div className="w-32">
+                          <input 
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Price"
+                            value={item.unit_price}
+                            onChange={(e) => {
+                              const newItems = [...lineItems];
+                              newItems[index].unit_price = parseFloat(e.target.value) || 0;
+                              setLineItems(newItems);
+                            }}
+                            className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                          />
+                        </div>
+                        <button 
+                          onClick={() => setLineItems(lineItems.filter((_, i) => i !== index))}
+                          disabled={lineItems.length === 1}
+                          className="p-2 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30 disabled:hover:text-slate-400 mt-1"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
 
-              <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
-                  Payment Method
-                </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
-                >
-                  {Object.entries(methodConfig).map(([val, { label }]) => (
-                    <option key={val} value={val}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {/* Right Column: Preview */}
+              <div className="w-full md:w-[45%] p-6 overflow-y-auto bg-slate-50/50 dark:bg-[#06080D]/50 border-l border-slate-100 dark:border-slate-800/60 relative flex justify-center">
+                <div className="w-full max-w-sm">
+                  <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-4">
+                    Real-Time Sheet Preview
+                  </h3>
+                  
+                  {/* The Preview Sheet */}
+                  <div className="bg-white border border-slate-200 rounded-2xl shadow-xl p-6 relative overflow-hidden transition-all duration-300">
+                    <div className="absolute top-6 right-6 bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
+                      Draft Preview
+                    </div>
+                    
+                    <div className="mb-8">
+                      <div className="w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-xl mb-2">
+                        TK
+                      </div>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ThinkKre8tive</p>
+                    </div>
 
-              <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
-                  Payment Date
-                </label>
-                <input
-                  type="datetime-local"
-                  value={paymentDate}
-                  onChange={(e) => setPaymentDate(e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-              </div>
+                    <div className="flex justify-between items-start mb-8 text-xs">
+                      <div>
+                        <p className="font-bold text-slate-400 uppercase tracking-wider mb-1 text-[9px]">Bill To</p>
+                        <p className="font-bold text-slate-800">{customerName || 'Client Name'}</p>
+                        <p className="text-slate-500">{customerEmail || 'email@example.com'}</p>
+                        <p className="text-slate-500">{customerPhone || '+233 ...'}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-slate-400 uppercase tracking-wider mb-1 text-[9px]">Details</p>
+                        <p className="text-slate-600"><span className="text-slate-400">#</span> <span className="text-[#FF5722] font-bold">INV-PREVIEW</span></p>
+                        <p className="text-slate-500">Issued: {new Date().toLocaleDateString()}</p>
+                        <p className="text-slate-500">Due: {dueDate ? new Date(dueDate).toLocaleDateString() : 'Upon Receipt'}</p>
+                      </div>
+                    </div>
 
-              <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
-                  Notes
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  rows={2}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none"
-                  placeholder="Payment notes..."
-                />
-              </div>
+                    <table className="w-full mb-6">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-wider text-left">
+                          <th className="pb-2">Description</th>
+                          <th className="pb-2 text-right">Qty</th>
+                          <th className="pb-2 text-right">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody className="text-xs">
+                        {lineItems.map((item, i) => (
+                          <tr key={item.id} className="border-b border-slate-50 last:border-0 text-slate-600">
+                            <td className="py-2 pr-2 truncate max-w-[120px]">{item.description || <span className="text-slate-300 italic">New Line Item</span>}</td>
+                            <td className="py-2 text-right">{item.quantity}</td>
+                            <td className="py-2 text-right font-medium">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
 
-              <div className="flex gap-3 pt-2">
-                <Button type="button" variant="outline" onClick={closeForm} className="flex-1">
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 bg-green-600 hover:bg-green-700 font-bold"
-                  disabled={createMutation.isPending}
-                >
-                  {createMutation.isPending ? 'Processing...' : 'Record Payment'}
-                </Button>
+                    <div className="space-y-1.5 text-xs border-t border-slate-100 pt-4">
+                      <div className="flex justify-between text-slate-500">
+                        <span>Subtotal:</span>
+                        <span>₵{subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-500">
+                        <span>VAT (15%):</span>
+                        <span>₵{vatAmount.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between font-black text-slate-800 text-sm pt-2 mt-2 border-t border-slate-100">
+                        <span>Total:</span>
+                        <span>₵{grandTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-      {selectedReceiptId && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto print:p-0 print:bg-white print:relative print:z-0 print:h-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden print:shadow-none print:rounded-none print:w-full">
-            {/* Modal header (hidden in print) */}
-            <div className="flex items-center justify-between p-5 border-b border-slate-100 print:hidden bg-slate-50">
-              <h2 className="font-extrabold text-base text-[#001F3F]">Receipt Details</h2>
-              <button
-                onClick={() => setSelectedReceiptId(null)}
-                className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400"
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] flex justify-end gap-3">
+              <button 
+                type="button" 
+                onClick={resetForm} 
+                className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
-                <X size={18} />
+                Cancel
+              </button>
+              <button 
+                onClick={() => createMutation.mutate()}
+                disabled={createMutation.isPending || !customerName.trim()} 
+                className="px-6 py-2.5 bg-[#FF5722] hover:bg-[#FF7043] text-white rounded-lg font-bold transition-colors disabled:opacity-50"
+              >
+                {createMutation.isPending ? 'Saving...' : `Save ${generateType === 'invoice' ? 'Invoice' : 'Receipt'} (Pending Approval)`}
               </button>
             </div>
-
-            {/* Print Area */}
-            <div className="p-8 print:p-0 space-y-6 text-slate-800">
-              {isLoadingDetails ? (
-                <div className="py-20 text-center text-slate-400 font-semibold">Loading receipt details...</div>
-              ) : !receiptDetails ? (
-                <div className="py-20 text-center text-slate-400 font-semibold">Receipt not found</div>
-              ) : (
-                <>
-                  {/* Top Header */}
-                  <div className="flex justify-between items-start border-b border-slate-200 pb-5">
-                    <div>
-                      <h3 className="text-lg font-extrabold text-[#001F3F] tracking-tight">THINK KRE8TIVE</h3>
-                      <p className="text-[10px] text-slate-500 font-bold mt-0.5 uppercase tracking-wider">Premium Print & Branding Solutions</p>
-                      <p className="text-[10px] text-slate-400">Accra, Ghana · +233 20 000 0000</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider mb-1 print:border print:border-green-200">
-                        Payment Receipt
-                      </span>
-                      <p className="text-base font-black text-green-600">{receiptDetails.receipt_number}</p>
-                      <p className="text-[10px] text-slate-400">Date: {receiptDetails.payment_date?.split('T')[0] || receiptDetails.created_at?.split('T')[0]}</p>
-                    </div>
-                  </div>
-
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-2 gap-4 border-b border-slate-100 pb-5 text-sm">
-                    <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Received From</p>
-                      <p className="font-extrabold text-[#001F3F]">{receiptDetails.customer_name}</p>
-                      {receiptDetails.customer_company && (
-                        <p className="text-xs text-slate-500 font-semibold">{receiptDetails.customer_company}</p>
-                      )}
-                      {receiptDetails.customer_email && (
-                        <p className="text-xs text-slate-400">{receiptDetails.customer_email}</p>
-                      )}
-                      {receiptDetails.customer_phone && (
-                        <p className="text-xs text-slate-400">{receiptDetails.customer_phone}</p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Payment Method</p>
-                      <Badge className="border-none font-bold uppercase text-[9px] tracking-wider mb-2 shadow-none px-2 py-0.5 rounded-full bg-slate-100 text-slate-800">
-                        {receiptDetails.payment_method?.replace('_', ' ')}
-                      </Badge>
-                      <p className="text-xs text-slate-400">Linked Invoice: <strong className="text-blue-600">{receiptDetails.invoice_number}</strong></p>
-                    </div>
-                  </div>
-
-                  {/* Payment Value Display */}
-                  <div className="bg-green-50/50 rounded-2xl p-5 border border-green-100 text-center space-y-1">
-                    <p className="text-[10px] font-black text-green-700 uppercase tracking-widest">Amount Received</p>
-                    <p className="text-3xl font-black text-green-600 print:text-green-700 border-b-4 border-double border-green-200 pb-2 inline-block px-8">{fmt(receiptDetails.amount)}</p>
-                  </div>
-
-                  {/* Summary Totals */}
-                  <div className="space-y-2.5 text-sm border-b border-slate-100 pb-5">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500 font-medium">Invoice Total</span>
-                      <span className="font-bold text-slate-700">{fmt(receiptDetails.invoice_total_amount)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500 font-medium">Invoice Amount Paid</span>
-                      <span className="font-bold text-green-600">{fmt(receiptDetails.invoice_amount_paid)}</span>
-                    </div>
-                    <div className="flex justify-between font-black border-t border-slate-200 pt-2 text-slate-800">
-                      <span>Remaining Balance Due</span>
-                      <span className={Number(receiptDetails.invoice_balance_due) > 0 ? 'text-red-500' : 'text-green-600'}>
-                        {fmt(receiptDetails.invoice_balance_due)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Signature / Stamp space for printing */}
-                  <div className="hidden print:grid grid-cols-2 gap-8 pt-10 text-xs">
-                    <div className="text-center pt-8 border-t border-slate-200 w-48 mx-auto">
-                      <p className="font-bold text-slate-600">Authorized Signature</p>
-                    </div>
-                    <div className="text-center pt-8 border-t border-slate-200 w-48 mx-auto">
-                      <p className="font-bold text-slate-600">Company Stamp</p>
-                    </div>
-                  </div>
-
-                  {/* Notes */}
-                  {receiptDetails.notes && (
-                    <div className="text-xs text-slate-400 pt-2">
-                      <p className="font-bold text-slate-500 uppercase tracking-wider mb-1">Notes</p>
-                      <p className="font-medium leading-relaxed">{receiptDetails.notes}</p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-
-            {/* Actions (hidden in print) */}
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-slate-100 print:hidden bg-slate-50">
-              <Button variant="outline" onClick={() => setSelectedReceiptId(null)} className="font-semibold">
-                Close
-              </Button>
-              <Button onClick={() => window.print()} className="bg-green-600 hover:bg-green-700 font-bold px-6">
-                Print Receipt
-              </Button>
-            </div>
+            
           </div>
         </div>
       )}
+
+      {/* View/Print Document Modal */}
+      {viewDocId && viewedDoc && (
+        <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-4 animate-fade-in print:bg-white print:p-0 print:absolute print:inset-0">
+          
+          {/* Action buttons (Hidden during print) */}
+          <div className="absolute top-4 right-4 flex gap-2 print:hidden z-50">
+            <button onClick={() => window.print()} className="bg-[#FF5722] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2">
+              <Download size={16} /> Print / Save PDF
+            </button>
+            <button onClick={() => setViewDocId(null)} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-2 rounded-lg shadow-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Actual Document to Print */}
+          <div className="bg-white text-black w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto sm:rounded-xl p-8 sm:p-12 shadow-2xl print:shadow-none print:w-full print:max-w-none print:h-auto print:overflow-visible relative">
+            
+            {/* Header */}
+            <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
+              <div>
+                <h1 className="text-4xl font-black tracking-tighter mb-2">INVOICE</h1>
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{viewedDoc.invoice_number}</p>
+                {viewedDoc.approval_status !== 'approved' && (
+                  <span className="inline-block mt-2 bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold border border-rose-200">
+                    DRAFT (UNAPPROVED)
+                  </span>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-xl font-black">THINK KRE8TIV</p>
+                <p className="text-sm text-slate-600">Accra, Ghana</p>
+                <p className="text-sm text-slate-600">info@thinkkre8tive.com</p>
+              </div>
+            </div>
+
+            {/* Parties */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Billed To</p>
+                <p className="font-bold text-lg">{viewedDoc.customer_name}</p>
+                <p className="text-sm text-slate-600">{viewedDoc.customer_email || 'No email provided'}</p>
+                {viewedDoc.customer_phone && <p className="text-sm text-slate-600">{viewedDoc.customer_phone}</p>}
+              </div>
+              <div className="text-right">
+                <div className="mb-4">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
+                  <p className="font-bold">{viewedDoc.created_at.split('T')[0]}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
+                  <p className="font-black text-2xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Line Items */}
+            <table className="w-full mb-12">
+              <thead className="border-b-2 border-black">
+                <tr>
+                  <th className="py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Description</th>
+                  <th className="py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Qty</th>
+                  <th className="py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {viewedDoc.items && viewedDoc.items.length > 0 ? (
+                  viewedDoc.items.map((item: any) => (
+                    <tr key={item.id}>
+                      <td className="py-4 font-bold">{item.description}</td>
+                      <td className="py-4 text-center">{item.quantity}</td>
+                      <td className="py-4 text-right font-bold">{fmt(item.total_price)}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="py-4 font-bold text-slate-400">Custom Invoice Total</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {/* Totals */}
+            <div className="w-full max-w-sm ml-auto space-y-3">
+              <div className="flex justify-between text-sm">
+                <span className="font-bold text-slate-500 uppercase tracking-wider">Subtotal</span>
+                <span className="font-bold">{fmt(viewedDoc.subtotal)}</span>
+              </div>
+              <div className="flex justify-between items-center border-t-2 border-black pt-3">
+                <span className="font-bold text-sm uppercase tracking-wider">Total</span>
+                <span className="font-black text-2xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</span>
+              </div>
+            </div>
+
+            <div className="mt-20 pt-8 border-t border-slate-200 text-center text-xs text-slate-500">
+              Thank you for choosing Think Kre8tiv! Payment is due upon receipt.
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

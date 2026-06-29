@@ -48,6 +48,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const {
       customer_id,
+      customer_name,
+      customer_email,
+      customer_phone,
       invoice_number,
       subtotal,
       vat_rate,
@@ -59,12 +62,34 @@ export async function POST(request: Request) {
       items,
     } = body;
 
+    let finalCustomerId = customer_id;
+
+    // If a customer_name is provided instead of ID, find or create the customer
+    if (!finalCustomerId && customer_name) {
+      const [existing] = await sql`SELECT id FROM customers WHERE name ILIKE ${customer_name} LIMIT 1`;
+      if (existing) {
+        finalCustomerId = existing.id;
+        // Optionally update email/phone if they were missing, but for now just use existing.
+      } else {
+        const [newCustomer] = await sql`
+          INSERT INTO customers (name, email, phone) 
+          VALUES (${customer_name}, ${customer_email || null}, ${customer_phone || null}) 
+          RETURNING id
+        `;
+        finalCustomerId = newCustomer.id;
+      }
+    }
+
+    if (!finalCustomerId) {
+      return Response.json({ error: 'Customer is required' }, { status: 400 });
+    }
+
     const [invoice] = await sql`
       INSERT INTO invoices (
         customer_id, invoice_number, subtotal, vat_rate, vat_amount,
         discount_amount, total_amount, balance_due, due_date, notes, approval_status
       ) VALUES (
-        ${customer_id}, ${invoice_number}, ${subtotal}, ${vat_rate ?? 15.0}, ${vat_amount},
+        ${finalCustomerId}, ${invoice_number}, ${subtotal}, ${vat_rate ?? 15.0}, ${vat_amount},
         ${discount_amount ?? 0}, ${total_amount}, ${total_amount}, ${due_date}, ${notes ?? null}, 'pending'
       ) RETURNING *
     `;

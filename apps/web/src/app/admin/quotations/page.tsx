@@ -1,12 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Trash2, X, Check, Send } from 'lucide-react';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -17,27 +13,24 @@ interface Quotation {
   customer_email: string;
   quotation_number: string;
   status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'converted';
-  subtotal: number;
-  vat_rate: number;
-  vat_amount: number;
-  discount_amount: number;
-  total_amount: number;
   notes: string;
-  valid_until: string;
   created_at: string;
 }
 
-const statusConfig: Record<string, { label: string; color: string }> = {
-  draft: { label: 'Submitted', color: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-350' },
-  sent: { label: 'Proofing', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-  accepted: { label: 'Printing', color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' },
-  rejected: { label: 'Finishing', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
-  converted: { label: 'Completed', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
+const statusConfig: Record<string, { label: string; dot: string; bg: string }> = {
+  draft: { label: 'New Submission', dot: 'bg-blue-500', bg: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-500 dark:border-blue-500/20' },
+  sent: { label: 'Proofing', dot: 'bg-purple-500', bg: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-500 dark:border-purple-500/20' },
+  accepted: { label: 'Printing', dot: 'bg-yellow-500', bg: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-500 dark:border-yellow-500/20' },
+  rejected: { label: 'Finishing', dot: 'bg-orange-500', bg: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-500 dark:border-orange-500/20' },
+  converted: { label: 'Completed', dot: 'bg-emerald-500', bg: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-500 dark:border-emerald-500/20' },
 };
 
-export default function QuotationsPage() {
+export default function SubmittedFilesPage() {
+  const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
+
+  useEffect(() => setMounted(true), []);
 
   const { data: quotations = [], isLoading } = useQuery<Quotation[]>({
     queryKey: ['quotations'],
@@ -46,6 +39,7 @@ export default function QuotationsPage() {
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
+    enabled: mounted,
   });
 
   const updateStatusMutation = useMutation({
@@ -60,7 +54,7 @@ export default function QuotationsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
-      toast.success('Status updated');
+      toast.success('Production status updated!');
     },
     onError: () => toast.error('Failed to update status'),
   });
@@ -72,10 +66,12 @@ export default function QuotationsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quotations'] });
-      toast.success('Quotation deleted');
+      toast.success('Print job removed');
     },
     onError: () => toast.error('Failed to delete'),
   });
+
+  if (!mounted) return null;
 
   const filtered = quotations.filter(
     (q) =>
@@ -83,162 +79,166 @@ export default function QuotationsPage() {
       q.customer_name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
+  const pendingJobs = quotations.filter(q => q.status !== 'converted').length;
+  const newSubmissions = quotations.filter(q => q.status === 'draft').length;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="min-h-full bg-slate-50 dark:bg-[#06080D] text-slate-900 dark:text-slate-300 font-sans p-6 lg:p-10 selection:bg-indigo-500/30">
+      
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Submitted Print Jobs</h1>
-          <p className="text-slate-500 mt-0.5 text-sm font-medium">
-            Monitor client designs and print calibrations
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Submitted Files & Jobs</h1>
+          <p className="text-slate-500 text-sm font-medium">
+            Manage incoming customer designs and track production stages.
           </p>
         </div>
-        <Link href="/submit">
-          <Button className="bg-[#D22630] hover:bg-[#D22630]/90 font-bold w-full sm:w-auto text-white">
-            <Plus size={16} className="mr-2" /> Submit Print Job
-          </Button>
-        </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        {Object.entries(statusConfig).map(([status, cfg]) => {
-          const count = quotations.filter((q) => q.status === status).length;
-          return (
-            <Card key={status} className="border-none shadow-sm dark:bg-slate-900">
-              <CardContent className="p-4">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-                  {cfg.label}
-                </p>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{count}</p>
-              </CardContent>
-            </Card>
-          );
-        })}
+      {/* Metric Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Submissions</p>
+          <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{quotations.length}</p>
+        </div>
+        <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">New (Awaiting Review)</p>
+          <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{newSubmissions}</p>
+        </div>
+        <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">In Production</p>
+          <p className="text-3xl font-black text-yellow-600 dark:text-yellow-500">{pendingJobs - newSubmissions}</p>
+        </div>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-        <input
-          type="text"
-          placeholder="Search quotations..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm dark:bg-slate-900 dark:border-slate-800"
-        />
+      {/* Search Bar */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-6">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={18} />
+          <input
+            type="text"
+            placeholder="Search by job code or customer name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-slate-800/80 rounded-xl text-sm text-slate-900 dark:text-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:focus:border-indigo-500/50 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 transition-all shadow-sm dark:shadow-none"
+          />
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Filter:</span>
+          <button className="flex items-center justify-between min-w-[150px] px-4 py-3 bg-white dark:bg-[#0A0D14] border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 transition-colors shadow-sm dark:shadow-none">
+            All Stages <ChevronDown size={14} className="text-slate-400 dark:text-slate-500" />
+          </button>
+        </div>
       </div>
 
-      {/* Table / Card List */}
-      <Card className="border-none shadow-sm overflow-hidden hidden md:block dark:bg-slate-900">
+      {/* Data Table */}
+      <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800/50 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px]">
-            <thead className="bg-slate-50 dark:bg-slate-950">
+          <table className="w-full whitespace-nowrap text-sm text-left">
+            <thead className="border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-[#080B12]">
               <tr>
-                {['Job Code', 'Customer', 'Amount', 'Submitted Date', 'Status', 'Actions'].map(
-                  (h) => (
-                    <th
-                      key={h}
-                      className="px-4 py-3 text-left text-[10px] font-black text-slate-500 uppercase tracking-wider"
-                    >
-                      {h}
-                    </th>
-                  )
-                )}
+                <th className="px-6 py-4">Tracking Code</th>
+                <th className="px-6 py-4">Customer Details</th>
+                <th className="px-6 py-4">Product Specs</th>
+                <th className="px-6 py-4">File Name</th>
+                <th className="px-6 py-4">Production Stage</th>
+                <th className="px-6 py-4">Advance Workflow</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50 dark:divide-slate-850">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
               {isLoading ? (
-                Array(5)
-                  .fill(0)
-                  .map((_, i) => (
-                    <tr key={i}>
-                      <td colSpan={6} className="px-4 py-4">
-                        <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
-                      </td>
-                    </tr>
-                  ))
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">Loading submissions...</td>
+                </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-16 text-center text-slate-400 font-bold">
-                    No quotations found
-                  </td>
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">No print jobs found</td>
                 </tr>
               ) : (
-                filtered.map((q) => {
-                  const cfg = statusConfig[q.status];
-                  const date = q.valid_until ? q.valid_until.split('T')[0] : '—';
+                filtered.map((job) => {
+                  const cfg = statusConfig[job.status] || statusConfig.draft;
+                  const dateStr = job.created_at ? job.created_at.split('T')[0] : '—';
+                  
+                  let specs: any = { product: 'Custom Job', qty: 1, filename: 'No file' };
+                  try {
+                    if (job.notes && job.notes.startsWith('{')) {
+                      specs = JSON.parse(job.notes);
+                    }
+                  } catch (e) {}
+
                   return (
-                    <tr key={q.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors group">
-                      <td className="px-4 py-3 font-bold text-indigo-600 text-sm">
-                        {q.quotation_number}
+                    <tr key={job.id} className="hover:bg-slate-50 dark:hover:bg-[#0D121F] transition-colors group">
+                      <td className="px-6 py-5">
+                        <div className="font-bold text-indigo-600 dark:text-indigo-400 mb-1">{job.quotation_number}</div>
+                        <div className="text-[10px] text-slate-500">{dateStr}</div>
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="font-bold text-slate-900 dark:text-slate-200 text-sm">{q.customer_name}</p>
-                        <p className="text-xs text-slate-500">{q.customer_email}</p>
+                      <td className="px-6 py-5">
+                        <div className="font-bold text-slate-900 dark:text-slate-200 mb-0.5">{job.customer_name}</div>
+                        <div className="text-xs text-slate-500">{job.customer_email || '—'}</div>
                       </td>
-                      <td className="px-4 py-3 font-bold text-slate-900 dark:text-slate-200 text-sm">
-                        {fmt(q.total_amount)}
+                      <td className="px-6 py-5">
+                        <div className="font-bold text-slate-800 dark:text-slate-300 mb-0.5">{specs.product || 'Standard Job'}</div>
+                        <div className="text-[11px] font-medium text-slate-600 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/50 inline-block px-2 py-0.5 rounded">
+                          {specs.qty || 1} units
+                        </div>
                       </td>
-                      <td className="px-4 py-3 text-slate-500 text-sm">{date}</td>
-                      <td className="px-4 py-3">
-                        <Badge
-                          className={cn(
-                            'border-none font-bold uppercase text-[10px] tracking-wider',
-                            cfg.color
-                          )}
-                        >
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2 max-w-[200px]">
+                          <FileText size={14} className="text-slate-400 dark:text-slate-500 shrink-0" />
+                          <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{specs.filename || 'no-file-attached'}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className={cn("inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold tracking-wider uppercase", cfg.bg)}>
+                          <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
                           {cfg.label}
-                        </Badge>
+                        </span>
                       </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
-                          {q.status === 'draft' && (
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                          {job.status === 'draft' && (
                             <button
-                              onClick={() =>
-                                updateStatusMutation.mutate({ id: q.id, status: 'sent' })
-                              }
-                              className="px-2 py-1 text-[10px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'sent' })}
+                              className="px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white text-blue-600 dark:text-blue-500 border border-blue-200 dark:border-blue-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              Start Proofing
+                              <Play size={12} /> Start Proofing
                             </button>
                           )}
-                          {q.status === 'sent' && (
+                          {job.status === 'sent' && (
                             <button
-                              onClick={() =>
-                                updateStatusMutation.mutate({ id: q.id, status: 'accepted' })
-                              }
-                              className="px-2 py-1 text-[10px] font-bold bg-yellow-50 hover:bg-yellow-100 text-yellow-800 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'accepted' })}
+                              className="px-3 py-1.5 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-600 dark:hover:bg-purple-500 hover:text-white text-purple-600 dark:text-purple-500 border border-purple-200 dark:border-purple-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              Send to Press
+                              <Check size={12} /> Send to Press
                             </button>
                           )}
-                          {q.status === 'accepted' && (
+                          {job.status === 'accepted' && (
                             <button
-                              onClick={() =>
-                                updateStatusMutation.mutate({ id: q.id, status: 'rejected' })
-                              }
-                              className="px-2 py-1 text-[10px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'rejected' })}
+                              className="px-3 py-1.5 bg-yellow-50 dark:bg-yellow-500/10 hover:bg-yellow-500 hover:text-yellow-900 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              Finish Printing
+                              <CheckCircle2 size={12} /> Finish Post-Press
                             </button>
                           )}
-                          {q.status === 'rejected' && (
+                          {job.status === 'rejected' && (
                             <button
-                              onClick={() =>
-                                updateStatusMutation.mutate({ id: q.id, status: 'converted' })
-                              }
-                              className="px-2 py-1 text-[10px] font-bold bg-green-50 hover:bg-green-100 text-green-700 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                              onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'converted' })}
+                              className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-600 dark:hover:bg-emerald-500 hover:text-white text-emerald-600 dark:text-emerald-500 border border-emerald-200 dark:border-emerald-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              Complete Job
+                              <Send size={12} /> Mark Complete
                             </button>
                           )}
+                          
+                          <button className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" title="Download File">
+                            <DownloadCloud size={16} />
+                          </button>
+                          
                           <button
                             onClick={() => {
-                              if (confirm('Delete this quotation?')) deleteMutation.mutate(q.id);
+                              if (confirm('Delete this submission?')) deleteMutation.mutate(job.id);
                             }}
-                            className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white rounded-lg transition-all border border-rose-100 dark:border-rose-500/20"
+                            title="Delete"
                           >
                             <Trash2 size={14} />
                           </button>
@@ -251,105 +251,6 @@ export default function QuotationsPage() {
             </tbody>
           </table>
         </div>
-      </Card>
-
-      {/* Mobile Card List */}
-      <div className="md:hidden space-y-3">
-        {isLoading ? (
-          Array(3)
-            .fill(0)
-            .map((_, i) => <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />)
-        ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 font-semibold">No quotations found</div>
-        ) : (
-          filtered.map((q) => {
-            const cfg = statusConfig[q.status];
-            const date = q.valid_until ? q.valid_until.split('T')[0] : '—';
-            return (
-              <Card key={q.id} className="border border-slate-100 dark:border-slate-800 shadow-none dark:bg-slate-900">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <p className="font-black text-indigo-600 text-sm">{q.quotation_number}</p>
-                      <p className="font-bold text-slate-800 dark:text-slate-200 text-sm mt-0.5">
-                        {q.customer_name}
-                      </p>
-                      <p className="text-xs text-slate-400 truncate">{q.customer_email}</p>
-                    </div>
-                    <Badge
-                      className={cn(
-                        'border-none font-bold uppercase text-[10px] tracking-wider shadow-none px-2.5 py-1 rounded-full',
-                        cfg.color
-                      )}
-                    >
-                      {cfg.label}
-                    </Badge>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 dark:border-slate-800 text-center mb-3">
-                    <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">
-                        Total Amount
-                      </p>
-                      <p className="font-black text-slate-800 dark:text-white text-sm">
-                        {fmt(q.total_amount)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">
-                        Valid Until
-                      </p>
-                      <p className="font-bold text-slate-600 dark:text-slate-400 text-xs">
-                        {date}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    {q.status === 'draft' && (
-                      <button
-                        onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'sent' })}
-                        className="flex-1 py-1.5 text-[10px] font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg border border-blue-200 transition-colors cursor-pointer"
-                      >
-                        Start Proofing
-                      </button>
-                    )}
-                    {q.status === 'sent' && (
-                      <button
-                        onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'accepted' })}
-                        className="flex-1 py-1.5 text-[10px] font-bold bg-yellow-50 hover:bg-yellow-100 text-yellow-800 rounded-lg border border-yellow-250 transition-colors cursor-pointer"
-                      >
-                        Send to Press
-                      </button>
-                    )}
-                    {q.status === 'accepted' && (
-                      <button
-                        onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'rejected' })}
-                        className="flex-1 py-1.5 text-[10px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg border border-purple-200 transition-colors cursor-pointer"
-                      >
-                        Finish Printing
-                      </button>
-                    )}
-                    {q.status === 'rejected' && (
-                      <button
-                        onClick={() => updateStatusMutation.mutate({ id: q.id, status: 'converted' })}
-                        className="flex-1 py-1.5 text-[10px] font-bold bg-green-50 hover:bg-green-100 text-green-700 rounded-lg border border-green-200 transition-colors cursor-pointer"
-                      >
-                        Complete Job
-                      </button>
-                    )}
-                    <button
-                      onClick={() => {
-                        if (confirm('Delete?')) deleteMutation.mutate(q.id);
-                      }}
-                      className="py-1.5 px-3 text-xs font-bold bg-red-50 text-red-500 rounded-lg border border-red-100"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
       </div>
     </div>
   );

@@ -15,132 +15,14 @@ import {
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import { cn } from '@/lib/utils';
+import { CAROUSEL_SLIDES, EXPERTISE, GALLERY_ITEMS, siteInfo } from '@/data/content';
 
-const CAROUSEL_SLIDES = [
-  {
-    image: 'https://images.unsplash.com/photo-1616400619175-5ebd3009007a?auto=format&fit=crop&w=800&q=80',
-    title: 'Precision Offset Printing',
-    desc: 'High-volume commercial catalog presses delivering crisp ink layers and immaculate resolution.',
-    tag: 'Bulk Production',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
-    title: 'Bespoke Custom Packaging',
-    desc: 'Premium rigid boxes, product sleeves, and luxury shopping bags crafted to build brand authority.',
-    tag: 'Packaging Design',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&w=800&q=80',
-    title: 'Luxury Business Cards',
-    desc: 'Heavy stock cotton paper with debossed corporate textures and crisp finishes.',
-    tag: 'Foil Stamping',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=800&q=80',
-    title: 'Corporate Merchandising',
-    desc: 'Embroidery and silk-screened executive wear, custom stationery, and branded corporate gifts.',
-    tag: 'Brand Merch',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=800&q=80',
-    title: 'Large Format Signage',
-    desc: 'Durable weather-resistant roll-ups, outdoor banners, and backlit storefront signage.',
-    tag: 'Outdoor Media',
-  },
-  {
-    image: '/images/custom-tie.jpg',
-    title: 'Custom Brand Apparel',
-    desc: 'Premium yellow & black striped ties and embroidered caps with bespoke logos.',
-    tag: 'Merchandise',
-  },
-  {
-    image: '/images/custom-mirror.jpg',
-    title: 'Bespoke Etched Mirrors',
-    desc: 'Elegant framed gold mirrors featuring custom wisdom and prudence etching.',
-    tag: 'Souvenirs',
-  },
-];
 
-const EXPERTISE = [
-  {
-    image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=600&q=80',
-    icon: Printer,
-    title: 'Corporate Printing & Stationery',
-    desc: 'High-volume letterheads, brochures, presentation folders, and bespoke corporate cards matching your exact brand manual colors.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=600&q=80',
-    icon: Layers,
-    title: 'Commercial Packaging',
-    desc: 'High-quality product packaging boxes, food-grade cartons, paper bags, and customized adhesive labeling for retail products.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=600&q=80',
-    icon: Sparkles,
-    title: 'Large Format & Signage',
-    desc: 'Illuminated 3D acrylic signs, vinyl vehicle branding wraps, promotional roll-up banners, and building storefront signage.',
-  },
-];
-
-const GALLERY_ITEMS = [
-  {
-    image: 'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&w=400&q=80',
-    category: 'Equipment',
-    title: 'Offset Press Calibration',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80',
-    category: 'Collateral',
-    title: 'Premium Catalog Runs',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1603380353725-f8a4d39cc41e?auto=format&fit=crop&w=400&q=80',
-    category: 'Production',
-    title: 'Wide-Format Signage',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=400&q=80',
-    category: 'Branding',
-    title: 'Custom Branded Swag',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=400&q=80',
-    category: 'Finishing',
-    title: 'Luxury Foil Business Cards',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80',
-    category: 'Textile',
-    title: 'Silk-Screen Printing',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=400&q=80',
-    category: 'Creative',
-    title: 'Bespoke Brand Layouts',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=400&q=80',
-    category: 'Finishing',
-    title: 'Precision Die Cutting',
-  },
-  {
-    image: '/images/custom-cap.jpg',
-    category: 'Apparel',
-    title: 'Branded Caps',
-  },
-  {
-    image: '/images/custom-keychains.jpg',
-    category: 'Souvenirs',
-    title: 'Engraved Keychains',
-  },
-];
 
 export default function HomePage() {
   const [slideIndex, setSlideIndex] = useState(0);
   const [visibleIndex, setVisibleIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-
-
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const touchStartX = useRef<number | null>(null);
@@ -234,7 +116,7 @@ export default function HomePage() {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="relative overflow-hidden border-b border-border/40 min-h-[580px] h-[calc(100vh-100px)] max-h-[750px] md:h-[680px] flex items-center w-full select-none"
+        className="relative overflow-hidden min-h-[580px] h-[calc(100vh-100px)] max-h-[750px] md:h-[680px] flex items-center w-full select-none"
       >
         {/* CSS styles for progress animation */}
         <style dangerouslySetInnerHTML={{__html: `
@@ -388,13 +270,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Expertise / Services Section */}
+
+
+      {/* Expertise / Services Section (MOVED UP) */}
       <section className="mx-auto max-w-6xl px-4 py-20 relative">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
           <div className="print-guide-crop p-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Our Expertise</p>
             <h2 className="mt-2 text-3xl font-black md:text-5xl text-foreground">
-              Premium Corporate &amp; Commercial Printing.
+              {siteInfo.heroHeadline}
             </h2>
           </div>
           <Link href="/services" className="text-xs font-bold uppercase tracking-wider text-muted-foreground hover:opacity-85 transition-opacity flex items-center gap-1">
@@ -406,21 +290,22 @@ export default function HomePage() {
           {EXPERTISE.map((item) => {
             const Icon = item.icon;
             return (
-              <Link href="/services" key={item.title} className="group block relative flex flex-col hover:translate-y-[-4px] transition-transform duration-300">
-                <div className="relative aspect-[16/11] overflow-hidden rounded-xl border border-border/40 bg-muted/20 shadow-sm group-hover:shadow-[0_12px_25px_rgba(0,0,0,0.08)] group-hover:border-foreground/30 transition-all duration-300">
+              <Link href="/services" key={item.title} className="group block relative flex flex-col hover:translate-y-[-8px] transition-transform duration-500">
+                <div className="relative aspect-[16/11] overflow-hidden rounded-2xl border border-border/40 bg-muted/20 shadow-sm group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.12)] group-hover:border-primary/30 transition-all duration-500">
                   <img 
                     src={item.image} 
                     alt={item.title} 
                     loading="lazy" 
-                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                  <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/65 backdrop-blur-md px-3 py-1 text-[9px] font-extrabold uppercase tracking-widest text-white border border-white/10">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+                  <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-black/65 backdrop-blur-md px-3 py-1 text-[9px] font-extrabold uppercase tracking-widest text-white border border-white/10 shadow-lg">
                     <Icon size={11} className="text-[#FCD20F] group-hover:rotate-12 transition-transform" />
                     <span>Printing Press</span>
                   </div>
                 </div>
-                <div className="mt-5 space-y-2">
-                  <h3 className="text-xl font-bold text-foreground group-hover:text-muted-foreground transition-colors flex items-center gap-1.5">
+                <div className="mt-5 space-y-2 bg-background p-4 rounded-xl border border-transparent group-hover:border-border/50 transition-colors duration-300">
+                  <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
                     {item.title}
                     <ArrowRight size={14} className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0 text-foreground" />
                   </h3>
@@ -436,124 +321,90 @@ export default function HomePage() {
 
 
 
-      {/* Mid-Page Industrial lithography Banner */}
-      <section className="relative h-72 md:h-96 w-full overflow-hidden border-y border-border/45">
-        <img 
-          src="https://images.unsplash.com/photo-1616400619175-5ebd3009007a?auto=format&fit=crop&w=1200&q=80" 
-          alt="Heavy printing press machinery and ink rollers"
-          className="w-full h-full object-cover select-none pointer-events-none opacity-85"
-        />
-        <div className="absolute inset-0 bg-black/40 flex items-center">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-            <div className="max-w-lg space-y-4 backdrop-blur-md bg-black/45 border border-white/10 p-6 md:p-8 rounded-2xl text-white shadow-2xl print-guide-crop">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#D22630] px-3 py-1 text-[9px] uppercase font-extrabold tracking-wider text-white">
-                FACTORY FLOOR & PRINT SHOP
-              </span>
-              <h3 className="text-2xl md:text-3xl font-black text-white leading-tight">
-                High-Volume Lithography &amp; Precision Binding
-              </h3>
-              <p className="text-xs text-white/80 leading-relaxed font-medium">
-                Our printing press plant coordinates multiple Heidelberg offset lines and automated die cutters to ensure maximum speed and razor-sharp clarity for commercial catalogs, bulk booklets, and folding cartons.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* How it Works Section */}
-      <section className="border-b border-border/40 bg-slate-50/40 py-20 relative">
-        {/* Background print guides details */}
-        <div className="absolute bottom-4 left-4 text-muted-foreground/30 flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest select-none pointer-events-none">
+      {/* How it Works Section (Interactive Restyle) */}
+      <section className="py-24 bg-background relative">
+        <div className="absolute top-4 left-4 text-muted-foreground/30 flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest select-none pointer-events-none">
           <div className="registration-mark text-muted-foreground/30" />
-          <span>Fiducial Align C</span>
+          <span>Process Flow</span>
         </div>
 
         <div className="mx-auto max-w-6xl px-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Our Process</p>
-          <h2 className="mt-2 text-3xl font-black md:text-4xl text-foreground">From Brief to Brand.</h2>
+          <div className="text-center max-w-2xl mx-auto space-y-4 mb-16">
+            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary">Our Process</p>
+            <h2 className="text-3xl font-black md:text-4xl text-foreground">From Brief to Brand.</h2>
+            <p className="text-sm text-muted-foreground font-medium">Seamless execution from your initial idea to the final installed product.</p>
+          </div>
           
-          <div className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border/20 md:grid-cols-4 shadow-sm">
+          <div className="grid gap-6 md:grid-cols-4 relative">
+            {/* Connecting Line */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-[2px] bg-gradient-to-r from-border via-primary/20 to-border -translate-y-1/2 z-0" />
             
-            <div className="bg-background p-8 flex flex-col justify-between min-h-[220px] group hover:bg-slate-50/25 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <span className="font-mono text-xs font-bold text-foreground bg-secondary px-2.5 py-0.5 rounded">01</span>
-                <FileText size={16} className="text-muted-foreground/40 group-hover:-translate-y-0.5 transition-transform" />
-              </div>
-              <div className="mt-8">
-                <h3 className="text-base font-bold text-foreground">Share Brief</h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-medium">
-                  Upload layouts, print specs, dimensions, and preferred paper stocks via our client portal.
+            {[
+              { num: '01', title: 'Share Brief', icon: FileText, desc: 'Upload layouts, print specs, dimensions, and preferred paper stocks via our client portal.' },
+              { num: '02', title: 'Design & Proof', icon: Layers, desc: 'Review digital high-res mockups, adjust margins, and run virtual color proofing before press.' },
+              { num: '03', title: 'Precision Press', icon: Zap, desc: 'We deploy heavy offset and digital print cylinders with active color density calibrations.' },
+              { num: '04', title: 'Secure Dispatch', icon: Package, desc: 'Track delivery from dispatch directly to your Accra, Kumasi, or Takoradi office centers.' }
+            ].map((step, i) => (
+              <div key={i} className="relative z-10 bg-background/80 backdrop-blur-sm p-8 rounded-2xl border border-border hover:border-primary/50 shadow-sm hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)] transition-all duration-500 group hover:-translate-y-2 text-center">
+                <div className="w-14 h-14 mx-auto bg-slate-50 border border-border rounded-full flex items-center justify-center mb-6 relative group-hover:scale-110 transition-transform duration-500 group-hover:bg-primary/5">
+                  <span className="absolute -top-2 -right-2 font-mono text-[10px] font-black text-foreground bg-secondary px-2 py-0.5 rounded shadow-sm border border-border">{step.num}</span>
+                  <step.icon size={24} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-3">{step.title}</h3>
+                <p className="text-xs leading-relaxed text-muted-foreground font-medium">
+                  {step.desc}
                 </p>
               </div>
-            </div>
-
-            <div className="bg-background p-8 flex flex-col justify-between min-h-[220px] group hover:bg-slate-50/25 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <span className="font-mono text-xs font-bold text-foreground bg-secondary px-2.5 py-0.5 rounded">02</span>
-                <Layers size={16} className="text-muted-foreground/40 group-hover:-translate-y-0.5 transition-transform" />
-              </div>
-              <div className="mt-8">
-                <h3 className="text-base font-bold text-foreground">Design &amp; Proof</h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-medium">
-                  Review digital high-res mockups, adjust margins, and run virtual color proofing before press.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-background p-8 flex flex-col justify-between min-h-[220px] group hover:bg-slate-50/25 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <span className="font-mono text-xs font-bold text-foreground bg-secondary px-2.5 py-0.5 rounded">03</span>
-                <Zap size={16} className="text-muted-foreground/40 group-hover:-translate-y-0.5 transition-transform" />
-              </div>
-              <div className="mt-8">
-                <h3 className="text-base font-bold text-foreground">Precision Press</h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-medium">
-                  We deploy heavy offset and digital print cylinders with active color density calibrations.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-background p-8 flex flex-col justify-between min-h-[220px] group hover:bg-slate-50/25 transition-all duration-300">
-              <div className="flex items-start justify-between">
-                <span className="font-mono text-xs font-bold text-foreground bg-secondary px-2.5 py-0.5 rounded">04</span>
-                <Package size={16} className="text-muted-foreground/40 group-hover:-translate-y-0.5 transition-transform" />
-              </div>
-              <div className="mt-8">
-                <h3 className="text-base font-bold text-foreground">Secure Dispatch</h3>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground font-medium">
-                  Track delivery from dispatch directly to your Accra, Kumasi, or Takoradi office centers.
-                </p>
-              </div>
-            </div>
-
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Equipment & Finishing Showcase Gallery */}
-      <section className="bg-background py-20">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-12 flex flex-wrap items-end justify-between gap-4">
-            <div className="print-guide-crop p-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Inside the Press</p>
-              <h2 className="mt-2 text-3xl font-black md:text-4xl text-foreground">
-                Crafted by Hand. Powered by Precision.
+      {/* Consolidated Gallery & Banner (Masonry Grid) */}
+      <section className="bg-slate-950 py-24 text-slate-50 border-t border-slate-900 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="mx-auto max-w-7xl px-4 relative z-10">
+          <div className="mb-12 flex flex-col md:flex-row items-end justify-between gap-6">
+            <div className="space-y-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-primary">Inside the Press</p>
+              <h2 className="text-3xl font-black md:text-5xl text-white">
+                Crafted by Hand.<br/>Powered by Precision.
               </h2>
             </div>
+            <p className="max-w-md text-sm text-slate-400 font-medium leading-relaxed">
+              Our printing press plant coordinates multiple Heidelberg offset lines and automated die cutters to ensure maximum speed and razor-sharp clarity.
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {GALLERY_ITEMS.map((item, idx) => (
-              <div key={idx} className="group relative aspect-square overflow-hidden rounded-xl border border-border/40 bg-muted/20 shadow-sm hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)] hover:border-foreground/30 transition-all duration-300 cursor-pointer">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 auto-rows-[200px]">
+            {/* Feature Image (Banner Replacement) */}
+            <div className="md:col-span-8 md:row-span-2 relative rounded-2xl overflow-hidden group">
+              <img 
+                src="https://images.unsplash.com/photo-1616400619175-5ebd3009007a?auto=format&fit=crop&w=1200&q=80" 
+                alt="Industrial Printing" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <span className="inline-block bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-3">
+                  Factory Floor
+                </span>
+                <h3 className="text-2xl font-bold text-white">High-Volume Lithography</h3>
+              </div>
+            </div>
+
+            {/* Gallery Items */}
+            {GALLERY_ITEMS.slice(0, 4).map((item, idx) => (
+              <div key={idx} className={`relative rounded-2xl overflow-hidden group ${idx === 0 || idx === 3 ? 'md:col-span-4 md:row-span-2' : 'md:col-span-4 md:row-span-1'}`}>
                 <img 
                   src={item.image} 
                   alt={item.title} 
-                  loading="lazy" 
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent p-4 flex flex-col justify-end opacity-90 group-hover:opacity-100 transition-opacity">
-                  <span className="text-[8px] font-bold uppercase tracking-widest text-white/50">{item.category}</span>
-                  <span className="text-xs font-bold text-white mt-1 leading-snug">{item.title}</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute bottom-4 left-4 right-4 translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-primary mb-1 block">{item.category}</span>
+                  <h3 className="text-sm font-bold text-white">{item.title}</h3>
                 </div>
               </div>
             ))}
@@ -561,33 +412,33 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Call to Action Section */}
-      <section className="relative overflow-hidden border-t border-border bg-slate-50 py-20">
+      {/* Call to Action Section (Darker, Bolder) */}
+      <section className="relative overflow-hidden bg-slate-900 py-24 text-white">
         <div 
           aria-hidden="true" 
-          className="pointer-events-none absolute inset-0 opacity-5" 
-          style={{ background: 'radial-gradient(ellipse at 80% 20%, var(--color-muted-foreground), transparent 60%)' }}
+          className="absolute inset-0 opacity-20 pointer-events-none" 
+          style={{ background: 'radial-gradient(circle at 70% 30%, var(--color-primary), transparent 60%)' }}
         />
         
-        <div className="relative mx-auto max-w-6xl px-4 flex flex-col gap-10 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-2xl space-y-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Get Started</span>
-            <h2 className="text-3xl font-black leading-tight text-foreground sm:text-4xl">
-              Ready to bring your corporate branding to life?
-            </h2>
-            <p className="max-w-xl text-sm leading-relaxed text-muted-foreground font-medium">
-              Receive a detailed estimate sheet within 24 hours. Start your offset press runs, bespoke rigid boxes, or backlit signage projects with Ghana's premier printers.
-            </p>
-          </div>
+        <div className="relative mx-auto max-w-4xl px-4 text-center space-y-8">
+          <span className="inline-flex items-center gap-2 bg-white/10 text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest border border-white/20 backdrop-blur-sm">
+            <Zap size={12} className="text-[#FCD20F]" /> Quick Turnaround
+          </span>
+          <h2 className="text-4xl font-black leading-tight sm:text-6xl tracking-tight">
+            Ready to bring your corporate branding to life?
+          </h2>
+          <p className="max-w-2xl mx-auto text-base sm:text-lg leading-relaxed text-white/70 font-medium">
+            Receive a detailed estimate sheet within 24 hours. Start your offset press runs, bespoke rigid boxes, or backlit signage projects with Ghana's premier printers.
+          </p>
           
-          <div className="flex flex-wrap gap-4 shrink-0">
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
             <Link href="/submit">
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-8 rounded-lg shadow-sm transition-all hover:translate-y-[-1px] hover:shadow-lg cursor-pointer">
-                Submit Print Job <ArrowRight size={15} />
+              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold bg-[#FCD20F] hover:bg-[#FCD20F]/90 text-black h-14 px-10 rounded-xl shadow-[0_0_40px_rgba(252,210,15,0.3)] transition-all hover:translate-y-[-2px] hover:shadow-[0_0_60px_rgba(252,210,15,0.5)] cursor-pointer">
+                Start Your Project <ArrowRight size={18} />
               </button>
             </Link>
             <Link href="/services">
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold border border-border bg-white hover:bg-muted dark:bg-transparent dark:hover:bg-white/5 h-11 px-8 rounded-lg transition-colors">
+              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-bold border-2 border-white/20 bg-white/5 hover:bg-white/10 text-white h-14 px-10 rounded-xl transition-all backdrop-blur-sm hover:border-white/40">
                 View Estimates
               </button>
             </Link>
