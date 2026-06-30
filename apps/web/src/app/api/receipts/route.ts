@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { invoice_id, customer_id, customer_name, customer_email, customer_phone, amount, payment_method, payment_date, notes } = body;
+    const { invoice_id, customer_id, customer_name, customer_email, customer_phone, amount, payment_method, payment_date, notes, created_by } = body;
 
     let finalCustomerId = customer_id;
     let finalInvoiceId = invoice_id;
@@ -75,10 +75,10 @@ export async function POST(request: Request) {
       const [invoice] = await sql`
         INSERT INTO invoices (
           customer_id, invoice_number, subtotal, vat_rate, vat_amount,
-          discount_amount, total_amount, balance_due, due_date, notes, approval_status
+          discount_amount, total_amount, balance_due, due_date, notes, approval_status, created_by
         ) VALUES (
           ${finalCustomerId}, ${invoice_number}, ${amount}, 0, 0,
-          0, ${amount}, 0, ${new Date().toISOString()}, ${notes ?? 'Auto-generated for standalone receipt'}, 'approved'
+          0, ${amount}, 0, ${new Date().toISOString()}, ${notes ?? 'Auto-generated for standalone receipt'}, 'approved', ${created_by ?? 'System User'}
         ) RETURNING *
       `;
       finalInvoiceId = invoice.id;
@@ -95,8 +95,8 @@ export async function POST(request: Request) {
 
     // Create receipt with pending approval
     const [receipt] = await sql`
-      INSERT INTO receipts (invoice_id, customer_id, payment_id, receipt_number, amount, payment_method, payment_date, notes, approval_status)
-      VALUES (${finalInvoiceId}, ${finalCustomerId}, ${payment.id}, ${receipt_number}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, 'pending')
+      INSERT INTO receipts (invoice_id, customer_id, payment_id, receipt_number, amount, payment_method, payment_date, notes, approval_status, created_by)
+      VALUES (${finalInvoiceId}, ${finalCustomerId}, ${payment.id}, ${receipt_number}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, 'pending', ${created_by ?? 'System User'})
       RETURNING *
     `;
 
@@ -110,39 +110,105 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, approval_status, approved_by } = body;
-    if (!id || !approval_status) {
-      return Response.json({ error: 'ID and approval_status required' }, { status: 400 });
+    const { 
+      id, 
+      approval_status, 
+      approved_by,
+      customer_id,
+      customer_name,
+      customer_email,
+      customer_phone,
+      amount,
+      payment_method,
+      payment_date,
+      notes,
+      items
+    } = body;
+    
+    if (!id) {
+      return Response.json({ error: 'ID required' }, { status: 400 });
     }
 
     const [receipt] = await sql`SELECT * FROM receipts WHERE id = ${id}`;
     if (!receipt) return Response.json({ error: 'Receipt not found' }, { status: 404 });
 
-    const [updated] = await sql`
+    // Legacy approval update
+    if (approval_status && !amount) {
+      const [updated] = await sql`
+        UPDATE receipts
+        SET approval_status = ${approval_status},
+            approved_by = ${approved_by ?? null},
+            approved_at = ${approval_status === 'approved' ? new Date().toISOString() : null}
+        WHERE id = ${id}
+        RETURNING *
+      `;
+
+      // If approved, update invoice balance
+      if (approval_status === 'approved') {
+        const [invoice] = await sql`SELECT * FROM invoices WHERE id = ${receipt.invoice_id}`;
+        if (invoice) {
+          const newAmountPaid = parseFloat(invoice.amount_paid) + parseFloat(receipt.amount);
+          const newBalance = parseFloat(invoice.total_amount) - newAmountPaid;
+          const newStatus = newBalance <= 0 ? 'paid' : newAmountPaid > 0 ? 'partial' : 'unpaid';
+          await sql`
+            UPDATE invoices
+            SET amount_paid = ${newAmountPaid}, balance_due = ${Math.max(newBalance, 0)}, status = ${newStatus}, updated_at = NOW()
+            WHERE id = ${receipt.invoice_id}
+          `;
+        }
+      }
+      return Response.json(updated);
+    }
+
+    // Full Edit Mode
+    let finalCustomerId = customer_id || receipt.customer_id;
+    if (customer_name && !customer_id) {
+      const [existing] = await sql`SELECT id FROM customers WHERE name ILIKE ${customer_name} LIMIT 1`;
+      if (existing) {
+        finalCustomerId = existing.id;
+      } else {
+        const safeEmail = customer_email?.trim() || null;
+        const safePhone = customer_phone?.trim() || null;
+        const [newCustomer] = await sql`
+          INSERT INTO customers (name, email, phone) 
+          VALUES (${customer_name}, ${safeEmail}, ${safePhone}) 
+          RETURNING id
+        `;
+        finalCustomerId = newCustomer.id;
+      }
+    }
+
+    const [updatedReceipt] = await sql`
       UPDATE receipts
-      SET approval_status = ${approval_status},
-          approved_by = ${approved_by ?? null},
-          approved_at = ${approval_status === 'approved' ? new Date().toISOString() : null}
+      SET customer_id = ${finalCustomerId},
+          amount = COALESCE(${amount}, amount),
+          payment_method = COALESCE(${payment_method}, payment_method),
+          payment_date = COALESCE(${payment_date}, payment_date),
+          notes = COALESCE(${notes}, notes)
       WHERE id = ${id}
       RETURNING *
     `;
 
-    // If approved, update invoice balance
-    if (approval_status === 'approved') {
-      const [invoice] = await sql`SELECT * FROM invoices WHERE id = ${receipt.invoice_id}`;
-      if (invoice) {
-        const newAmountPaid = parseFloat(invoice.amount_paid) + parseFloat(receipt.amount);
-        const newBalance = parseFloat(invoice.total_amount) - newAmountPaid;
-        const newStatus = newBalance <= 0 ? 'paid' : newAmountPaid > 0 ? 'partial' : 'unpaid';
-        await sql`
-          UPDATE invoices
-          SET amount_paid = ${newAmountPaid}, balance_due = ${Math.max(newBalance, 0)}, status = ${newStatus}, updated_at = NOW()
-          WHERE id = ${receipt.invoice_id}
-        `;
+    // Update underlying invoice if standalone
+    if (receipt.invoice_id && amount) {
+      await sql`
+        UPDATE invoices
+        SET total_amount = ${amount}, subtotal = ${amount}, balance_due = ${amount}
+        WHERE id = ${receipt.invoice_id}
+      `;
+      
+      if (items && Array.isArray(items)) {
+        await sql`DELETE FROM invoice_items WHERE invoice_id = ${receipt.invoice_id}`;
+        for (const item of items) {
+          await sql`
+            INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total_price)
+            VALUES (${receipt.invoice_id}, ${item.description}, ${item.quantity}, ${item.unit_price}, ${item.total_price})
+          `;
+        }
       }
     }
 
-    return Response.json(updated);
+    return Response.json(updatedReceipt);
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to update receipt' }, { status: 500 });

@@ -52,33 +52,18 @@ const ROLES = [
     ],
   },
   {
-    key: 'manager',
-    label: 'Manager',
-    color: 'bg-blue-600 text-white',
-    badge: 'bg-blue-50 text-blue-700',
-    icon: Shield,
-    description: 'Operational access — can create and manage records',
-    permissions: [
-      'Create invoices, quotations & receipts',
-      'Manage customers and billing items',
-      'View all reports',
-      'Send SMS to customers',
-      'Cannot approve invoices or receipts',
-    ],
-  },
-  {
     key: 'staff',
     label: 'Staff',
-    color: 'bg-slate-600 text-white',
-    badge: 'bg-slate-100 text-slate-600',
+    color: 'bg-blue-600 text-white',
+    badge: 'bg-blue-50 text-blue-700',
     icon: UserCheck,
-    description: 'Limited access — day-to-day operations only',
+    description: 'Operational access — can create records but requires approval',
     permissions: [
+      'Create invoices and receipts',
+      'Cannot approve invoices or receipts',
+      'Manage customers and billing items',
       'View dashboard and metrics',
-      'Manage customer listings',
-      'View customer list',
-      'Send SMS messages',
-      'Cannot create invoices or approve anything',
+      'Send SMS to customers',
     ],
   },
 ];
@@ -226,73 +211,7 @@ export default function UsersPage() {
         </Button>
       </div>
 
-      {/* Role hierarchy cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {ROLES.map((role, idx) => {
-          const count = users.filter((u) => u.role === role.key).length;
-          const isExpanded = expandedRole === role.key;
-          const Icon = role.icon;
-          return (
-            <Card key={role.key} className="border border-slate-100 shadow-none overflow-hidden">
-              <CardContent className="p-0">
-                <div className={cn('px-5 py-4', role.color)}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <Icon size={18} />
-                      <div>
-                        <p className="font-black text-base">{role.label}</p>
-                        <p className="text-[10px] opacity-75 font-semibold uppercase tracking-widest">
-                          {idx === 0
-                            ? 'Highest Access'
-                            : idx === 1
-                              ? 'Operational'
-                              : 'Limited Access'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-black">{count}</p>
-                      <p className="text-[10px] opacity-75 font-semibold">
-                        {count === 1 ? 'user' : 'users'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className="px-5 py-3 bg-white">
-                  <p className="text-xs text-slate-500 font-medium mb-2">{role.description}</p>
-                  <button
-                    onClick={() => setExpandedRole(isExpanded ? null : role.key)}
-                    className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
-                  >
-                    {isExpanded ? (
-                      <>
-                        <ChevronUp size={12} /> Hide permissions
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown size={12} /> View permissions
-                      </>
-                    )}
-                  </button>
-                  {isExpanded && (
-                    <ul className="mt-3 space-y-1.5">
-                      {role.permissions.map((p) => (
-                        <li
-                          key={p}
-                          className="flex items-start gap-2 text-xs text-slate-600 font-medium"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0 mt-1" />
-                          {p}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+
 
       {/* Users Table */}
       <Card className="border border-slate-100 shadow-none overflow-hidden">
@@ -302,8 +221,8 @@ export default function UsersPage() {
             {activeCount} active · {users.length - activeCount} inactive
           </p>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px]">
+        <div className="overflow-hidden">
+          <table className="w-full min-w-full hidden md:table">
             <thead className="bg-slate-50">
               <tr>
                 {['Name', 'Email / Phone', 'Role', 'Position', 'Status', 'Actions'].map((h) => (
@@ -382,43 +301,34 @@ export default function UsersPage() {
                         {user.position || '—'}
                       </td>
                       <td className="px-5 py-3.5">
-                        <Badge
+                        <button
+                          onClick={() =>
+                            toggleMutation.mutate({
+                              id: user.id,
+                              is_active: !user.is_active,
+                              name: user.name,
+                            })
+                          }
                           className={cn(
-                            'border-none text-[10px] font-bold',
+                            'px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-colors',
                             user.is_active
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-red-100 text-red-600'
+                              ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100'
+                              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
                           )}
                         >
                           {user.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
+                        </button>
                       </td>
                       <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => openEdit(user)}
-                            className="p-1.5 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-colors"
-                            title="Edit"
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                           >
                             <Edit2 size={14} />
                           </button>
-                          <button
-                            onClick={() =>
-                              toggleMutation.mutate({
-                                id: user.id,
-                                is_active: !user.is_active,
-                                name: user.name,
-                              })
-                            }
-                            className={cn(
-                              'p-1.5 rounded-lg transition-colors',
-                              user.is_active
-                                ? 'hover:bg-red-50 text-slate-400 hover:text-red-500'
-                                : 'hover:bg-green-50 text-slate-400 hover:text-green-600'
-                            )}
-                            title={user.is_active ? 'Deactivate' : 'Activate'}
-                          >
-                            {user.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
+                          <button className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                            <UserX size={14} />
                           </button>
                         </div>
                       </td>
@@ -429,12 +339,95 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile view - Cards */}
+        <div className="md:hidden divide-y divide-slate-100">
+          {isLoading ? (
+            <div className="p-5 text-center text-slate-500">Loading...</div>
+          ) : users.length === 0 ? (
+            <div className="p-5 text-center text-slate-500">No users found</div>
+          ) : (
+            users.map((user) => {
+              const roleCfg = roleMap[user.role];
+              return (
+                <div key={user.id} className="p-4 space-y-4 hover:bg-slate-50 transition-colors">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0',
+                          roleCfg ? roleCfg.color : 'bg-slate-500 text-white'
+                        )}
+                      >
+                        {user.name?.[0]?.toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#001F3F]">{user.name}</p>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-0.5">
+                          {user.email}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => openEdit(user)}
+                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    >
+                      <Edit2 size={16} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <p className="text-slate-400 font-medium uppercase tracking-wider text-[9px] mb-1">Role</p>
+                      {roleCfg ? (
+                        <Badge
+                          className={cn(
+                            'border-none text-[9px] font-bold uppercase tracking-wider',
+                            roleCfg.badge
+                          )}
+                        >
+                          {roleCfg.label}
+                        </Badge>
+                      ) : (
+                        <span className="text-slate-500">{user.role}</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-slate-400 font-medium uppercase tracking-wider text-[9px] mb-1">Status</p>
+                      <button
+                        onClick={() =>
+                          toggleMutation.mutate({
+                            id: user.id,
+                            is_active: !user.is_active,
+                            name: user.name,
+                          })
+                        }
+                        className={cn(
+                          'px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-colors',
+                          user.is_active
+                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                        )}
+                      >
+                        {user.is_active ? 'Active' : 'Inactive'}
+                      </button>
+                    </div>
+                    <div className="col-span-2 mt-1">
+                      <p className="text-slate-400 font-medium uppercase tracking-wider text-[9px] mb-1">Position / Phone</p>
+                      <p className="text-slate-700">{user.position || 'No title'} • {user.phone || 'No phone'}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
       </Card>
 
       {/* Add / Edit Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col max-h-[95vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
               <h2 className="font-black text-lg text-[#001F3F]">
                 {editUser ? 'Edit User' : 'Add New User'}
@@ -446,7 +439,7 @@ export default function UsersPage() {
                 <X size={20} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto overscroll-contain">
               <div>
                 <label className={labelClass}>Full Name *</label>
                 <input
@@ -500,7 +493,6 @@ export default function UsersPage() {
                     className={inputClass}
                   >
                     <option value="staff">Staff</option>
-                    <option value="manager">Manager</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
@@ -540,7 +532,7 @@ export default function UsersPage() {
                 </div>
               )}
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-4 border-t border-slate-100 mt-2 shrink-0">
                 <Button
                   type="button"
                   variant="outline"

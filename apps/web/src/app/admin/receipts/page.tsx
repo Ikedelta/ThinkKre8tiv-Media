@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, ChevronDown, Eye, Download, Trash2, Plus, Receipt as ReceiptIcon, X, CheckCircle2, FileText } from 'lucide-react';
+import { Search, ChevronDown, Eye, Download, Trash2, Plus, Receipt as ReceiptIcon, X, CheckCircle2, FileText, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +15,7 @@ interface Invoice {
   created_at: string;
   status: string;
   approval_status: string;
+  created_by?: string;
 }
 
 interface Customer {
@@ -32,6 +33,7 @@ export default function BillingAndReceiptsPage() {
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
   const [generateType, setGenerateType] = useState<'invoice' | 'receipt'>('invoice');
   const [viewDocId, setViewDocId] = useState<string | null>(null);
+  const [editDocId, setEditDocId] = useState<string | null>(null);
 
   // Form states
   const [customerName, setCustomerName] = useState('');
@@ -72,11 +74,36 @@ export default function BillingAndReceiptsPage() {
 
   const resetForm = () => {
     setIsGenerateOpen(false);
+    setEditDocId(null);
     setCustomerName('');
     setCustomerEmail('');
     setCustomerPhone('');
     setDueDate('');
     setLineItems([{ id: '1', description: '', quantity: 1, unit_price: 0 }]);
+  };
+
+  const handleEditDoc = () => {
+    if (!viewedDoc) return;
+    setGenerateType(viewedDoc.total_amount === viewedDoc.amount ? 'receipt' : 'invoice');
+    setEditDocId(viewedDoc.id);
+    setCustomerName(viewedDoc.customer_name || '');
+    setCustomerEmail(viewedDoc.customer_email || '');
+    setCustomerPhone(viewedDoc.customer_phone || '');
+    setDueDate(viewedDoc.due_date ? new Date(viewedDoc.due_date).toISOString().split('T')[0] : '');
+    
+    if (viewedDoc.items && viewedDoc.items.length > 0) {
+      setLineItems(viewedDoc.items.map((item: any) => ({
+        id: item.id || Math.random().toString(),
+        description: item.description,
+        quantity: item.quantity,
+        unit_price: item.unit_price || (item.total_price / item.quantity)
+      })));
+    } else {
+      setLineItems([{ id: '1', description: 'Total Amount', quantity: 1, unit_price: viewedDoc.subtotal || viewedDoc.amount || 0 }]);
+    }
+    
+    setViewDocId(null);
+    setIsGenerateOpen(true);
   };
 
   const createMutation = useMutation({
@@ -96,6 +123,7 @@ export default function BillingAndReceiptsPage() {
         vat_amount: vatAmount,
         due_date: dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         notes: isInvoice ? '' : 'Direct receipt generated',
+        created_by: 'Staff Member', // Hardcoded until Auth is wired up
         items: lineItems.map(item => ({
           description: item.description,
           quantity: item.quantity,
@@ -105,16 +133,16 @@ export default function BillingAndReceiptsPage() {
       };
 
       const res = await fetch(endpoint, {
-        method: 'POST',
+        method: editDocId ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(editDocId ? { id: editDocId, ...payload } : payload),
       });
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
-      toast.success(`${generateType === 'invoice' ? 'Invoice' : 'Receipt'} created successfully!`);
+      toast.success(`${generateType === 'invoice' ? 'Invoice' : 'Receipt'} ${editDocId ? 'updated' : 'created'} successfully!`);
       resetForm();
     },
     onError: () => toast.error(`Failed to create ${generateType}`),
@@ -251,21 +279,22 @@ export default function BillingAndReceiptsPage() {
                   <th className="px-6 py-4 flex items-center gap-1">Date <ChevronDown size={12} /></th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4">Approval</th>
+                  <th className="px-6 py-4">Created By</th>
                   <th className="px-6 py-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">Loading documents...</td>
+                    <td colSpan={8} className="px-6 py-12 text-center text-slate-500">Loading documents...</td>
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-6 py-12 text-center text-slate-500">No documents found</td>
+                    <td colSpan={8} className="px-6 py-12 text-center text-slate-500">No documents found</td>
                   </tr>
                 ) : (
                   filtered.map((doc) => {
-                    const dateStr = doc.created_at ? doc.created_at.split('T')[0] : '—';
+                    const dateStr = doc.created_at ? new Date(doc.created_at).toLocaleString([], { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
                     const isPending = doc.approval_status === 'pending';
                     
                     return (
@@ -301,6 +330,11 @@ export default function BillingAndReceiptsPage() {
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" /> Approved
                             </span>
                           )}
+                        </td>
+                        <td className="px-6 py-5">
+                          <div className="font-medium text-slate-900 dark:text-slate-200 text-xs">
+                            {doc.created_by || 'System User'}
+                          </div>
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
@@ -359,7 +393,7 @@ export default function BillingAndReceiptsPage() {
               <div className="flex items-center gap-6">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <ReceiptIcon className="text-[#FF5722]" size={24} />
-                  Generate {generateType === 'invoice' ? 'Invoice' : 'Receipt'}
+                  {editDocId ? 'Edit' : 'Generate'} {generateType === 'invoice' ? 'Invoice' : 'Receipt'}
                 </h2>
                 <div className="flex items-center bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-200 dark:border-slate-700/50">
                   <button 
@@ -538,65 +572,80 @@ export default function BillingAndReceiptsPage() {
                   </h3>
                   
                   {/* The Preview Sheet */}
-                  <div className="bg-white border border-slate-200 rounded-2xl shadow-xl p-6 relative overflow-hidden transition-all duration-300">
-                    <div className="absolute top-6 right-6 bg-slate-100 text-slate-600 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full">
+                  <div className="bg-white border border-slate-200 rounded-2xl shadow-xl p-6 relative overflow-hidden transition-all duration-300 transform scale-[0.85] origin-top-center w-[115%] -ml-[7.5%]">
+                    <div className="absolute top-6 right-6 bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full border border-rose-200">
                       Draft Preview
                     </div>
                     
-                    <div className="mb-8">
-                      <div className="w-16 h-16 bg-slate-900 rounded-xl flex items-center justify-center text-white font-black text-xl mb-2">
-                        TK
-                      </div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ThinkKre8tive</p>
-                    </div>
-
-                    <div className="flex justify-between items-start mb-8 text-xs">
-                      <div>
-                        <p className="font-bold text-slate-400 uppercase tracking-wider mb-1 text-[9px]">Bill To</p>
-                        <p className="font-bold text-slate-800">{customerName || 'Client Name'}</p>
-                        <p className="text-slate-500">{customerEmail || 'email@example.com'}</p>
-                        <p className="text-slate-500">{customerPhone || '+233 ...'}</p>
-                      </div>
+                    <div className="flex flex-col mb-8 gap-2">
+                      <img src="/logo.png" alt="Think Kre8tive Logo" className="h-10 w-auto object-contain self-start" />
                       <div className="text-right">
-                        <p className="font-bold text-slate-400 uppercase tracking-wider mb-1 text-[9px]">Details</p>
-                        <p className="text-slate-600"><span className="text-slate-400">#</span> <span className="text-[#FF5722] font-bold">INV-PREVIEW</span></p>
-                        <p className="text-slate-500">Issued: {new Date().toLocaleDateString()}</p>
-                        <p className="text-slate-500">Due: {dueDate ? new Date(dueDate).toLocaleDateString() : 'Upon Receipt'}</p>
+                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
+                        <p className="text-sm text-slate-500 mt-1 font-medium">{generateType === 'invoice' ? invoiceNumber : receiptNumber}</p>
+                        <p className="text-xs text-slate-400 mt-1">{new Date().toLocaleString()}</p>
+                        <p className="text-[10px] text-slate-400 mt-1">Generated by: Staff Member</p>
                       </div>
                     </div>
 
-                    <table className="w-full mb-6">
-                      <thead>
-                        <tr className="border-b border-slate-100 text-[9px] font-black text-slate-400 uppercase tracking-wider text-left">
-                          <th className="pb-2">Description</th>
-                          <th className="pb-2 text-right">Qty</th>
-                          <th className="pb-2 text-right">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody className="text-xs">
-                        {lineItems.map((item, i) => (
-                          <tr key={item.id} className="border-b border-slate-50 last:border-0 text-slate-600">
-                            <td className="py-2 pr-2 truncate max-w-[120px]">{item.description || <span className="text-slate-300 italic">New Line Item</span>}</td>
-                            <td className="py-2 text-right">{item.quantity}</td>
-                            <td className="py-2 text-right font-medium">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                    <div className="grid grid-cols-2 gap-4 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                      <div>
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Billed To</p>
+                        <p className="font-black text-sm text-slate-800 leading-tight">{customerName || 'Client Name'}</p>
+                        <p className="text-[10px] font-medium text-slate-500 mt-1">{customerEmail || 'email@example.com'}</p>
+                        <p className="text-[10px] font-medium text-slate-500">{customerPhone || '+233 50 000 0000'}</p>
+                      </div>
+                      <div className="text-right flex flex-col justify-between">
+                        <div>
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
+                          <p className="text-[10px] font-bold text-slate-700">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                        </div>
+                        <div className="mt-2">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Due</p>
+                          <p className="text-[10px] font-bold text-[#FF5722]">{dueDate ? new Date(dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Upon Receipt'}</p>
+                        </div>
+                      </div>
+                    </div>
 
-                    <div className="space-y-1.5 text-xs border-t border-slate-100 pt-4">
-                      <div className="flex justify-between text-slate-500">
-                        <span>Subtotal:</span>
-                        <span>₵{subtotal.toFixed(2)}</span>
+                    <div className="border border-slate-200 rounded-lg overflow-hidden mb-6">
+                      <table className="w-full">
+                        <thead className="bg-slate-100 border-b border-slate-200">
+                          <tr>
+                            <th className="py-2 px-3 text-left text-[8px] font-black uppercase tracking-widest text-slate-500">Description</th>
+                            <th className="py-2 px-3 text-center text-[8px] font-black uppercase tracking-widest text-slate-500">Qty</th>
+                            <th className="py-2 px-3 text-right text-[8px] font-black uppercase tracking-widest text-slate-500">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {lineItems.map((item, i) => (
+                            <tr key={item.id} className="bg-white">
+                              <td className="py-3 px-3 text-[10px] font-bold text-slate-700 truncate max-w-[120px]">{item.description || <span className="text-slate-300 italic">New Line Item</span>}</td>
+                              <td className="py-3 px-3 text-[10px] text-center font-medium text-slate-500">{item.quantity}</td>
+                              <td className="py-3 px-3 text-[10px] text-right font-black text-slate-800">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="flex justify-end">
+                      <div className="w-full max-w-[200px] space-y-2 bg-slate-50 rounded-lg p-4 border border-slate-100">
+                        <div className="flex justify-between text-[10px] items-center">
+                          <span className="font-bold text-slate-500 uppercase tracking-widest text-[8px]">Subtotal</span>
+                          <span className="font-bold text-slate-700">₵{subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-[10px] items-center">
+                          <span className="font-bold text-slate-500 uppercase tracking-widest text-[8px]">VAT (20%)</span>
+                          <span className="font-bold text-slate-700">₵{vatAmount.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
+                          <span className="font-black uppercase tracking-widest text-slate-900 text-[9px]">Total</span>
+                          <span className="font-black text-lg text-[#FF5722]">₵{grandTotal.toFixed(2)}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between text-slate-500">
-                        <span>VAT (20%):</span>
-                        <span>₵{vatAmount.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between font-black text-slate-800 text-sm pt-2 mt-2 border-t border-slate-100">
-                        <span>Total:</span>
-                        <span>₵{grandTotal.toFixed(2)}</span>
-                      </div>
+                    </div>
+
+                    <div className="mt-8 pt-4 border-t border-slate-100 text-center text-[8px] font-medium text-slate-400">
+                      <p>Developed by Tech34 Systems</p>
                     </div>
 
                   </div>
@@ -632,6 +681,9 @@ export default function BillingAndReceiptsPage() {
           
           {/* Action buttons (Hidden during print) */}
           <div className="absolute top-4 right-4 flex gap-2 print:hidden z-50">
+            <button onClick={handleEditDoc} className="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition-colors">
+              <Edit2 size={16} /> Edit Document
+            </button>
             <button onClick={() => window.print()} className="bg-[#FF5722] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2">
               <Download size={16} /> Print / Save PDF
             </button>
@@ -641,7 +693,15 @@ export default function BillingAndReceiptsPage() {
           </div>
 
           {/* Actual Document to Print */}
-          <div className="bg-white text-black w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto sm:rounded-xl p-8 sm:p-12 shadow-2xl print:shadow-none print:w-full print:max-w-none print:h-auto print:overflow-visible relative">
+          <div className="bg-white text-black w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto sm:rounded-xl p-8 sm:p-12 shadow-2xl print:shadow-none print:w-[210mm] print:h-[296mm] print:max-h-[296mm] print:overflow-hidden print:p-10 print:box-border relative">
+            <style type="text/css" media="print">
+              {`
+                @page { size: A4 portrait; margin: 0; }
+                body { margin: 0; padding: 0; background: white; }
+                /* Hide everything else on the page during print */
+                body > *:not(.print-wrapper) { display: none; }
+              `}
+            </style>
             
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-slate-200 pb-8 mb-8 gap-6">
@@ -675,9 +735,19 @@ export default function BillingAndReceiptsPage() {
               </div>
               <div className="sm:text-right flex flex-col justify-between">
                 <div className="mb-4">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
-                  <p className="font-bold text-slate-700">{new Date(viewedDoc.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date & Time</p>
+                  <p className="font-bold text-slate-700">{new Date(viewedDoc.created_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                 </div>
+                <div className="mb-4">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Created By</p>
+                  <p className="font-bold text-slate-700">{viewedDoc.created_by || 'System User'}</p>
+                </div>
+                {viewedDoc.due_date && (
+                  <div className="mb-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Due Date</p>
+                    <p className="font-bold text-[#FF5722]">{new Date(viewedDoc.due_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
                   <p className="font-black text-3xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</p>
@@ -731,9 +801,10 @@ export default function BillingAndReceiptsPage() {
               </div>
             </div>
 
-            <div className="pt-8 border-t-2 border-slate-100 text-center text-xs font-medium text-slate-400">
+            <div className="mt-auto pt-8 border-t-2 border-slate-100 text-center text-xs font-medium text-slate-400 absolute bottom-10 left-0 right-0 px-12 print:px-10 print:bottom-8">
               <p className="mb-1">Thank you for choosing Think Kre8tive!</p>
               <p>Payment is due upon receipt. Please make all checks payable to Think Kre8tive.</p>
+              <p className="mt-4 text-[10px] text-slate-300 tracking-widest uppercase">Developed by Tech34 Systems</p>
             </div>
 
           </div>

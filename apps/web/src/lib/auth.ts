@@ -145,6 +145,11 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
       },
+      role: {
+        type: 'string',
+        required: false,
+        defaultValue: 'staff',
+      },
     },
   },
   // Enable Authorization: Bearer <session-token> so mobile apps (which can't

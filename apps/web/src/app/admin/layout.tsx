@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { authClient } from '@/lib/auth-client';
 import {
   LayoutDashboard,
   FileText,
@@ -17,6 +18,7 @@ import {
   Globe,
   UserCog,
   Shield,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,22 +26,33 @@ interface NavItem {
   name: string;
   href: string;
   icon: React.ElementType;
+  requiresAdmin?: boolean;
 }
 
 const navItems: NavItem[] = [
   { name: 'Customer Orders', href: '/admin', icon: LayoutDashboard },
   { name: 'Billing & Receipts', href: '/admin/receipts', icon: Receipt },
   { name: 'Submitted Files', href: '/admin/quotations', icon: FileText },
-  { name: 'Services List', href: '/admin/services', icon: FileBarChart },
-  { name: 'User Accounts', href: '/admin/users', icon: UserCog },
+  { name: 'Services List', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
+  { name: 'User Accounts', href: '/admin/users', icon: UserCog, requiresAdmin: true },
   { name: 'CMS (Edit Website)', href: '/admin/cms', icon: Globe },
   { name: 'My Profile', href: '/admin/profile', icon: Settings },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  const { data: session, isPending } = authClient.useSession();
+
+  // Redirect to login if not authenticated
+  if (!isPending && !session) {
+    if (typeof window !== 'undefined') {
+      router.push('/account/signin?callbackUrl=' + encodeURIComponent(pathname));
+    }
+  }
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -50,6 +63,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       (item) =>
         item.href === pathname || (item.href !== '/admin' && pathname.startsWith(item.href))
     )?.name || 'Admin';
+
+  if (isPending || !session) {
+    return (
+      <div className={cn("flex h-screen w-full items-center justify-center font-sans", theme === 'dark' ? 'bg-[#0B0F19]' : 'bg-[#F8FAFC]')}>
+        <div className="w-8 h-8 border-4 border-[#E04D1B] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn(
@@ -100,7 +121,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Manage Site
             </h3>
           </div>
-          {navItems.map((item) => {
+          {navItems.filter(item => !item.requiresAdmin || session?.user?.role === 'admin').map((item) => {
             const isActive =
               pathname === item.href ||
               (item.href !== '/admin' && pathname.startsWith(item.href));
@@ -137,7 +158,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           "p-5 border-t flex-shrink-0",
           theme === 'dark' ? 'border-slate-800' : 'border-slate-100'
         )}>
-          <div className="px-1">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#001F3F] flex items-center justify-center text-white font-bold text-sm shrink-0">
+                {session.user?.name?.[0]?.toUpperCase() || 'A'}
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-sm font-bold truncate">{session.user?.name || 'Admin User'}</p>
+                <p className="text-[10px] text-slate-500 truncate">{session.user?.email || 'admin@thinkkre8tive.com'}</p>
+              </div>
+            </div>
+            <button
+              onClick={async () => {
+                await authClient.signOut();
+                router.push('/account/signin');
+              }}
+              className={cn(
+                "p-2 rounded-lg hover:bg-rose-50 hover:text-rose-600 transition-colors shrink-0",
+                theme === 'dark' ? "text-slate-400 hover:bg-rose-500/10" : "text-slate-400"
+              )}
+              title="Log out"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+          
+          <div className="px-1 border-t border-slate-100 dark:border-slate-800 pt-4">
             <h3 className={cn("text-[10px] font-bold tracking-wider uppercase mb-2", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
               SMS Credit Balance
             </h3>
@@ -149,6 +195,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 Refresh
               </button>
             </div>
+          </div>
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p className="text-[10px] text-slate-500 font-medium">Developed by Tech34 Systems</p>
           </div>
         </div>
       </aside>

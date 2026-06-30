@@ -98,12 +98,6 @@ function SignInForm() {
 
 				<SocialSignInButtons callbackUrl={callbackUrl} />
 
-				<a
-					href={`/account/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-					className="text-center text-[14px] text-black hover:underline font-semibold"
-				>
-					No account? Sign up
-				</a>
 			</form>
 		</main>
 	);

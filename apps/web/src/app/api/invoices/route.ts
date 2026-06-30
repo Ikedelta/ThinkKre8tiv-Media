@@ -46,7 +46,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const {
+      const {
       customer_id,
       customer_name,
       customer_email,
@@ -60,6 +60,7 @@ export async function POST(request: Request) {
       due_date,
       notes,
       items,
+      created_by
     } = body;
 
     let finalCustomerId = customer_id;
@@ -90,10 +91,10 @@ export async function POST(request: Request) {
     const [invoice] = await sql`
       INSERT INTO invoices (
         customer_id, invoice_number, subtotal, vat_rate, vat_amount,
-        discount_amount, total_amount, balance_due, due_date, notes, approval_status
+        discount_amount, total_amount, balance_due, due_date, notes, approval_status, created_by
       ) VALUES (
         ${finalCustomerId}, ${invoice_number}, ${subtotal}, ${vat_rate ?? 15.0}, ${vat_amount},
-        ${discount_amount ?? 0}, ${total_amount}, ${total_amount}, ${due_date}, ${notes ?? null}, 'pending'
+        ${discount_amount ?? 0}, ${total_amount}, ${total_amount}, ${due_date}, ${notes ?? null}, 'pending', ${created_by ?? 'System User'}
       ) RETURNING *
     `;
 
@@ -116,19 +117,88 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, approval_status, approved_by } = body;
-    if (!id || !approval_status) {
-      return Response.json({ error: 'ID and approval_status required' }, { status: 400 });
+    const { 
+      id, 
+      approval_status, 
+      approved_by,
+      customer_id,
+      customer_name,
+      customer_email,
+      customer_phone,
+      subtotal,
+      vat_rate,
+      vat_amount,
+      discount_amount,
+      total_amount,
+      due_date,
+      notes,
+      items
+    } = body;
+    
+    if (!id) {
+      return Response.json({ error: 'ID required' }, { status: 400 });
     }
+
+    // If only updating approval status (legacy behavior)
+    if (approval_status && !items) {
+      const [updated] = await sql`
+        UPDATE invoices
+        SET approval_status = ${approval_status},
+            approved_by = ${approved_by ?? null},
+            approved_at = ${approval_status === 'approved' ? new Date().toISOString() : null},
+            updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING *
+      `;
+      return Response.json(updated);
+    }
+
+    // Full Edit Mode
+    let finalCustomerId = customer_id;
+    if (!finalCustomerId && customer_name) {
+      const [existing] = await sql`SELECT id FROM customers WHERE name ILIKE ${customer_name} LIMIT 1`;
+      if (existing) {
+        finalCustomerId = existing.id;
+      } else {
+        const safeEmail = customer_email?.trim() || null;
+        const safePhone = customer_phone?.trim() || null;
+        const [newCustomer] = await sql`
+          INSERT INTO customers (name, email, phone) 
+          VALUES (${customer_name}, ${safeEmail}, ${safePhone}) 
+          RETURNING id
+        `;
+        finalCustomerId = newCustomer.id;
+      }
+    }
+
     const [updated] = await sql`
       UPDATE invoices
-      SET approval_status = ${approval_status},
-          approved_by = ${approved_by ?? null},
-          approved_at = ${approval_status === 'approved' ? new Date().toISOString() : null},
+      SET customer_id = COALESCE(${finalCustomerId}, customer_id),
+          subtotal = COALESCE(${subtotal}, subtotal),
+          vat_rate = COALESCE(${vat_rate}, vat_rate),
+          vat_amount = COALESCE(${vat_amount}, vat_amount),
+          discount_amount = COALESCE(${discount_amount}, discount_amount),
+          total_amount = COALESCE(${total_amount}, total_amount),
+          balance_due = COALESCE(${total_amount}, balance_due),
+          due_date = COALESCE(${due_date}, due_date),
+          notes = COALESCE(${notes}, notes),
           updated_at = NOW()
       WHERE id = ${id}
       RETURNING *
     `;
+
+    if (items && Array.isArray(items)) {
+      // Delete old items
+      await sql`DELETE FROM invoice_items WHERE invoice_id = ${id}`;
+      // Insert new items
+      for (const item of items) {
+        await sql`
+          INSERT INTO invoice_items (invoice_id, description, quantity, unit_price, total_price)
+          VALUES (${id}, ${item.description}, ${item.quantity}, ${item.unit_price}, ${item.total_price})
+        `;
+      }
+    }
+
     return Response.json(updated);
   } catch (error) {
     console.error(error);

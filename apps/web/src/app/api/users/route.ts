@@ -5,6 +5,69 @@ import { hashPassword } from 'better-auth/crypto';
 
 export async function GET() {
   try {
+    // Ensure tables exist for user, account, and activity_logs
+    await sql`
+      CREATE TABLE IF NOT EXISTS "user" (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        email TEXT UNIQUE,
+        "emailVerified" BOOLEAN,
+        role TEXT,
+        phone TEXT,
+        position TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        "createdAt" TIMESTAMP DEFAULT NOW(),
+        "updatedAt" TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS "account" (
+        id TEXT PRIMARY KEY,
+        "userId" TEXT,
+        "accountId" TEXT,
+        "providerId" TEXT,
+        password TEXT,
+        "createdAt" TIMESTAMP DEFAULT NOW(),
+        "updatedAt" TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        user_name TEXT,
+        action TEXT,
+        resource TEXT,
+        resource_id TEXT,
+        details TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS "session" (
+          id TEXT PRIMARY KEY,
+          "userId" TEXT NOT NULL,
+          token TEXT NOT NULL UNIQUE,
+          "expiresAt" TIMESTAMP NOT NULL,
+          "ipAddress" TEXT,
+          "userAgent" TEXT,
+          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS "verification" (
+          id TEXT PRIMARY KEY,
+          identifier TEXT NOT NULL,
+          value TEXT NOT NULL,
+          "expiresAt" TIMESTAMP NOT NULL,
+          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `;
     const users = await sql`
       SELECT id, name, email, phone, role, position, is_active, "createdAt" as created_at
       FROM "user"
@@ -21,6 +84,70 @@ export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Ensure tables exist for user, account, and activity_logs
+    await sql`
+      CREATE TABLE IF NOT EXISTS "user" (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        email TEXT UNIQUE,
+        "emailVerified" BOOLEAN,
+        role TEXT,
+        phone TEXT,
+        position TEXT,
+        is_active BOOLEAN DEFAULT TRUE,
+        "createdAt" TIMESTAMP DEFAULT NOW(),
+        "updatedAt" TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS "account" (
+        id TEXT PRIMARY KEY,
+        "userId" TEXT,
+        "accountId" TEXT,
+        "providerId" TEXT,
+        password TEXT,
+        "createdAt" TIMESTAMP DEFAULT NOW(),
+        "updatedAt" TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        user_name TEXT,
+        action TEXT,
+        resource TEXT,
+        resource_id TEXT,
+        details TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS "session" (
+          id TEXT PRIMARY KEY,
+          "userId" TEXT NOT NULL,
+          token TEXT NOT NULL UNIQUE,
+          "expiresAt" TIMESTAMP NOT NULL,
+          "ipAddress" TEXT,
+          "userAgent" TEXT,
+          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS "verification" (
+          id TEXT PRIMARY KEY,
+          identifier TEXT NOT NULL,
+          value TEXT NOT NULL,
+          "expiresAt" TIMESTAMP NOT NULL,
+          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+    `;
 
     const body = await request.json();
     const { name, email, password, role, phone, position } = body;
@@ -56,7 +183,7 @@ export async function POST(request: Request) {
 
     await sql`
       INSERT INTO activity_logs (user_name, action, resource, details)
-      VALUES (${session.user.name}, 'Created user', 'user', ${`Added ${name} as ${role ?? 'staff'}`})
+      VALUES (${session?.user?.name || 'Admin'}, 'Created user', 'user', ${`Added ${name} as ${role ?? 'staff'}`})
     `;
 
     return Response.json({ success: true });
@@ -88,7 +215,7 @@ export async function PUT(request: Request) {
 
     await sql`
       INSERT INTO activity_logs (user_name, action, resource, resource_id, details)
-      VALUES (${session.user.name}, 'Updated user', 'user', ${id}, ${`Updated ${name}`})
+      VALUES (${session?.user?.name || 'Admin'}, 'Updated user', 'user', ${id}, ${`Updated ${name}`})
     `;
 
     return Response.json({ success: true });
