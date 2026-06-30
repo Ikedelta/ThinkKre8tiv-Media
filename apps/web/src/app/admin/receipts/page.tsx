@@ -42,7 +42,7 @@ export default function BillingAndReceiptsPage() {
 
   // Calculations
   const subtotal = lineItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
-  const vatRate = 0.15; // 15% VAT
+  const vatRate = 0.20; // 20% VAT
   const vatAmount = subtotal * vatRate;
   const grandTotal = subtotal + vatAmount;
 
@@ -88,7 +88,7 @@ export default function BillingAndReceiptsPage() {
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
-        invoice_number: `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        invoice_number: `INV-2026-${Date.now().toString().slice(-6)}`,
         subtotal: subtotal,
         total_amount: grandTotal,
         amount: grandTotal, // for receipt
@@ -590,7 +590,7 @@ export default function BillingAndReceiptsPage() {
                         <span>₵{subtotal.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between text-slate-500">
-                        <span>VAT (15%):</span>
+                        <span>VAT (20%):</span>
                         <span>₵{vatAmount.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between font-black text-slate-800 text-sm pt-2 mt-2 border-t border-slate-100">
@@ -644,83 +644,96 @@ export default function BillingAndReceiptsPage() {
           <div className="bg-white text-black w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto sm:rounded-xl p-8 sm:p-12 shadow-2xl print:shadow-none print:w-full print:max-w-none print:h-auto print:overflow-visible relative">
             
             {/* Header */}
-            <div className="flex justify-between items-start border-b-2 border-black pb-8 mb-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-slate-200 pb-8 mb-8 gap-6">
               <div>
-                <h1 className="text-4xl font-black tracking-tighter mb-2">INVOICE</h1>
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">{viewedDoc.invoice_number}</p>
+                <img src="/logo.png" alt="Think Kre8tive Logo" className="h-16 w-auto object-contain mb-4" />
+                <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-slate-900 mb-1">
+                  {viewedDoc.total_amount === viewedDoc.amount ? 'RECEIPT' : 'INVOICE'}
+                </h1>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{viewedDoc.invoice_number}</p>
                 {viewedDoc.approval_status !== 'approved' && (
-                  <span className="inline-block mt-2 bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-xs font-bold border border-rose-200">
-                    DRAFT (UNAPPROVED)
+                  <span className="inline-block mt-3 bg-rose-50 text-rose-600 px-3 py-1 rounded text-[10px] font-black tracking-widest border border-rose-200 uppercase">
+                    Draft (Unapproved)
                   </span>
                 )}
               </div>
-              <div className="text-right">
-                <p className="text-xl font-black">THINK KRE8TIV</p>
-                <p className="text-sm text-slate-600">Accra, Ghana</p>
-                <p className="text-sm text-slate-600">info@thinkkre8tive.com</p>
+              <div className="text-left sm:text-right">
+                <p className="text-xl font-black text-slate-900 mb-1">Think Kre8tive</p>
+                <p className="text-sm font-medium text-slate-500">Accra, Ghana</p>
+                <p className="text-sm font-medium text-slate-500">info@thinkkre8tive.com</p>
+                <p className="text-sm font-medium text-slate-500">+233 50 000 0000</p>
               </div>
             </div>
 
             {/* Parties */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12 bg-slate-50 rounded-2xl p-6 border border-slate-100">
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Billed To</p>
-                <p className="font-bold text-lg">{viewedDoc.customer_name}</p>
-                <p className="text-sm text-slate-600">{viewedDoc.customer_email || 'No email provided'}</p>
-                {viewedDoc.customer_phone && <p className="text-sm text-slate-600">{viewedDoc.customer_phone}</p>}
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Billed To</p>
+                <p className="font-black text-lg text-slate-800">{viewedDoc.customer_name}</p>
+                <p className="text-sm font-medium text-slate-500 mt-1">{viewedDoc.customer_email || 'No email provided'}</p>
+                {viewedDoc.customer_phone && <p className="text-sm font-medium text-slate-500">{viewedDoc.customer_phone}</p>}
               </div>
-              <div className="text-right">
+              <div className="sm:text-right flex flex-col justify-between">
                 <div className="mb-4">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
-                  <p className="font-bold">{viewedDoc.created_at.split('T')[0]}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
+                  <p className="font-bold text-slate-700">{new Date(viewedDoc.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
-                  <p className="font-black text-2xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
+                  <p className="font-black text-3xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</p>
                 </div>
               </div>
             </div>
 
             {/* Line Items */}
-            <table className="w-full mb-12">
-              <thead className="border-b-2 border-black">
-                <tr>
-                  <th className="py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-500">Description</th>
-                  <th className="py-3 text-center text-xs font-bold uppercase tracking-wider text-slate-500">Qty</th>
-                  <th className="py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {viewedDoc.items && viewedDoc.items.length > 0 ? (
-                  viewedDoc.items.map((item: any) => (
-                    <tr key={item.id}>
-                      <td className="py-4 font-bold">{item.description}</td>
-                      <td className="py-4 text-center">{item.quantity}</td>
-                      <td className="py-4 text-right font-bold">{fmt(item.total_price)}</td>
-                    </tr>
-                  ))
-                ) : (
+            <div className="border border-slate-200 rounded-xl overflow-hidden mb-8">
+              <table className="w-full">
+                <thead className="bg-slate-100 border-b border-slate-200">
                   <tr>
-                    <td colSpan={3} className="py-4 font-bold text-slate-400">Custom Invoice Total</td>
+                    <th className="py-4 px-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Description</th>
+                    <th className="py-4 px-6 text-center text-[10px] font-black uppercase tracking-widest text-slate-500">Qty</th>
+                    <th className="py-4 px-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Amount</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {viewedDoc.items && viewedDoc.items.length > 0 ? (
+                    viewedDoc.items.map((item: any) => (
+                      <tr key={item.id} className="group hover:bg-slate-50 transition-colors">
+                        <td className="py-5 px-6 font-bold text-slate-700">{item.description}</td>
+                        <td className="py-5 px-6 text-center font-medium text-slate-500">{item.quantity}</td>
+                        <td className="py-5 px-6 text-right font-black text-slate-800">{fmt(item.total_price)}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={3} className="py-6 px-6 font-bold text-slate-400 italic text-center">Custom Document Total</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
             {/* Totals */}
-            <div className="w-full max-w-sm ml-auto space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="font-bold text-slate-500 uppercase tracking-wider">Subtotal</span>
-                <span className="font-bold">{fmt(viewedDoc.subtotal)}</span>
-              </div>
-              <div className="flex justify-between items-center border-t-2 border-black pt-3">
-                <span className="font-bold text-sm uppercase tracking-wider">Total</span>
-                <span className="font-black text-2xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</span>
+            <div className="flex justify-end mb-16">
+              <div className="w-full max-w-sm space-y-4 bg-slate-50 rounded-xl p-6 border border-slate-100">
+                <div className="flex justify-between text-sm items-center">
+                  <span className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Subtotal</span>
+                  <span className="font-bold text-slate-700">{fmt(viewedDoc.subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-sm items-center">
+                  <span className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">VAT (20%)</span>
+                  <span className="font-bold text-slate-700">{fmt(viewedDoc.vat_amount || (viewedDoc.subtotal * 0.2))}</span>
+                </div>
+                <div className="flex justify-between items-center border-t border-slate-200 pt-4 mt-2">
+                  <span className="font-black text-sm uppercase tracking-widest text-slate-900">Grand Total</span>
+                  <span className="font-black text-3xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</span>
+                </div>
               </div>
             </div>
 
-            <div className="mt-20 pt-8 border-t border-slate-200 text-center text-xs text-slate-500">
-              Thank you for choosing Think Kre8tiv! Payment is due upon receipt.
+            <div className="pt-8 border-t-2 border-slate-100 text-center text-xs font-medium text-slate-400">
+              <p className="mb-1">Thank you for choosing Think Kre8tive!</p>
+              <p>Payment is due upon receipt. Please make all checks payable to Think Kre8tive.</p>
             </div>
 
           </div>

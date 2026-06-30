@@ -43,7 +43,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { invoice_id, customer_id, customer_name, amount, payment_method, payment_date, notes } = body;
+    const { invoice_id, customer_id, customer_name, customer_email, customer_phone, amount, payment_method, payment_date, notes } = body;
 
     let finalCustomerId = customer_id;
     let finalInvoiceId = invoice_id;
@@ -54,7 +54,13 @@ export async function POST(request: Request) {
       if (existing) {
         finalCustomerId = existing.id;
       } else {
-        const [newCustomer] = await sql`INSERT INTO customers (name) VALUES (${customer_name}) RETURNING id`;
+        const safeEmail = customer_email?.trim() || null;
+        const safePhone = customer_phone?.trim() || null;
+        const [newCustomer] = await sql`
+          INSERT INTO customers (name, email, phone) 
+          VALUES (${customer_name}, ${safeEmail}, ${safePhone}) 
+          RETURNING id
+        `;
         finalCustomerId = newCustomer.id;
       }
     }
@@ -65,14 +71,14 @@ export async function POST(request: Request) {
 
     // Handle missing invoice_id (standalone receipt creation)
     if (!finalInvoiceId) {
-      const invoice_number = `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const invoice_number = `INV-2026-${Date.now().toString().slice(-6)}`;
       const [invoice] = await sql`
         INSERT INTO invoices (
           customer_id, invoice_number, subtotal, vat_rate, vat_amount,
-          discount_amount, total_amount, balance_due, amount_paid, due_date, notes, status, approval_status
+          discount_amount, total_amount, balance_due, due_date, notes, approval_status
         ) VALUES (
           ${finalCustomerId}, ${invoice_number}, ${amount}, 0, 0,
-          0, ${amount}, 0, ${amount}, ${new Date().toISOString()}, ${notes ?? 'Auto-generated for standalone receipt'}, 'paid', 'approved'
+          0, ${amount}, 0, ${new Date().toISOString()}, ${notes ?? 'Auto-generated for standalone receipt'}, 'approved'
         ) RETURNING *
       `;
       finalInvoiceId = invoice.id;
@@ -95,9 +101,9 @@ export async function POST(request: Request) {
     `;
 
     return Response.json(receipt);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return Response.json({ error: 'Failed to create receipt' }, { status: 500 });
+    return Response.json({ error: error.message || 'Failed to create receipt' }, { status: 500 });
   }
 }
 

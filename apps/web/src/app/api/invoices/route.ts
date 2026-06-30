@@ -71,9 +71,12 @@ export async function POST(request: Request) {
         finalCustomerId = existing.id;
         // Optionally update email/phone if they were missing, but for now just use existing.
       } else {
+        const safeEmail = customer_email?.trim() || null;
+        const safePhone = customer_phone?.trim() || null;
+
         const [newCustomer] = await sql`
           INSERT INTO customers (name, email, phone) 
-          VALUES (${customer_name}, ${customer_email || null}, ${customer_phone || null}) 
+          VALUES (${customer_name}, ${safeEmail}, ${safePhone}) 
           RETURNING id
         `;
         finalCustomerId = newCustomer.id;
@@ -104,9 +107,9 @@ export async function POST(request: Request) {
     }
 
     return Response.json(invoice);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return Response.json({ error: 'Failed to create invoice' }, { status: 500 });
+    return Response.json({ error: error.message || 'Failed to create invoice' }, { status: 500 });
   }
 }
 
