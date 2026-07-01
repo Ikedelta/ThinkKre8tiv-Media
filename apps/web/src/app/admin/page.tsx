@@ -11,8 +11,10 @@ import {
   Users,
   Plus,
   ChevronRight,
-  MoreHorizontal
+  MoreHorizontal,
+  DollarSign
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -30,6 +32,7 @@ const statusColors: Record<string, string> = {
 export default function AdminDashboardPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'print-jobs' | 'invoices' | 'customers'>('print-jobs');
+  const router = useRouter();
 
   useEffect(() => setMounted(true), []);
 
@@ -76,26 +79,40 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Overview</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your print operations, billing, and customers.</p>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Dashboard Overview</h1>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Manage your print operations, billing, and customers.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/admin/invoices/new" className="flex items-center gap-2 bg-[#E04D1B] hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95">
+            <Plus size={16} /> New Invoice
+          </Link>
+          <Link href="/admin/quotations/new" className="flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95">
+            <Plus size={16} /> New Print Job
+          </Link>
+          <Link href="/admin/customers" className="hidden sm:flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-sm active:scale-95">
+            <Users size={16} /> View Customers
+          </Link>
         </div>
       </div>
 
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Revenue', value: fmt(metrics.totalRevenue), secondary: `${metrics.totalInvoicesCount} total invoices` },
-          { label: 'Outstanding Balance', value: fmt(metrics.outstandingBalance), secondary: `${metrics.pendingInvoicesCount} awaiting approval`, alert: metrics.pendingInvoicesCount > 0 },
-          { label: 'Active Print Jobs', value: metrics.activePrintJobs.toString(), secondary: 'Currently in progress' },
-          { label: 'Total Customers', value: metrics.totalCustomersCount.toString(), secondary: 'Registered clients' },
+          { label: 'Total Revenue', value: fmt(metrics.totalRevenue), secondary: `${metrics.totalInvoicesCount} total invoices`, icon: DollarSign, color: "text-emerald-500" },
+          { label: 'Outstanding Balance', value: fmt(metrics.outstandingBalance), secondary: `${metrics.pendingInvoicesCount} awaiting approval`, alert: metrics.pendingInvoicesCount > 0, icon: AlertCircle, color: "text-rose-500" },
+          { label: 'Active Print Jobs', value: metrics.activePrintJobs.toString(), secondary: 'Currently in progress', icon: Briefcase, color: "text-blue-500" },
+          { label: 'Total Customers', value: metrics.totalCustomersCount.toString(), secondary: 'Registered clients', icon: Users, color: "text-indigo-500" },
         ].map((stat, i) => (
-          <Card key={i} className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-lg bg-white dark:bg-slate-900">
+          <Card key={i} className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 transition-all duration-300 hover:-translate-y-1 hover:shadow-md group">
             <CardContent className="p-5">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{stat.label}</p>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{stat.value}</h3>
+              <div className="flex justify-between items-start mb-2">
+                <p className="text-sm font-bold text-slate-500 dark:text-slate-400">{stat.label}</p>
+                <stat.icon className={cn("w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity", stat.color)} />
               </div>
-              <p className={cn("text-xs mt-2", stat.alert ? "text-rose-600 font-medium" : "text-slate-500 dark:text-slate-500")}>
+              <div className="flex items-baseline gap-2">
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{stat.value}</h3>
+              </div>
+              <p className={cn("text-[10px] font-black mt-2 uppercase tracking-wider", stat.alert ? "text-rose-600" : "text-slate-400 dark:text-slate-500")}>
                 {stat.secondary}
               </p>
             </CardContent>
@@ -154,24 +171,21 @@ export default function AdminDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {recentQuotations.map((job: any) => (
-                      <tr key={job.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{job.quotation_number}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{job.customer_name}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{fmt(job.total_amount)}</td>
+                      <tr 
+                        key={job.id} 
+                        onClick={() => router.push(`/admin/quotations?id=${job.id}`)}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                      >
+                        <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-200">{job.quotation_number}</td>
+                        <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-400">{job.customer_name}</td>
+                        <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-300">{fmt(job.total_amount)}</td>
                         <td className="px-6 py-4">
-                          <Badge className={cn('border font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none', statusColors[job.status] || statusColors.draft)}>
+                          <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-full shadow-none', statusColors[job.status] || statusColors.draft)}>
                             {job.status || 'draft'}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
-                          {job.file_url && (
-                            <a href={job.file_url} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800 text-sm font-medium flex items-center gap-1">
-                              Download File
-                            </a>
-                          )}
-                          <Link href={`/admin/quotations?id=${job.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                            View details
-                          </Link>
+                        <td className="px-6 py-4 text-right">
+                          <ChevronRight size={18} className="inline-block text-slate-300 group-hover:text-[#E04D1B] transition-colors" />
                         </td>
                       </tr>
                     ))}
@@ -206,26 +220,28 @@ export default function AdminDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {recentInvoices.map((inv: any) => (
-                      <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{inv.invoice_number}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{inv.customer_name}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{fmt(inv.total_amount)}</td>
+                      <tr 
+                        key={inv.id} 
+                        onClick={() => router.push(`/admin/invoices?id=${inv.id}`)}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                      >
+                        <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-200">{inv.invoice_number}</td>
+                        <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-400">{inv.customer_name}</td>
+                        <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-300">{fmt(inv.total_amount)}</td>
                         <td className="px-6 py-4">
                           <div className="flex gap-2">
-                            <Badge className={cn('border font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none', statusColors[inv.status] || statusColors.draft)}>
+                            <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-full shadow-none', statusColors[inv.status] || statusColors.draft)}>
                               {inv.status || 'draft'}
                             </Badge>
                             {inv.approval_status === 'pending' && (
-                              <Badge className="border border-amber-200 bg-amber-50 text-amber-700 font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none">
+                              <Badge className="border-none bg-amber-50 text-amber-700 font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-full shadow-none">
                                 Pending
                               </Badge>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <Link href={`/admin/invoices?id=${inv.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                            View details
-                          </Link>
+                          <ChevronRight size={18} className="inline-block text-slate-300 group-hover:text-[#E04D1B] transition-colors" />
                         </td>
                       </tr>
                     ))}
@@ -259,14 +275,16 @@ export default function AdminDashboardPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {recentCustomers.map((cust: any) => (
-                      <tr key={cust.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{cust.name}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{cust.email || cust.phone || 'N/A'}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{cust.invoice_count || 0} orders</td>
+                      <tr 
+                        key={cust.id} 
+                        onClick={() => router.push(`/admin/customers?id=${cust.id}`)}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group"
+                      >
+                        <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-200">{cust.name}</td>
+                        <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-400">{cust.email || cust.phone || 'N/A'}</td>
+                        <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-300">{cust.invoice_count || 0} orders</td>
                         <td className="px-6 py-4 text-right">
-                          <Link href={`/admin/customers?id=${cust.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                            View profile
-                          </Link>
+                          <ChevronRight size={18} className="inline-block text-slate-300 group-hover:text-[#E04D1B] transition-colors" />
                         </td>
                       </tr>
                     ))}
