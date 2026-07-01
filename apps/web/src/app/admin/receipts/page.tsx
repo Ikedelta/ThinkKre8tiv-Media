@@ -708,12 +708,11 @@ export default function BillingAndReceiptsPage() {
       )}
 
       {/* View/Print Document Modal */}
-      {/* View/Print Document Modal */}
       {viewDocId && viewedDoc && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 sm:p-8 overflow-y-auto animate-fade-in print:p-0 print:bg-white print:block">
+        <div className="fixed inset-0 bg-slate-900/80 z-50 flex items-start justify-center p-4 sm:p-8 overflow-auto print:p-0 print:bg-white print:block backdrop-blur-sm">
           
           {/* A4 Paper Container */}
-          <div className="bg-white shadow-2xl w-full max-w-[800px] min-h-[1130px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-h-0 print:m-0 my-auto">
+          <div className="bg-white shadow-2xl min-w-[800px] max-w-[800px] min-h-[1130px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto">
             
             {/* Action buttons (Hidden during print) */}
             <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex flex-wrap justify-end gap-3 print:hidden z-50">
