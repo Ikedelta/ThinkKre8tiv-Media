@@ -18,6 +18,8 @@ interface CmsItem {
 
 const sectionLabels: Record<string, string> = {
   hero: 'Hero Section',
+  carousel: 'Homepage Carousel',
+  expertise: 'Our Expertise',
   about: 'About Us',
   contact: 'Contact Info',
   services: 'Services',
@@ -27,9 +29,10 @@ const sectionLabels: Record<string, string> = {
 export default function CmsPage() {
   const [activeSection, setActiveSection] = useState('hero');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValues, setEditValues] = useState<{ title: string; content: string }>({
+  const [editValues, setEditValues] = useState<{ title: string; content: string; image_url: string }>({
     title: '',
     content: '',
+    image_url: '',
   });
   const [saved, setSaved] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -44,7 +47,7 @@ export default function CmsPage() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { id: string; title: string; content: string }) => {
+    mutationFn: async (data: { id: string; title: string; content: string; image_url: string }) => {
       const res = await fetch('/api/cms', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -67,7 +70,11 @@ export default function CmsPage() {
 
   const startEdit = (item: CmsItem) => {
     setEditingId(item.id);
-    setEditValues({ title: item.title || '', content: item.content || '' });
+    setEditValues({
+      title: item.title || '',
+      content: item.content || '',
+      image_url: item.image_url || '',
+    });
   };
 
   const saveEdit = (id: string) => {
@@ -103,7 +110,7 @@ export default function CmsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-1">
-              {['hero', 'about', 'contact', 'services', 'testimonials'].map((section) => {
+              {Object.keys(sectionLabels).map((section) => {
                 const count = items.filter((i) => i.section === section).length;
                 return (
                   <button
@@ -239,15 +246,35 @@ export default function CmsPage() {
                                 className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none bg-white"
                               />
                             </div>
+                            {(activeSection === 'carousel' || activeSection === 'expertise') && (
+                              <div>
+                                <label className="text-xs font-black text-slate-500 uppercase tracking-wider block mb-1">
+                                  Image URL
+                                </label>
+                                <input
+                                  value={editValues.image_url}
+                                  onChange={(e) =>
+                                    setEditValues({ ...editValues, image_url: e.target.value })
+                                  }
+                                  placeholder="/images/example.jpg or https://..."
+                                  className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                                />
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <div>
                             <p className="text-sm text-slate-700 leading-relaxed">
                               {item.content || (
-                                <span className="text-slate-400 italic">No content yet</span>
-                              )}
-                            </p>
-                          </div>
+                              <span className="text-slate-400 italic">No content yet</span>
+                            )}
+                          </p>
+                          {item.image_url && (
+                            <div className="mt-3">
+                              <img src={item.image_url} alt="preview" className="h-16 w-auto rounded border border-slate-200" />
+                            </div>
+                          )}
+                        </div>
                         )}
                       </div>
                     );

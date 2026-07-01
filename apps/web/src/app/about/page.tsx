@@ -55,7 +55,7 @@ export default function AboutPage() {
                 From a Small Studio to Ghana’s Premier Print Partner
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-                Established in 2012, Think Kre8tive set out with a simple promise: make high-resolution branding stickers and premium signs accessible to growing Ghanaian businesses.
+                Established in 2012, Think Kre8tiv Media set out with a simple promise: make high-resolution branding stickers and premium signs accessible to growing Ghanaian businesses.
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                 Today, we run integrated workshops across Accra, Kumasi, and Takoradi. From digital linen cards to towering steel billboards, our fabrication engineers and layout artists build to the highest quality standards.
@@ -77,7 +77,7 @@ export default function AboutPage() {
               <div className="col-span-2 rounded-2xl overflow-hidden h-60 border border-border shadow-sm hover:shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:border-foreground/30 transition-all duration-300 animate-fade-in">
                 <img
                   src={IMG_FACILITY}
-                  alt="Think Kre8tive workshop"
+                  alt="Think Kre8tiv Media workshop"
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                 />
               </div>

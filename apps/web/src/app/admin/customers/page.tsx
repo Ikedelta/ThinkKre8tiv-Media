@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { authClient } from '@/lib/auth-client';
 
 interface Customer {
   id: string;
@@ -40,6 +41,7 @@ interface Customer {
 export default function CustomersPage() {
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
 
   const { data: customers = [], isLoading } = useQuery<Customer[]>({
     queryKey: ['customers'],
@@ -205,14 +207,16 @@ export default function CustomersPage() {
                     </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => {
-                        if (confirm('Delete this customer?')) deleteMutation.mutate(customer.id);
-                      }}
-                      className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    {(session?.user as any)?.role === 'admin' && (
+                      <button
+                        onClick={() => {
+                          if (confirm('Delete this customer?')) deleteMutation.mutate(customer.id);
+                        }}
+                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
 

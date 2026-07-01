@@ -15,11 +15,44 @@ import {
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import { cn } from '@/lib/utils';
-import { CAROUSEL_SLIDES, EXPERTISE, GALLERY_ITEMS, siteInfo } from '@/data/content';
+import { CAROUSEL_SLIDES as DEFAULT_CAROUSEL, EXPERTISE as DEFAULT_EXPERTISE, GALLERY_ITEMS, siteInfo as DEFAULT_SITEINFO } from '@/data/content';
+import { useQuery } from '@tanstack/react-query';
 
 
 
 export default function HomePage() {
+  const { data: cmsContent } = useQuery({
+    queryKey: ['cms'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms');
+      return res.json();
+    }
+  });
+
+  const heroHeadline = cmsContent?.find((c: any) => c.id === 'hero_headline')?.content || DEFAULT_SITEINFO.heroHeadline;
+  
+  let carouselSlides = DEFAULT_CAROUSEL;
+  const dbCarousel = cmsContent?.filter((c: any) => c.section === 'carousel' && c.is_active);
+  if (dbCarousel && dbCarousel.length > 0) {
+    carouselSlides = dbCarousel.sort((a:any,b:any) => a.sort_order - b.sort_order).map((c:any) => ({
+      title: c.title,
+      desc: c.content,
+      image: c.image_url,
+      tag: 'Service'
+    }));
+  }
+
+  let expertise = DEFAULT_EXPERTISE;
+  const dbExpertise = cmsContent?.filter((c: any) => c.section === 'expertise' && c.is_active);
+  if (dbExpertise && dbExpertise.length > 0) {
+    expertise = dbExpertise.sort((a:any,b:any) => a.sort_order - b.sort_order).map((c:any, i:number) => ({
+      title: c.title,
+      desc: c.content,
+      image: c.image_url,
+      icon: DEFAULT_EXPERTISE[i % DEFAULT_EXPERTISE.length].icon
+    }));
+  }
+
   const [slideIndex, setSlideIndex] = useState(0);
   const [visibleIndex, setVisibleIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -36,38 +69,38 @@ export default function HomePage() {
       setIsTransitioning(true);
       setTimeout(() => {
         setSlideIndex((prev) => {
-          const nextIdx = (prev + 1) % CAROUSEL_SLIDES.length;
+          const nextIdx = (prev + 1) % carouselSlides.length;
           setVisibleIndex(nextIdx);
           return nextIdx;
         });
         setIsTransitioning(false);
       }, 300);
     }, 6000);
-  }, []);
+  }, [carouselSlides.length]);
 
   const handlePrev = useCallback(() => {
     setIsTransitioning(true);
     setTimeout(() => {
       setSlideIndex((prev) => {
-        const nextIdx = (prev - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length;
+        const nextIdx = (prev - 1 + carouselSlides.length) % carouselSlides.length;
         setVisibleIndex(nextIdx);
         return nextIdx;
       });
       setIsTransitioning(false);
     }, 300);
-  }, []);
+  }, [carouselSlides.length]);
 
   const handleNext = useCallback(() => {
     setIsTransitioning(true);
     setTimeout(() => {
       setSlideIndex((prev) => {
-        const nextIdx = (prev + 1) % CAROUSEL_SLIDES.length;
+        const nextIdx = (prev + 1) % carouselSlides.length;
         setVisibleIndex(nextIdx);
         return nextIdx;
       });
       setIsTransitioning(false);
     }, 300);
-  }, []);
+  }, [carouselSlides.length]);
 
   const handleDotClick = useCallback((idx: number) => {
     setIsTransitioning(true);
@@ -130,18 +163,18 @@ export default function HomePage() {
         `}} />
 
         {/* Carousel Background Images with Ken Burns Crossfade */}
-        {CAROUSEL_SLIDES.map((slide, idx) => (
+        {carouselSlides.map((slide, i) => (
           <div
-            key={idx}
+            key={i}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              idx === slideIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
+              i === slideIndex ? 'opacity-100 z-0' : 'opacity-0 z-0'
             }`}
           >
             <img
               src={slide.image}
               alt={slide.title}
               className={`w-full h-full object-cover transition-transform duration-[6000ms] ease-out ${
-                idx === slideIndex ? 'scale-105' : 'scale-100'
+                i === slideIndex ? 'scale-105' : 'scale-100'
               }`}
             />
             {/* Dark overlay for contrast */}
@@ -169,7 +202,7 @@ export default function HomePage() {
             )}>
               <div className="flex flex-wrap items-center gap-3">
                 <span className="inline-flex items-center gap-1.5 bg-[#FCD20F] text-black font-extrabold text-[9px] uppercase tracking-wider px-3.5 py-1 rounded-full shadow-sm">
-                  {CAROUSEL_SLIDES[visibleIndex].tag}
+                  {carouselSlides[visibleIndex]?.tag || 'Service'}
                 </span>
                 <span className="h-2 w-2 rounded-full bg-[#D22630] animate-ping"></span>
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#FCD20F]/90">
@@ -178,11 +211,11 @@ export default function HomePage() {
               </div>
               
               <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black leading-[1.2] tracking-tight text-white">
-                {CAROUSEL_SLIDES[visibleIndex].title}
+                {carouselSlides[visibleIndex]?.title}
               </h1>
               
               <p className="max-w-xl text-xs sm:text-base leading-relaxed text-white/85 font-medium">
-                {CAROUSEL_SLIDES[visibleIndex].desc}
+                {carouselSlides[visibleIndex]?.desc}
               </p>
 
               {/* Progress bar showing duration until next transition */}
@@ -254,7 +287,7 @@ export default function HomePage() {
 
         {/* Slide dots */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-          {CAROUSEL_SLIDES.map((_, i) => (
+          {carouselSlides.map((_, i) => (
             <button
               key={i}
               onClick={() => {
@@ -278,7 +311,7 @@ export default function HomePage() {
           <div className="print-guide-crop p-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-muted-foreground">Our Expertise</p>
             <h2 className="mt-2 text-3xl font-black md:text-5xl text-foreground">
-              {siteInfo.heroHeadline}
+              {heroHeadline}
             </h2>
           </div>
           <Link href="/services" className="text-xs font-bold uppercase tracking-wider text-muted-foreground hover:opacity-85 transition-opacity flex items-center gap-1">
@@ -287,7 +320,7 @@ export default function HomePage() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-3">
-          {EXPERTISE.map((item) => {
+          {expertise.map((item) => {
             const Icon = item.icon;
             return (
               <Link href="/services" key={item.title} className="group block relative flex flex-col hover:translate-y-[-8px] transition-transform duration-500">

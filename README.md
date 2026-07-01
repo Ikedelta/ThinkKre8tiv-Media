@@ -1,6 +1,6 @@
-# ThinkKre8tive Enterprise Portal
+# Think Kre8tiv Media Enterprise Portal
 
-Welcome to the **ThinkKre8tive Enterprise Portal** repository. This is an all-in-one business management portal (ERP) and public branding showcase for Ghana's premium print and branding agency, **ThinkKre8tive**.
+Welcome to the **Think Kre8tiv Media Enterprise Portal** repository. This is an all-in-one business management portal (ERP) and public branding showcase for Ghana's premium print and branding agency, **Think Kre8tiv Media**.
 
 This system manages everything from large-format prints, office setups, illuminated 3D signage logs, to client quotations, automated invoices, payment reconciliation, SMS notifications, and financial reporting.
 

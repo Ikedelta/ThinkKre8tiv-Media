@@ -29,10 +29,10 @@ interface Settings {
 }
 
 const defaultSettings: Settings = {
-  company_name: 'Think Kre8tive',
-  company_email: 'hello@thinkkre8tive.com',
+  company_name: 'Think Kre8tiv Media',
+  company_email: 'hello@thinkkre8tivmedia.com',
   company_phone: '+233 20 000 0000',
-  company_address: 'Accra, Ghana',
+  company_address: 'OSU haramani Sport complex',
   currency: 'GH₵',
   currency_code: 'GHS',
   vat_rate: 15.0,
@@ -42,7 +42,7 @@ const defaultSettings: Settings = {
   sms_api_key: '',
   sms_sender_id: 'ThinkKr8',
   website_tagline: 'Premium Printing & Branding Studio',
-  website_about: "Think Kre8tive is Ghana's premier printing and branding agency.",
+  website_about: "Think Kre8tiv Media is Ghana's premier printing and branding agency.",
   social_facebook: '',
   social_instagram: '',
   social_twitter: '',

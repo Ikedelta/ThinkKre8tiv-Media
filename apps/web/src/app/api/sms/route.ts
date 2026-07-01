@@ -37,6 +37,33 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Insufficient SMS credits' }, { status: 400 });
     }
 
+    const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY;
+    const arkeselSenderId = process.env.ARKESEL_SMS_SENDER_ID || settings?.sms_sender_id || 'ThinkKre8';
+
+    if (arkeselApiKey) {
+      // Actually send via Arkesel
+      const phoneNumbers = recipients.map((r: any) => r.phone);
+      
+      const arkeselResponse = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
+        method: 'POST',
+        headers: {
+          'api-key': arkeselApiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: arkeselSenderId,
+          message: message,
+          recipients: phoneNumbers
+        })
+      });
+
+      if (!arkeselResponse.ok) {
+        const errorData = await arkeselResponse.text();
+        console.error('Arkesel API Error:', errorData);
+        return Response.json({ error: 'Failed to send SMS via Arkesel' }, { status: 502 });
+      }
+    }
+
     // Log each SMS
     for (const r of recipients) {
       await sql`

@@ -28,23 +28,23 @@ interface Customer {
 const TEMPLATES = [
   {
     label: 'Invoice Ready',
-    text: 'Dear {name}, your invoice from Think Kre8tive is ready. Please contact us to arrange payment. Thank you!',
+    text: 'Dear {name}, your invoice from Think Kre8tiv Media is ready. Please contact us to arrange payment. Thank you!',
   },
   {
     label: 'Order Ready',
-    text: 'Dear {name}, great news! Your order is complete and ready for pickup/delivery. Call +233 20 000 0000. Think Kre8tive.',
+    text: 'Dear {name}, great news! Your order is complete and ready for pickup/delivery. Call +233 20 000 0000. Think Kre8tiv Media.',
   },
   {
     label: 'Payment Reminder',
-    text: 'Dear {name}, this is a friendly reminder that your invoice is due. Please arrange payment at your earliest convenience. Think Kre8tive.',
+    text: 'Dear {name}, this is a friendly reminder that your invoice is due. Please arrange payment at your earliest convenience. Think Kre8tiv Media.',
   },
   {
     label: 'Quotation Ready',
-    text: 'Dear {name}, your quotation from Think Kre8tive is ready for review. Call or visit us to discuss. Thank you!',
+    text: 'Dear {name}, your quotation from Think Kre8tiv Media is ready for review. Call or visit us to discuss. Thank you!',
   },
   {
     label: 'Promotion',
-    text: 'Hi {name}! 🎉 Think Kre8tive has a special offer this month. Get 10% off all large format prints. Call +233 20 000 0000.',
+    text: 'Hi {name}! 🎉 Think Kre8tiv Media has a special offer this month. Get 10% off all large format prints. Call +233 20 000 0000.',
   },
 ];
 

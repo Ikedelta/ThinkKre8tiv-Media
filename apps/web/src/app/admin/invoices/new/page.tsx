@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { useSession } from '@/lib/auth-client';
 
 interface Customer {
   id: string;
@@ -24,6 +25,7 @@ interface LineItem {
 const emptyItem: LineItem = { description: '', quantity: 1, unit_price: 0, total_price: 0 };
 
 export default function NewInvoicePage() {
+  const { data: session } = useSession();
   const router = useRouter();
   const [customerId, setCustomerId] = useState('');
   const [items, setItems] = useState<LineItem[]>([{ ...emptyItem }]);
@@ -103,6 +105,7 @@ export default function NewInvoicePage() {
       total_amount: total,
       due_date: dueDate || null,
       notes: notes || null,
+      created_by: session?.user?.name || 'System User',
       items,
     });
   };

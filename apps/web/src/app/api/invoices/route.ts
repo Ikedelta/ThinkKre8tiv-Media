@@ -6,26 +6,23 @@ export async function GET(request: Request) {
     const id = searchParams.get('id');
 
     if (id) {
-      const [invoice] = await sql`
-        SELECT i.*, 
-               c.name as customer_name, 
-               c.email as customer_email, 
-               c.phone as customer_phone, 
-               c.company as customer_company, 
-               c.address as customer_address
-        FROM invoices i
-        JOIN customers c ON i.customer_id = c.id
-        WHERE i.id = ${id}
-      `;
+      const [[invoice], items, receipts] = await Promise.all([
+        sql`
+          SELECT i.*, 
+                 c.name as customer_name, 
+                 c.email as customer_email, 
+                 c.phone as customer_phone, 
+                 c.company as customer_company, 
+                 c.address as customer_address
+          FROM invoices i
+          JOIN customers c ON i.customer_id = c.id
+          WHERE i.id = ${id}
+        `,
+        sql`SELECT * FROM invoice_items WHERE invoice_id = ${id}`,
+        sql`SELECT * FROM receipts WHERE invoice_id = ${id} AND approval_status = 'approved'`
+      ]);
+
       if (!invoice) return Response.json({ error: 'Invoice not found' }, { status: 404 });
-
-      const items = await sql`
-        SELECT * FROM invoice_items WHERE invoice_id = ${id}
-      `;
-
-      const receipts = await sql`
-        SELECT * FROM receipts WHERE invoice_id = ${id} AND approval_status = 'approved'
-      `;
 
       return Response.json({ ...invoice, items, receipts });
     }
@@ -72,7 +69,7 @@ export async function POST(request: Request) {
         finalCustomerId = existing.id;
         // Optionally update email/phone if they were missing, but for now just use existing.
       } else {
-        const safeEmail = customer_email?.trim() || null;
+        const safeEmail = customer_email?.trim() || `guest_${Date.now()}@example.com`;
         const safePhone = customer_phone?.trim() || null;
 
         const [newCustomer] = await sql`

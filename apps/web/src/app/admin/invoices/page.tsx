@@ -19,6 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { authClient } from '@/lib/auth-client';
 
 interface Invoice {
   id: string;
@@ -50,6 +51,7 @@ export default function InvoicesPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
 
   const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
     queryKey: ['invoices'],
@@ -69,6 +71,7 @@ export default function InvoicesPage() {
       return res.json();
     },
     enabled: !!selectedInvoiceId,
+    staleTime: 60000,
   });
 
   const deleteMutation = useMutation({
@@ -325,7 +328,7 @@ export default function InvoicesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-0.5">
-                          {isPending && (
+                          {isPending && (session?.user as any)?.role === 'admin' && (
                             <>
                               <button
                                 onClick={() =>
@@ -360,16 +363,18 @@ export default function InvoicesPage() {
                           >
                             <Printer size={14} />
                           </button>
-                          <button
-                            onClick={() => {
-                              if (confirm('Delete this invoice?'))
-                                deleteMutation.mutate(invoice.id);
-                            }}
-                            className="p-1.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          {(session?.user as any)?.role === 'admin' && (
+                            <button
+                              onClick={() => {
+                                if (confirm('Delete this invoice?'))
+                                  deleteMutation.mutate(invoice.id);
+                              }}
+                              className="p-1.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-lg transition-colors"
+                              title="Delete"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -492,7 +497,7 @@ export default function InvoicesPage() {
                       </p>
                     </div>
                   </div>
-                  {isPending ? (
+                  {isPending && (session?.user as any)?.role === 'admin' ? (
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
@@ -519,14 +524,16 @@ export default function InvoicesPage() {
                       >
                         <Printer size={12} /> Print/View
                       </button>
-                      <button
-                        onClick={() => {
-                          if (confirm('Delete?')) deleteMutation.mutate(invoice.id);
-                        }}
-                        className="py-1.5 px-3 text-xs font-bold bg-red-50 text-red-500 rounded-lg border border-red-100"
-                      >
-                        <Trash2 size={12} />
-                      </button>
+                      {(session?.user as any)?.role === 'admin' && (
+                        <button
+                          onClick={() => {
+                            if (confirm('Delete?')) deleteMutation.mutate(invoice.id);
+                          }}
+                          className="py-1.5 px-3 text-xs font-bold bg-red-50 text-red-500 rounded-lg border border-red-100"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -562,171 +569,191 @@ export default function InvoicesPage() {
       </div>
 
       {selectedInvoiceId && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 overflow-y-auto print:p-0 print:bg-white print:relative print:z-0 print:h-auto">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden print:shadow-none print:rounded-none print:w-full">
-            {/* Modal header (hidden in print) */}
-            <div className="flex items-center justify-between p-5 border-b border-slate-100 print:hidden bg-slate-50">
-              <h2 className="font-extrabold text-base text-[#001F3F]">Invoice Details</h2>
-              <button
-                onClick={() => setSelectedInvoiceId(null)}
-                className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400"
-              >
-                <XCircle size={18} />
-              </button>
+        <div className="fixed inset-0 bg-slate-900/80 z-50 flex items-start justify-center p-4 sm:p-8 overflow-y-auto print:p-0 print:bg-white print:block backdrop-blur-sm">
+          {/* A4 Paper Container */}
+          <div className="bg-white shadow-2xl w-full max-w-[800px] min-h-[1130px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-h-0 print:m-0 my-auto">
+            
+            {/* Action Bar - Hidden in print */}
+            <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex items-center justify-end gap-3 print:hidden">
+              <Button variant="secondary" onClick={() => setSelectedInvoiceId(null)} className="font-semibold bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md">
+                Close Preview
+              </Button>
+              <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 shadow-lg shadow-blue-900/20">
+                Print Invoice
+              </Button>
             </div>
 
             {/* Print Area */}
-            <div className="p-8 print:p-0 space-y-6 text-slate-800">
+            <div className="flex-1 flex flex-col text-slate-800">
               {isLoadingDetails ? (
-                <div className="py-20 text-center text-slate-400 font-semibold">Loading invoice details...</div>
+                <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold">Loading invoice details...</div>
               ) : !invoiceDetails ? (
-                <div className="py-20 text-center text-slate-400 font-semibold">Invoice not found</div>
+                <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold">Invoice not found</div>
               ) : (
                 <>
-                  {/* Top Header */}
-                  <div className="flex justify-between items-start border-b border-slate-200 pb-6">
-                    <div>
-                      <h3 className="text-xl font-extrabold text-[#001F3F] tracking-tight">THINK KRE8TIVE</h3>
-                      <p className="text-xs text-slate-500 font-bold mt-1 uppercase tracking-wider">Premium Print & Branding Solutions</p>
-                      <p className="text-xs text-slate-400 mt-1">Accra, Ghana · +233 20 000 0000</p>
-                      <p className="text-xs text-slate-400">billing@thinkkre8tive.com</p>
+                  {/* Decorative Top Accent */}
+                  <div className="h-4 w-full bg-[#001F3F] print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
+
+                  {/* Header Section */}
+                  <div className="px-12 pt-10 pb-8 flex justify-between items-start">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-4 mb-4">
+                        <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 object-contain" />
+                        <div>
+                          <h3 className="text-2xl font-black text-[#001F3F] tracking-tight leading-none">THINK KRE8TIV MEDIA</h3>
+                          <p className="text-[10px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1">Premium Print & Branding</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500 font-medium">Accra, Ghana</p>
+                      <p className="text-xs text-slate-500 font-medium">+233 20 000 0000</p>
+                      <p className="text-xs text-slate-500 font-medium">billing@thinkkre8tivmedia.com</p>
                     </div>
-                    <div className="text-right">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full uppercase tracking-wider mb-2 print:border print:border-blue-200">
-                        Invoice
-                      </span>
-                      <p className="text-lg font-black text-blue-600">{invoiceDetails.invoice_number}</p>
-                      <p className="text-xs text-slate-400 mt-1">Date: {invoiceDetails.created_at?.split('T')[0]}</p>
-                      {invoiceDetails.due_date && (
-                        <p className="text-xs text-slate-400 font-bold">Due Date: {invoiceDetails.due_date.split('T')[0]}</p>
-                      )}
+                    <div className="text-right flex flex-col items-end">
+                      <h1 className="text-4xl font-black text-slate-200 uppercase tracking-widest mb-4 print:text-slate-300">INVOICE</h1>
+                      <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-right min-w-[200px] print:border-slate-300" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <p className="text-sm font-black text-[#001F3F]">{invoiceDetails.invoice_number}</p>
+                        <p className="text-xs text-slate-500 mt-1">Date: <span className="font-bold text-slate-700">{invoiceDetails.created_at?.split('T')[0]}</span></p>
+                        {invoiceDetails.due_date && (
+                          <p className="text-xs text-slate-500 mt-0.5">Due: <span className="font-bold text-slate-700">{invoiceDetails.due_date.split('T')[0]}</span></p>
+                        )}
+                        <p className="text-[9px] text-slate-400 mt-2 uppercase tracking-wider">Created By: {invoiceDetails.created_by || 'System User'}</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Bill To */}
-                  <div className="grid grid-cols-2 gap-4 border-b border-slate-100 pb-6 text-sm">
-                    <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Billed To</p>
-                      <p className="font-extrabold text-[#001F3F]">{invoiceDetails.customer_name}</p>
+                  <div className="px-12 pb-8 grid grid-cols-2 gap-12">
+                    {/* Bill To */}
+                    <div className="space-y-1.5">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Billed To</p>
+                      <p className="text-base font-extrabold text-[#001F3F]">{invoiceDetails.customer_name}</p>
                       {invoiceDetails.customer_company && (
-                        <p className="text-xs text-slate-500 font-semibold">{invoiceDetails.customer_company}</p>
+                        <p className="text-sm text-slate-600 font-semibold">{invoiceDetails.customer_company}</p>
                       )}
-                      {invoiceDetails.customer_phone && (
-                        <p className="text-xs text-slate-400 mt-1">{invoiceDetails.customer_phone}</p>
-                      )}
-                      {invoiceDetails.customer_email && (
-                        <p className="text-xs text-slate-400">{invoiceDetails.customer_email}</p>
-                      )}
-                      {invoiceDetails.customer_address && (
-                        <p className="text-xs text-slate-400 mt-1">{invoiceDetails.customer_address}</p>
-                      )}
+                      <div className="text-xs text-slate-500 pt-1 space-y-0.5">
+                        {invoiceDetails.customer_phone && <p>{invoiceDetails.customer_phone}</p>}
+                        {invoiceDetails.customer_email && <p>{invoiceDetails.customer_email}</p>}
+                        {invoiceDetails.customer_address && <p>{invoiceDetails.customer_address}</p>}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Status</p>
-                      <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider mb-1.5 shadow-none px-2.5 py-0.5 rounded-full', statusConfig[invoiceDetails.status]?.color)}>
-                        {invoiceDetails.status}
-                      </Badge>
-                      <p className="text-xs text-slate-400 mt-1">Approval: <strong>{invoiceDetails.approval_status}</strong></p>
+                    
+                    {/* Status Box */}
+                    <div className="flex flex-col items-end justify-end space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Status:</span>
+                        <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-full shadow-none', statusConfig[invoiceDetails.status]?.color)} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          {invoiceDetails.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approval:</span>
+                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">{invoiceDetails.approval_status}</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Items list */}
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                        <th className="py-2 text-left">Description</th>
-                        <th className="py-2 text-center w-16">Qty</th>
-                        <th className="py-2 text-right w-28">Unit Price</th>
-                        <th className="py-2 text-right w-28">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {invoiceDetails.items?.map((item: any, i: number) => (
-                        <tr key={i} className="hover:bg-slate-50/50">
-                          <td className="py-3 font-semibold text-slate-800">{item.description}</td>
-                          <td className="py-3 text-center font-bold text-slate-600">{item.quantity}</td>
-                          <td className="py-3 text-right font-bold text-slate-600">{fmt(item.unit_price)}</td>
-                          <td className="py-3 text-right font-black text-[#001F3F]">{fmt(item.total_price)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="px-12 flex-1">
+                    <div className="rounded-xl border border-slate-200 overflow-hidden print:border-slate-300">
+                      <table className="w-full text-sm">
+                        <thead className="bg-[#001F3F] text-white print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <tr className="text-[10px] font-bold uppercase tracking-widest">
+                            <th className="py-3 px-4 text-left">Description</th>
+                            <th className="py-3 px-4 text-center w-20">Qty</th>
+                            <th className="py-3 px-4 text-right w-32">Unit Price</th>
+                            <th className="py-3 px-4 text-right w-32">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {invoiceDetails.items?.map((item: any, i: number) => (
+                            <tr key={i} className="hover:bg-slate-50 transition-colors">
+                              <td className="py-4 px-4 font-semibold text-slate-800">{item.description}</td>
+                              <td className="py-4 px-4 text-center font-bold text-slate-600">{item.quantity}</td>
+                              <td className="py-4 px-4 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
+                              <td className="py-4 px-4 text-right font-black text-[#001F3F]">{fmt(item.total_price)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  {/* Summary Totals */}
-                  <div className="flex justify-end pt-4 border-t border-slate-200">
-                    <div className="w-64 space-y-2.5 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-slate-500 font-medium">Subtotal</span>
-                        <span className="font-bold text-[#001F3F]">{fmt(invoiceDetails.subtotal)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-slate-500 font-medium">VAT ({invoiceDetails.vat_rate}%)</span>
-                        <span className="font-bold text-[#001F3F]">{fmt(invoiceDetails.vat_amount)}</span>
-                      </div>
-                      {Number(invoiceDetails.discount_amount) > 0 && (
-                        <div className="flex justify-between text-red-500">
-                          <span>Discount</span>
-                          <span className="font-bold">-{fmt(invoiceDetails.discount_amount)}</span>
+                    {/* Summary Totals */}
+                    <div className="flex justify-end pt-6">
+                      <div className="w-80 space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500 font-medium">Subtotal</span>
+                          <span className="font-bold text-slate-800">{fmt(invoiceDetails.subtotal)}</span>
                         </div>
-                      )}
-                      <div className="flex justify-between border-t border-slate-200 pt-2.5 font-black text-base text-[#001F3F]">
-                        <span>Total</span>
-                        <span>{fmt(invoiceDetails.total_amount)}</span>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-slate-500 font-medium">VAT ({invoiceDetails.vat_rate}%)</span>
+                          <span className="font-bold text-slate-800">{fmt(invoiceDetails.vat_amount)}</span>
+                        </div>
+                        {Number(invoiceDetails.discount_amount) > 0 && (
+                          <div className="flex justify-between text-sm text-red-500">
+                            <span>Discount</span>
+                            <span className="font-bold">-{fmt(invoiceDetails.discount_amount)}</span>
+                          </div>
+                        )}
+                        
+                        <div className="bg-slate-50 rounded-xl p-4 mt-4 border border-slate-100 print:border-slate-300" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-black text-[#001F3F] uppercase tracking-wider">Total Amount</span>
+                            <span className="text-xl font-black text-[#001F3F]">{fmt(invoiceDetails.total_amount)}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-sm text-green-600 font-bold mb-1">
+                            <span>Amount Paid</span>
+                            <span>{fmt(invoiceDetails.amount_paid)}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-sm border-t border-slate-200 pt-2 mt-2">
+                            <span className="font-black text-[#001F3F] uppercase tracking-wider">Balance Due</span>
+                            <span className={cn('font-black text-lg', Number(invoiceDetails.balance_due) > 0 ? 'text-red-500' : 'text-green-600')}>
+                              {fmt(invoiceDetails.balance_due)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between text-green-600 font-bold">
-                        <span>Amount Paid</span>
-                        <span>{fmt(invoiceDetails.amount_paid)}</span>
+                    </div>
+
+                    {/* Receipts Payment History */}
+                    {invoiceDetails.receipts?.length > 0 && (
+                      <div className="mt-10">
+                        <h4 className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-3 border-b border-slate-200 pb-2">Payment History</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          {invoiceDetails.receipts.map((rec: any) => (
+                            <div key={rec.id} className="flex justify-between items-center text-sm bg-slate-50 p-3 rounded-lg border border-slate-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              <div>
+                                <p className="font-bold text-slate-800">{rec.receipt_number}</p>
+                                <p className="text-xs text-slate-500 font-medium mt-0.5">{rec.payment_method.replace('_', ' ')} · {rec.payment_date?.split('T')[0]}</p>
+                              </div>
+                              <span className="font-black text-green-600">{fmt(rec.amount)}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex justify-between border-t border-double border-slate-300 pt-2 font-black text-[#001F3F]">
-                        <span>Balance Due</span>
-                        <span className={Number(invoiceDetails.balance_due) > 0 ? 'text-red-500' : 'text-green-600'}>
-                          {fmt(invoiceDetails.balance_due)}
-                        </span>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-12 py-8 mt-auto border-t border-slate-100">
+                    <div className="flex justify-between items-end">
+                      {invoiceDetails.notes ? (
+                        <div className="max-w-md text-xs text-slate-500">
+                          <p className="font-bold text-[#001F3F] uppercase tracking-wider mb-1">Notes & Terms</p>
+                          <p className="font-medium leading-relaxed">{invoiceDetails.notes}</p>
+                        </div>
+                      ) : <div />}
+                      
+                       <div className="text-right">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Thank you for your business!</p>
+                        <p className="text-[10px] font-medium text-slate-400 mt-1">Think Kre8tiv Media</p>
                       </div>
                     </div>
                   </div>
-
-                  {/* Receipts Payment History */}
-                  {invoiceDetails.receipts?.length > 0 && (
-                    <div className="border-t border-slate-200 pt-6">
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Payment Receipts History</h4>
-                      <div className="space-y-2">
-                        {invoiceDetails.receipts.map((rec: any) => (
-                          <div key={rec.id} className="flex justify-between items-center text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100 print:bg-white print:border-none print:p-1">
-                            <div>
-                              <p className="font-bold text-slate-800">Receipt <span className="text-green-600">{rec.receipt_number}</span></p>
-                              <p className="text-[10px] text-slate-400 font-medium">Paid via {rec.payment_method.replace('_', ' ')} · {rec.payment_date?.split('T')[0]}</p>
-                            </div>
-                            <span className="font-black text-[#001F3F]">{fmt(rec.amount)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Footer Terms */}
-                  {invoiceDetails.notes && (
-                    <div className="border-t border-slate-100 pt-4 text-xs text-slate-400">
-                      <p className="font-bold text-slate-500 uppercase tracking-wider mb-1">Notes & Terms</p>
-                      <p className="font-medium leading-relaxed">{invoiceDetails.notes}</p>
-                    </div>
-                  )}
                 </>
               )}
             </div>
-
-            {/* Actions (hidden in print) */}
-            <div className="flex items-center justify-end gap-3 p-5 border-t border-slate-100 print:hidden bg-slate-50">
-              <Button variant="outline" onClick={() => setSelectedInvoiceId(null)} className="font-semibold">
-                Close
-              </Button>
-              <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 font-bold px-6">
-                Print Invoice
-              </Button>
-            </div>
           </div>
         </div>
-      )}
+        )}
     </div>
   );
 }

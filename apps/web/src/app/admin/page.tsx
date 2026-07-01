@@ -33,49 +33,42 @@ export default function AdminDashboardPage() {
 
   useEffect(() => setMounted(true), []);
 
-  const { data: invoices = [] } = useQuery<any[]>({
-    queryKey: ['invoices'],
+  const { data, isLoading } = useQuery({
+    queryKey: ['dashboard-stats'],
     queryFn: async () => {
-      const r = await fetch('/api/invoices');
+      const r = await fetch('/api/dashboard-stats');
       if (!r.ok) throw new Error('Failed');
       return r.json();
     },
     enabled: mounted,
-  });
-
-  const { data: quotations = [] } = useQuery<any[]>({
-    queryKey: ['quotations'],
-    queryFn: async () => {
-      const r = await fetch('/api/quotations');
-      if (!r.ok) throw new Error('Failed');
-      return r.json();
-    },
-    enabled: mounted,
-  });
-
-  const { data: customers = [] } = useQuery<any[]>({
-    queryKey: ['customers'],
-    queryFn: async () => {
-      const r = await fetch('/api/customers');
-      if (!r.ok) throw new Error('Failed');
-      return r.json();
-    },
-    enabled: mounted,
+    staleTime: 60000, // Keep fresh for 60 seconds to avoid spamming the DB
   });
 
   if (!mounted) return null;
 
-  // Key Metrics Calculation
-  const totalRevenue = invoices.reduce((s: number, i: any) => s + Number(i.amount_paid || 0), 0);
-  const outstanding = invoices.reduce((s: number, i: any) => s + Number(i.balance_due || 0), 0);
-  const pendingInvoices = invoices.filter((i: any) => i.approval_status === 'pending');
-  const activePrintJobs = quotations.filter((q: any) => q.status !== 'completed' && q.status !== 'rejected').length;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
+        <div className="w-10 h-10 border-4 border-[#E04D1B] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-sm font-medium text-slate-500 animate-pulse">Loading dashboard data...</p>
+      </div>
+    );
+  }
+
+  const metrics = data?.metrics || {
+    totalRevenue: 0,
+    outstandingBalance: 0,
+    pendingInvoicesCount: 0,
+    totalInvoicesCount: 0,
+    activePrintJobs: 0,
+    totalCustomersCount: 0,
+  };
 
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const recentInvoices = invoices.slice(0, 10);
-  const recentQuotations = quotations.slice(0, 10);
-  const recentCustomers = customers.slice(0, 10);
+  const recentInvoices = data?.recent?.invoices || [];
+  const recentQuotations = data?.recent?.quotations || [];
+  const recentCustomers = data?.recent?.customers || [];
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto pb-12 font-sans">
@@ -91,10 +84,10 @@ export default function AdminDashboardPage() {
       {/* Metrics Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Revenue', value: fmt(totalRevenue), secondary: `${invoices.length} total invoices` },
-          { label: 'Outstanding Balance', value: fmt(outstanding), secondary: `${pendingInvoices.length} awaiting approval`, alert: pendingInvoices.length > 0 },
-          { label: 'Active Print Jobs', value: activePrintJobs.toString(), secondary: 'Currently in progress' },
-          { label: 'Total Customers', value: customers.length.toString(), secondary: 'Registered clients' },
+          { label: 'Total Revenue', value: fmt(metrics.totalRevenue), secondary: `${metrics.totalInvoicesCount} total invoices` },
+          { label: 'Outstanding Balance', value: fmt(metrics.outstandingBalance), secondary: `${metrics.pendingInvoicesCount} awaiting approval`, alert: metrics.pendingInvoicesCount > 0 },
+          { label: 'Active Print Jobs', value: metrics.activePrintJobs.toString(), secondary: 'Currently in progress' },
+          { label: 'Total Customers', value: metrics.totalCustomersCount.toString(), secondary: 'Registered clients' },
         ].map((stat, i) => (
           <Card key={i} className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-lg bg-white dark:bg-slate-900">
             <CardContent className="p-5">
@@ -170,7 +163,12 @@ export default function AdminDashboardPage() {
                             {job.status || 'draft'}
                           </Badge>
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
+                          {job.file_url && (
+                            <a href={job.file_url} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800 text-sm font-medium flex items-center gap-1">
+                              Download File
+                            </a>
+                          )}
                           <Link href={`/admin/quotations?id=${job.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
                             View details
                           </Link>

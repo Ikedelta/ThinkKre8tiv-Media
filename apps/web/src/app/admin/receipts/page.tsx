@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, ChevronDown, Eye, Download, Trash2, Plus, Receipt as ReceiptIcon, X, CheckCircle2, FileText, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { authClient } from '@/lib/auth-client';
 
 interface Invoice {
   id: string;
@@ -28,6 +29,7 @@ export default function BillingAndReceiptsPage() {
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
 
   // Unified Modal states
   const [isGenerateOpen, setIsGenerateOpen] = useState(false);
@@ -123,7 +125,7 @@ export default function BillingAndReceiptsPage() {
         vat_amount: vatAmount,
         due_date: dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         notes: isInvoice ? '' : 'Direct receipt generated',
-        created_by: 'Staff Member', // Hardcoded until Auth is wired up
+        created_by: session?.user?.name || 'System User',
         items: lineItems.map(item => ({
           description: item.description,
           quantity: item.quantity,
@@ -224,25 +226,27 @@ export default function BillingAndReceiptsPage() {
           </div>
         </div>
 
-        {/* 4 Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Documents</p>
-            <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{totalDocuments}</p>
+        {/* 4 Metric Cards - Admin Only */}
+        {(session?.user as any)?.role === 'admin' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Documents</p>
+              <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{totalDocuments}</p>
+            </div>
+            <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Estimated Revenue</p>
+              <p className="text-3xl font-black text-[#FF5722]">{fmt(estimatedRevenue)}</p>
+            </div>
+            <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Pending Approval</p>
+              <p className="text-3xl font-black text-amber-500">{pendingApproval}</p>
+            </div>
+            <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Paid Invoices</p>
+              <p className="text-3xl font-black text-emerald-600 dark:text-emerald-500">{paidInvoices}</p>
+            </div>
           </div>
-          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Estimated Revenue</p>
-            <p className="text-3xl font-black text-[#FF5722]">{fmt(estimatedRevenue)}</p>
-          </div>
-          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Pending Approval</p>
-            <p className="text-3xl font-black text-amber-500">{pendingApproval}</p>
-          </div>
-          <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Paid Invoices</p>
-            <p className="text-3xl font-black text-emerald-600 dark:text-emerald-500">{paidInvoices}</p>
-          </div>
-        </div>
+        )}
 
         {/* Search */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
@@ -338,7 +342,7 @@ export default function BillingAndReceiptsPage() {
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-3">
-                            {isPending && (
+                            {isPending && (session?.user as any)?.role === 'admin' && (
                               <button
                                 onClick={() => approveMutation.mutate({ id: doc.id, approval_status: 'approved' })}
                                 className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white text-amber-600 dark:text-amber-500 border border-amber-200 dark:border-amber-500/20 rounded-full text-xs font-bold transition-all"
@@ -361,16 +365,18 @@ export default function BillingAndReceiptsPage() {
                             >
                               <Download size={14} /> PDF
                             </button>
-                            <button 
-                              onClick={() => {
-                                if (confirm('Are you sure you want to delete this document?')) {
-                                  deleteMutation.mutate(doc.id);
-                                }
-                              }}
-                              className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white rounded-full transition-all border border-rose-100 dark:border-rose-500/20"
-                            >
-                              <Trash2 size={12} />
-                            </button>
+                            {(session?.user as any)?.role === 'admin' && (
+                              <button 
+                                onClick={() => {
+                                  if (confirm('Are you sure you want to delete this document?')) {
+                                    deleteMutation.mutate(doc.id);
+                                  }
+                                }}
+                                className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white rounded-full transition-all border border-rose-100 dark:border-rose-500/20"
+                              >
+                                <Trash2 size={12} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -572,80 +578,93 @@ export default function BillingAndReceiptsPage() {
                   </h3>
                   
                   {/* The Preview Sheet */}
-                  <div className="bg-white border border-slate-200 rounded-2xl shadow-xl p-6 relative overflow-hidden transition-all duration-300 transform scale-[0.85] origin-top-center w-[115%] -ml-[7.5%]">
-                    <div className="absolute top-6 right-6 bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full border border-rose-200">
+                  <div className="bg-white border border-slate-200 shadow-2xl p-0 relative overflow-hidden transition-all duration-300 transform scale-[0.85] origin-top-center w-[115%] -ml-[7.5%]">
+                    <div className="absolute top-6 right-6 bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full border border-rose-200 shadow-sm z-10">
                       Draft Preview
                     </div>
                     
-                    <div className="flex flex-col mb-8 gap-2">
-                      <img src="/logo.png" alt="Think Kre8tive Logo" className="h-10 w-auto object-contain self-start" />
-                      <div className="text-right">
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
-                        <p className="text-sm text-slate-500 mt-1 font-medium">{generateType === 'invoice' ? invoiceNumber : receiptNumber}</p>
-                        <p className="text-xs text-slate-400 mt-1">{new Date().toLocaleString()}</p>
-                        <p className="text-[10px] text-slate-400 mt-1">Generated by: Staff Member</p>
-                      </div>
-                    </div>
+                    {/* Decorative Top Accent */}
+                    <div className="h-3 w-full bg-[#001F3F]" />
 
-                    <div className="grid grid-cols-2 gap-4 mb-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                      <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Billed To</p>
-                        <p className="font-black text-sm text-slate-800 leading-tight">{customerName || 'Client Name'}</p>
-                        <p className="text-[10px] font-medium text-slate-500 mt-1">{customerEmail || 'email@example.com'}</p>
-                        <p className="text-[10px] font-medium text-slate-500">{customerPhone || '+233 50 000 0000'}</p>
-                      </div>
-                      <div className="text-right flex flex-col justify-between">
-                        <div>
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
-                          <p className="text-[10px] font-bold text-slate-700">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                    <div className="px-8 pt-8 pb-6 flex justify-between items-start">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-14 h-14 object-contain" />
+                          <div>
+                            <h3 className="text-xl font-black text-[#001F3F] tracking-tight leading-none">THINK KRE8TIV MEDIA</h3>
+                            <p className="text-[8px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1">Premium Print & Branding</p>
+                          </div>
                         </div>
-                        <div className="mt-2">
-                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Due</p>
-                          <p className="text-[10px] font-bold text-[#FF5722]">{dueDate ? new Date(dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Upon Receipt'}</p>
+                      </div>
+                      <div className="text-right flex flex-col items-end">
+                        <h1 className="text-3xl font-black text-slate-200 uppercase tracking-widest mb-3">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
+                        <div className="bg-slate-50 rounded-lg p-3 border border-slate-100 text-right min-w-[160px]">
+                          <p className="text-xs font-black text-[#001F3F]">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</p>
+                          <p className="text-[10px] text-slate-500 mt-1">Date: <span className="font-bold text-slate-700">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></p>
+                          <p className="text-[8px] text-slate-400 mt-1.5 uppercase tracking-wider">Created By: {session?.user?.name || 'Staff Member'}</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="border border-slate-200 rounded-lg overflow-hidden mb-6">
-                      <table className="w-full">
-                        <thead className="bg-slate-100 border-b border-slate-200">
-                          <tr>
-                            <th className="py-2 px-3 text-left text-[8px] font-black uppercase tracking-widest text-slate-500">Description</th>
-                            <th className="py-2 px-3 text-center text-[8px] font-black uppercase tracking-widest text-slate-500">Qty</th>
-                            <th className="py-2 px-3 text-right text-[8px] font-black uppercase tracking-widest text-slate-500">Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {lineItems.map((item, i) => (
-                            <tr key={item.id} className="bg-white">
-                              <td className="py-3 px-3 text-[10px] font-bold text-slate-700 truncate max-w-[120px]">{item.description || <span className="text-slate-300 italic">New Line Item</span>}</td>
-                              <td className="py-3 px-3 text-[10px] text-center font-medium text-slate-500">{item.quantity}</td>
-                              <td className="py-3 px-3 text-[10px] text-right font-black text-slate-800">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
+                    <div className="px-8 pb-6 grid grid-cols-2 gap-8">
+                      <div className="space-y-1">
+                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Billed To</p>
+                        <p className="font-black text-sm text-[#001F3F] leading-tight">{customerName || 'Client Name'}</p>
+                        <div className="text-[9px] text-slate-500 pt-0.5 space-y-0.5">
+                          {customerPhone && <p>{customerPhone}</p>}
+                          {customerEmail && <p>{customerEmail}</p>}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end justify-end space-y-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Due:</span>
+                          <span className="text-[10px] font-bold text-[#FF5722]">{dueDate ? new Date(dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Upon Receipt'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-8 flex-1">
+                      <div className="border border-slate-200 rounded-lg overflow-hidden mb-6">
+                        <table className="w-full">
+                          <thead className="bg-[#001F3F] text-white">
+                            <tr>
+                              <th className="py-2 px-3 text-left text-[8px] font-bold uppercase tracking-widest">Description</th>
+                              <th className="py-2 px-3 text-center text-[8px] font-bold uppercase tracking-widest">Qty</th>
+                              <th className="py-2 px-3 text-right text-[8px] font-bold uppercase tracking-widest">Amount</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200">
+                            {lineItems.map((item, i) => (
+                              <tr key={item.id} className="bg-white hover:bg-slate-50 transition-colors">
+                                <td className="py-3 px-3 text-[10px] font-bold text-slate-700 truncate max-w-[120px]">{item.description || <span className="text-slate-300 italic">New Line Item</span>}</td>
+                                <td className="py-3 px-3 text-[10px] text-center font-medium text-slate-500">{item.quantity}</td>
+                                <td className="py-3 px-3 text-[10px] text-right font-black text-slate-800">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
 
-                    <div className="flex justify-end">
-                      <div className="w-full max-w-[200px] space-y-2 bg-slate-50 rounded-lg p-4 border border-slate-100">
-                        <div className="flex justify-between text-[10px] items-center">
-                          <span className="font-bold text-slate-500 uppercase tracking-widest text-[8px]">Subtotal</span>
-                          <span className="font-bold text-slate-700">₵{subtotal.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between text-[10px] items-center">
-                          <span className="font-bold text-slate-500 uppercase tracking-widest text-[8px]">VAT (20%)</span>
-                          <span className="font-bold text-slate-700">₵{vatAmount.toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
-                          <span className="font-black uppercase tracking-widest text-slate-900 text-[9px]">Total</span>
-                          <span className="font-black text-lg text-[#FF5722]">₵{grandTotal.toFixed(2)}</span>
+                      <div className="flex justify-end mb-6">
+                        <div className="w-full max-w-[200px] space-y-2 bg-slate-50 rounded-lg p-4 border border-slate-100">
+                          <div className="flex justify-between text-[9px] items-center">
+                            <span className="font-bold text-slate-500 uppercase tracking-widest">Subtotal</span>
+                            <span className="font-bold text-slate-700">₵{subtotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between text-[9px] items-center">
+                            <span className="font-bold text-slate-500 uppercase tracking-widest">VAT (20%)</span>
+                            <span className="font-bold text-slate-700">₵{vatAmount.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between items-center border-t border-slate-200 pt-2 mt-1">
+                            <span className="font-black text-[#001F3F] uppercase tracking-widest text-[9px]">Total</span>
+                            <span className="font-black text-lg text-[#001F3F]">₵{grandTotal.toFixed(2)}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-8 pt-4 border-t border-slate-100 text-center text-[8px] font-medium text-slate-400">
-                      <p>Developed by Tech34 Systems</p>
+                    <div className="px-8 py-4 bg-slate-50 border-t border-slate-100 text-center text-[8px] font-medium text-slate-400">
+                      <p>Thank you for your business! · Think Kre8tiv Media</p>
                     </div>
 
                   </div>
@@ -676,137 +695,150 @@ export default function BillingAndReceiptsPage() {
       )}
 
       {/* View/Print Document Modal */}
+      {/* View/Print Document Modal */}
       {viewDocId && viewedDoc && (
-        <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-0 sm:p-4 animate-fade-in print:bg-white print:p-0 print:absolute print:inset-0">
+        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 flex items-start justify-center p-4 sm:p-8 overflow-y-auto animate-fade-in print:p-0 print:bg-white print:block">
           
-          {/* Action buttons (Hidden during print) */}
-          <div className="absolute top-4 right-4 flex gap-2 print:hidden z-50">
-            <button onClick={handleEditDoc} className="bg-slate-800 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2 hover:bg-slate-700 transition-colors">
-              <Edit2 size={16} /> Edit Document
-            </button>
-            <button onClick={() => window.print()} className="bg-[#FF5722] text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2">
-              <Download size={16} /> Print / Save PDF
-            </button>
-            <button onClick={() => setViewDocId(null)} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-2 rounded-lg shadow-lg hover:bg-slate-100 dark:hover:bg-slate-700">
-              <X size={20} />
-            </button>
-          </div>
-
-          {/* Actual Document to Print */}
-          <div className="bg-white text-black w-full max-w-3xl h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto sm:rounded-xl p-8 sm:p-12 shadow-2xl print:shadow-none print:w-[210mm] print:h-[296mm] print:max-h-[296mm] print:overflow-hidden print:p-10 print:box-border relative">
-            <style type="text/css" media="print">
-              {`
-                @page { size: A4 portrait; margin: 0; }
-                body { margin: 0; padding: 0; background: white; }
-                /* Hide everything else on the page during print */
-                body > *:not(.print-wrapper) { display: none; }
-              `}
-            </style>
+          {/* A4 Paper Container */}
+          <div className="bg-white shadow-2xl w-full max-w-[800px] min-h-[1130px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-h-0 print:m-0 my-auto">
             
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-slate-200 pb-8 mb-8 gap-6">
-              <div>
-                <img src="/logo.png" alt="Think Kre8tive Logo" className="h-16 w-auto object-contain mb-4" />
-                <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-slate-900 mb-1">
-                  {viewedDoc.total_amount === viewedDoc.amount ? 'RECEIPT' : 'INVOICE'}
-                </h1>
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">{viewedDoc.invoice_number}</p>
-                {viewedDoc.approval_status !== 'approved' && (
-                  <span className="inline-block mt-3 bg-rose-50 text-rose-600 px-3 py-1 rounded text-[10px] font-black tracking-widest border border-rose-200 uppercase">
-                    Draft (Unapproved)
-                  </span>
-                )}
-              </div>
-              <div className="text-left sm:text-right">
-                <p className="text-xl font-black text-slate-900 mb-1">Think Kre8tive</p>
-                <p className="text-sm font-medium text-slate-500">Accra, Ghana</p>
-                <p className="text-sm font-medium text-slate-500">info@thinkkre8tive.com</p>
-                <p className="text-sm font-medium text-slate-500">+233 50 000 0000</p>
-              </div>
+            {/* Action buttons (Hidden during print) */}
+            <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex justify-end gap-3 print:hidden z-50">
+              <Button variant="secondary" onClick={handleEditDoc} className="bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md shadow-lg font-semibold">
+                <Edit2 size={16} className="mr-2" /> Edit
+              </Button>
+              <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 font-bold px-6">
+                <Download size={16} className="mr-2" /> Print PDF
+              </Button>
+              <Button variant="outline" onClick={() => setViewDocId(null)} className="font-semibold bg-white text-slate-900 border-none shadow-lg">
+                <X size={18} />
+              </Button>
             </div>
 
-            {/* Parties */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12 bg-slate-50 rounded-2xl p-6 border border-slate-100">
-              <div>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Billed To</p>
-                <p className="font-black text-lg text-slate-800">{viewedDoc.customer_name}</p>
-                <p className="text-sm font-medium text-slate-500 mt-1">{viewedDoc.customer_email || 'No email provided'}</p>
-                {viewedDoc.customer_phone && <p className="text-sm font-medium text-slate-500">{viewedDoc.customer_phone}</p>}
-              </div>
-              <div className="sm:text-right flex flex-col justify-between">
-                <div className="mb-4">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date & Time</p>
-                  <p className="font-bold text-slate-700">{new Date(viewedDoc.created_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                </div>
-                <div className="mb-4">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Created By</p>
-                  <p className="font-bold text-slate-700">{viewedDoc.created_by || 'System User'}</p>
-                </div>
-                {viewedDoc.due_date && (
-                  <div className="mb-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Due Date</p>
-                    <p className="font-bold text-[#FF5722]">{new Date(viewedDoc.due_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            {/* Print Area */}
+            <div className="flex-1 flex flex-col text-slate-800">
+              
+              {/* Decorative Top Accent */}
+              <div className="h-4 w-full bg-[#001F3F] print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
+
+              {/* Header */}
+              <div className="px-12 pt-10 pb-8 flex justify-between items-start">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-4 mb-4">
+                    <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 object-contain" />
+                    <div>
+                      <h3 className="text-2xl font-black text-[#001F3F] tracking-tight leading-none">THINK KRE8TIV MEDIA</h3>
+                      <p className="text-[10px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1">Premium Print & Branding</p>
+                    </div>
                   </div>
-                )}
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Due</p>
-                  <p className="font-black text-3xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</p>
+                  <p className="text-xs text-slate-500 font-medium">Accra, Ghana</p>
+                  <p className="text-xs text-slate-500 font-medium">+233 20 000 0000</p>
+                  <p className="text-xs text-slate-500 font-medium">info@thinkkre8tivmedia.com</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Line Items */}
-            <div className="border border-slate-200 rounded-xl overflow-hidden mb-8">
-              <table className="w-full">
-                <thead className="bg-slate-100 border-b border-slate-200">
-                  <tr>
-                    <th className="py-4 px-6 text-left text-[10px] font-black uppercase tracking-widest text-slate-500">Description</th>
-                    <th className="py-4 px-6 text-center text-[10px] font-black uppercase tracking-widest text-slate-500">Qty</th>
-                    <th className="py-4 px-6 text-right text-[10px] font-black uppercase tracking-widest text-slate-500">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {viewedDoc.items && viewedDoc.items.length > 0 ? (
-                    viewedDoc.items.map((item: any) => (
-                      <tr key={item.id} className="group hover:bg-slate-50 transition-colors">
-                        <td className="py-5 px-6 font-bold text-slate-700">{item.description}</td>
-                        <td className="py-5 px-6 text-center font-medium text-slate-500">{item.quantity}</td>
-                        <td className="py-5 px-6 text-right font-black text-slate-800">{fmt(item.total_price)}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={3} className="py-6 px-6 font-bold text-slate-400 italic text-center">Custom Document Total</td>
-                    </tr>
+                <div className="text-right flex flex-col items-end">
+                  <h1 className="text-4xl font-black text-slate-200 uppercase tracking-widest mb-4 print:text-slate-300">
+                    {viewedDoc.total_amount === viewedDoc.amount ? 'RECEIPT' : 'INVOICE'}
+                  </h1>
+                  <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-right min-w-[200px] print:border-slate-300" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    <p className="text-sm font-black text-[#001F3F]">{viewedDoc.invoice_number || viewedDoc.receipt_number}</p>
+                    <p className="text-xs text-slate-500 mt-1">Date: <span className="font-bold text-slate-700">{new Date(viewedDoc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></p>
+                    {viewedDoc.due_date && (
+                      <p className="text-xs text-slate-500 mt-0.5">Due: <span className="font-bold text-[#FF5722]">{new Date(viewedDoc.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span></p>
+                    )}
+                    <p className="text-[9px] text-slate-400 mt-2 uppercase tracking-wider">Created By: {viewedDoc.created_by || 'System User'}</p>
+                  </div>
+                  {viewedDoc.approval_status !== 'approved' && (
+                    <span className="inline-block mt-3 bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-[9px] font-black tracking-widest border border-rose-200 uppercase">
+                      Draft (Unapproved)
+                    </span>
                   )}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Totals */}
-            <div className="flex justify-end mb-16">
-              <div className="w-full max-w-sm space-y-4 bg-slate-50 rounded-xl p-6 border border-slate-100">
-                <div className="flex justify-between text-sm items-center">
-                  <span className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">Subtotal</span>
-                  <span className="font-bold text-slate-700">{fmt(viewedDoc.subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-sm items-center">
-                  <span className="font-bold text-slate-500 uppercase tracking-widest text-[10px]">VAT (20%)</span>
-                  <span className="font-bold text-slate-700">{fmt(viewedDoc.vat_amount || (viewedDoc.subtotal * 0.2))}</span>
-                </div>
-                <div className="flex justify-between items-center border-t border-slate-200 pt-4 mt-2">
-                  <span className="font-black text-sm uppercase tracking-widest text-slate-900">Grand Total</span>
-                  <span className="font-black text-3xl text-[#FF5722]">{fmt(viewedDoc.total_amount)}</span>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-auto pt-8 border-t-2 border-slate-100 text-center text-xs font-medium text-slate-400 absolute bottom-10 left-0 right-0 px-12 print:px-10 print:bottom-8">
-              <p className="mb-1">Thank you for choosing Think Kre8tive!</p>
-              <p>Payment is due upon receipt. Please make all checks payable to Think Kre8tive.</p>
-              <p className="mt-4 text-[10px] text-slate-300 tracking-widest uppercase">Developed by Tech34 Systems</p>
-            </div>
+              {/* Parties */}
+              <div className="px-12 pb-8 grid grid-cols-2 gap-12">
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Billed To</p>
+                  <p className="text-base font-extrabold text-[#001F3F]">{viewedDoc.customer_name}</p>
+                  <div className="text-xs text-slate-500 pt-1 space-y-0.5">
+                    {viewedDoc.customer_phone && <p>{viewedDoc.customer_phone}</p>}
+                    {viewedDoc.customer_email && <p>{viewedDoc.customer_email}</p>}
+                    {viewedDoc.customer_address && <p>{viewedDoc.customer_address}</p>}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end justify-end">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Amount:</span>
+                    <span className="text-2xl font-black text-[#FF5722]">{fmt(viewedDoc.total_amount || viewedDoc.amount)}</span>
+                  </div>
+                </div>
+              </div>
 
+              {/* Line Items */}
+              <div className="px-12 flex-1">
+                <div className="rounded-xl border border-slate-200 overflow-hidden print:border-slate-300">
+                  <table className="w-full text-sm">
+                    <thead className="bg-[#001F3F] text-white print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <tr className="text-[10px] font-bold uppercase tracking-widest">
+                        <th className="py-3 px-4 text-left">Description</th>
+                        <th className="py-3 px-4 text-center w-20">Qty</th>
+                        <th className="py-3 px-4 text-right w-32">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {viewedDoc.items && viewedDoc.items.length > 0 ? (
+                        viewedDoc.items.map((item: any) => (
+                          <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                            <td className="py-4 px-4 font-semibold text-slate-800">{item.description}</td>
+                            <td className="py-4 px-4 text-center font-bold text-slate-600">{item.quantity}</td>
+                            <td className="py-4 px-4 text-right font-black text-[#001F3F]">{fmt(item.total_price || (item.quantity * item.unit_price))}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={3} className="py-6 px-4 font-bold text-slate-400 italic text-center">Custom Document Total</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Totals */}
+                <div className="flex justify-end pt-6">
+                  <div className="w-80 space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500 font-medium">Subtotal</span>
+                      <span className="font-bold text-slate-800">{fmt(viewedDoc.subtotal || viewedDoc.amount)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-500 font-medium">VAT (20%)</span>
+                      <span className="font-bold text-slate-800">{fmt(viewedDoc.vat_amount || ((viewedDoc.subtotal || viewedDoc.amount) * 0.2))}</span>
+                    </div>
+                    
+                    <div className="bg-slate-50 rounded-xl p-4 mt-4 border border-slate-100 print:border-slate-300" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm font-black text-[#001F3F] uppercase tracking-wider">Grand Total</span>
+                        <span className="text-2xl font-black text-[#FF5722]">{fmt(viewedDoc.total_amount || viewedDoc.amount)}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="px-12 py-8 mt-auto border-t border-slate-100">
+                <div className="flex justify-between items-end">
+                  <div className="max-w-md text-xs text-slate-500">
+                    <p className="font-bold text-[#001F3F] uppercase tracking-wider mb-1">Thank you for choosing Think Kre8tiv Media!</p>
+                    <p className="font-medium leading-relaxed">Payment is due upon receipt. Please make all checks payable to Think Kre8tiv Media.</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-medium text-slate-400">Think Kre8tiv Media</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       )}

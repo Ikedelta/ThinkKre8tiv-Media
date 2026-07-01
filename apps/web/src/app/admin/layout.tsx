@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
   { name: 'Submitted Files', href: '/admin/quotations', icon: FileText },
   { name: 'Services List', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
   { name: 'User Accounts', href: '/admin/users', icon: UserCog, requiresAdmin: true },
-  { name: 'CMS (Edit Website)', href: '/admin/cms', icon: Globe },
+  { name: 'CMS (Edit Website)', href: '/admin/cms', icon: Globe, requiresAdmin: true },
   { name: 'My Profile', href: '/admin/profile', icon: Settings },
 ];
 
@@ -48,11 +48,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const { data: session, isPending } = authClient.useSession();
 
   // Redirect to login if not authenticated
-  if (!isPending && !session) {
-    if (typeof window !== 'undefined') {
+  useEffect(() => {
+    if (!isPending && !session && typeof window !== 'undefined') {
       router.push('/account/signin?callbackUrl=' + encodeURIComponent(pathname));
     }
-  }
+  }, [isPending, session, pathname, router]);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
@@ -121,7 +121,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Manage Site
             </h3>
           </div>
-          {navItems.filter(item => !item.requiresAdmin || session?.user?.role === 'admin').map((item) => {
+          {navItems.filter(item => !item.requiresAdmin || (session?.user as any)?.role === 'admin').map((item) => {
             const isActive =
               pathname === item.href ||
               (item.href !== '/admin' && pathname.startsWith(item.href));
@@ -131,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 href={item.href}
                 onClick={() => setIsSidebarOpen(false)}
                 className={cn(
-                  'flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative',
+                  'flex items-center space-x-3 px-3 py-2 rounded-xl transition-all duration-200 group relative',
                   isActive
                     ? 'bg-[#E04D1B]/10 text-[#E04D1B] border border-[#E04D1B]/20 font-semibold'
                     : theme === 'dark'
@@ -155,17 +155,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className={cn(
-          "p-5 border-t flex-shrink-0",
+          "p-4 border-t flex-shrink-0 flex flex-col gap-3",
           theme === 'dark' ? 'border-slate-800' : 'border-slate-100'
         )}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#001F3F] flex items-center justify-center text-white font-bold text-sm shrink-0">
+          {/* User Profile */}
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-full bg-[#E04D1B] flex items-center justify-center text-white font-bold text-sm shrink-0">
                 {session.user?.name?.[0]?.toUpperCase() || 'A'}
               </div>
-              <div className="overflow-hidden">
-                <p className="text-sm font-bold truncate">{session.user?.name || 'Admin User'}</p>
-                <p className="text-[10px] text-slate-500 truncate">{session.user?.email || 'admin@thinkkre8tive.com'}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold truncate text-slate-800 dark:text-white">{session.user?.name || 'Admin User'}</p>
+                <p className="text-[10px] text-slate-500 truncate">{session.user?.email || 'admin@thinkkre8tivmedia.com'}</p>
               </div>
             </div>
             <button
@@ -174,8 +175,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 router.push('/account/signin');
               }}
               className={cn(
-                "p-2 rounded-lg hover:bg-rose-50 hover:text-rose-600 transition-colors shrink-0",
-                theme === 'dark' ? "text-slate-400 hover:bg-rose-500/10" : "text-slate-400"
+                "p-1.5 ml-2 rounded-lg transition-colors shrink-0",
+                theme === 'dark' ? "text-slate-400 hover:bg-rose-500/10 hover:text-rose-500" : "text-slate-400 hover:bg-rose-50 hover:text-rose-600"
               )}
               title="Log out"
             >
@@ -183,21 +184,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </button>
           </div>
           
-          <div className="px-1 border-t border-slate-100 dark:border-slate-800 pt-4">
-            <h3 className={cn("text-[10px] font-bold tracking-wider uppercase mb-2", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
-              SMS Credit Balance
-            </h3>
-            <div className="flex items-center justify-between">
-              <span className={cn("text-xl font-black", theme === 'dark' ? 'text-white' : 'text-slate-800')}>
-                0 <span className="text-xs font-medium text-slate-500">pts</span>
-              </span>
-              <button className="text-[#E04D1B] hover:text-orange-400 text-xs font-bold transition-colors">
-                Refresh
-              </button>
+          {/* SMS Credits - Admin Only */}
+          {(session?.user as any)?.role === 'admin' && (
+            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className={cn("text-[9px] font-bold tracking-wider uppercase", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
+                    SMS Credits
+                  </h3>
+                  <span className={cn("text-lg font-black leading-none", theme === 'dark' ? 'text-white' : 'text-slate-800')}>
+                    0 <span className="text-[10px] font-medium text-slate-500">pts</span>
+                  </span>
+                </div>
+                <button className="text-[#E04D1B] hover:text-orange-400 text-[10px] font-bold transition-colors">
+                  Refresh
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
-            <p className="text-[10px] text-slate-500 font-medium">Developed by Tech34 Systems</p>
+          )}
+          
+          {/* Footer Branding */}
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p className="text-[9px] text-slate-400 font-medium tracking-wide">Developed by Tech34 Systems</p>
           </div>
         </div>
       </aside>
@@ -259,7 +267,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         <main className={cn(
-          "flex-1 overflow-y-auto p-4 md:p-6 pb-20 lg:pb-6 transition-colors duration-300",
+          "flex-1 overflow-y-auto p-4 md:p-6 pb-6 transition-colors duration-300",
           theme === 'dark' ? 'bg-[#0B0F19]' : 'bg-[#F8FAFC]'
         )}>
           {/* Injecting theme context into children via wrapper style classes */}
@@ -269,47 +277,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
 
-      {/* Bottom Mobile Navigation Bar */}
-      <div className={cn(
-        "fixed bottom-0 left-0 right-0 h-16 border-t z-50 flex lg:hidden justify-around items-center px-2 py-1 print:hidden transition-colors duration-300",
-        theme === 'dark' ? 'bg-[#111827] border-slate-800' : 'bg-white border-slate-200'
-      )}>
-        {[
-          { name: 'Orders', href: '/admin', icon: LayoutDashboard },
-          { name: 'Receipts', href: '/admin/receipts', icon: Receipt },
-          { name: 'Files', href: '/admin/quotations', icon: FileText },
-          { name: 'Profile', href: '/admin/profile', icon: Settings },
-        ].map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={cn(
-                "flex flex-col items-center justify-center flex-1 h-full rounded-xl transition-all",
-                isActive 
-                  ? "text-[#E04D1B] font-bold" 
-                  : theme === 'dark' ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800"
-              )}
-            >
-              <item.icon size={18} className={cn(isActive && "text-[#E04D1B]")} />
-              <span className="text-[10px] mt-1">{item.name}</span>
-            </Link>
-          );
-        })}
-        <button
-          onClick={() => setIsSidebarOpen(true)}
-          className={cn(
-            "flex flex-col items-center justify-center flex-1 h-full rounded-xl transition-all",
-            isSidebarOpen 
-              ? "text-[#E04D1B] font-bold" 
-              : theme === 'dark' ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-800"
-          )}
-        >
-          <Menu size={18} />
-          <span className="text-[10px] mt-1">Menu</span>
-        </button>
-      </div>
+
     </div>
   );
 }

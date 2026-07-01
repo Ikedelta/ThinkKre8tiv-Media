@@ -8,14 +8,14 @@ export async function GET(request: Request) {
     if (type === 'overview') {
       const [revenueData] = await sql`
         SELECT
-          COALESCE(SUM(amount_paid), 0) as total_revenue,
+          COALESCE(SUM(total_amount - balance_due), 0) as total_revenue,
           COALESCE(SUM(total_amount), 0) as total_billed,
           COALESCE(SUM(balance_due), 0) as total_outstanding,
           COUNT(*) as total_invoices,
-          COUNT(*) FILTER (WHERE status = 'paid') as paid_invoices,
-          COUNT(*) FILTER (WHERE status = 'unpaid') as unpaid_invoices,
-          COUNT(*) FILTER (WHERE status = 'partial') as partial_invoices,
-          COUNT(*) FILTER (WHERE status = 'overdue') as overdue_invoices
+          COUNT(*) FILTER (WHERE balance_due <= 0) as paid_invoices,
+          COUNT(*) FILTER (WHERE balance_due >= total_amount) as unpaid_invoices,
+          COUNT(*) FILTER (WHERE balance_due > 0 AND balance_due < total_amount) as partial_invoices,
+          COUNT(*) FILTER (WHERE due_date < NOW() AND balance_due > 0) as overdue_invoices
         FROM invoices
       `;
 
@@ -43,7 +43,7 @@ export async function GET(request: Request) {
         SELECT
           TO_CHAR(created_at, 'Mon') as month,
           EXTRACT(MONTH FROM created_at) as month_num,
-          COALESCE(SUM(amount_paid), 0) as revenue,
+          COALESCE(SUM(total_amount - balance_due), 0) as revenue,
           COALESCE(SUM(total_amount), 0) as billed
         FROM invoices
         WHERE created_at >= NOW() - INTERVAL '6 months'
@@ -63,9 +63,9 @@ export async function GET(request: Request) {
       `;
 
       const expenseByCategory = await sql`
-        SELECT category, COALESCE(SUM(amount), 0) as total
+        SELECT description as category, COALESCE(SUM(amount), 0) as total
         FROM expenses
-        GROUP BY category
+        GROUP BY description
         ORDER BY total DESC
       `;
 
@@ -84,8 +84,8 @@ export async function GET(request: Request) {
     }
 
     return Response.json({ error: 'Unknown report type' }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return Response.json({ error: 'Failed to generate report' }, { status: 500 });
+    return Response.json({ error: error.message || 'Failed to generate report' }, { status: 500 });
   }
 }

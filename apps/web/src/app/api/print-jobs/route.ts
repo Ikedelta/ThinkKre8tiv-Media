@@ -102,29 +102,49 @@ export async function GET(request: Request) {
   }
 }
 
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
+
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const {
-      name,
-      email,
-      phone,
-      company,
-      address,
-      product,
-      paper,
-      color,
-      finish,
-      qty,
-      width,
-      height,
-      filename,
-      notes,
-      total
-    } = body;
+    const formData = await request.formData();
+    
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
+    const company = formData.get('company') as string;
+    const address = formData.get('address') as string;
+    const product = formData.get('product') as string;
+    const paper = formData.get('paper') as string;
+    const color = formData.get('color') as string;
+    const finish = formData.get('finish') as string;
+    const qty = parseInt(formData.get('qty') as string) || 1;
+    const width = formData.get('width') as string;
+    const height = formData.get('height') as string;
+    let filename = formData.get('filename') as string;
+    const notes = formData.get('notes') as string;
+    const total = parseFloat(formData.get('total') as string) || 0;
+    
+    const file = formData.get('file') as File | null;
+    let fileUrl = null;
 
     if (!name || !email || !phone || !product) {
       return Response.json({ error: 'Required contact fields or products are missing' }, { status: 400 });
+    }
+    
+    if (file && file.size > 0) {
+      filename = file.name;
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      
+      const uploadDir = join(process.cwd(), 'public', 'uploads');
+      try { await mkdir(uploadDir, { recursive: true }); } catch (e) {}
+      
+      const safeFilename = `${Date.now()}-${filename.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const filepath = join(uploadDir, safeFilename);
+      await writeFile(filepath, buffer);
+      
+      fileUrl = `/uploads/${safeFilename}`;
     }
 
     // Generate tracking code sequence
@@ -172,7 +192,7 @@ export async function POST(request: Request) {
     });
 
     const [quotation] = await sql`
-      INSERT INTO quotations (customer_id, quotation_number, subtotal, vat_rate, vat_amount, discount_amount, total_amount, notes, status)
+      INSERT INTO quotations (customer_id, quotation_number, subtotal, vat_rate, vat_amount, discount_amount, total_amount, notes, status, file_url)
       VALUES (
         ${customerId}, 
         ${trackingCode}, 
@@ -182,7 +202,8 @@ export async function POST(request: Request) {
         0, 
         ${total || 0}, 
         ${specDetailsJson}, 
-        'draft'
+        'draft',
+        ${fileUrl}
       )
       RETURNING *
     `;
@@ -203,7 +224,8 @@ export async function POST(request: Request) {
       success: true,
       tracking_code: trackingCode,
       id: quotation.id,
-      is_mock: false
+      is_mock: false,
+      file_url: fileUrl
     });
 
   } catch (error: any) {
@@ -211,3 +233,4 @@ export async function POST(request: Request) {
     return Response.json({ error: error.message || 'Server error' }, { status: 500 });
   }
 }
+

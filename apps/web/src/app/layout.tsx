@@ -20,9 +20,12 @@ const mtn = localFont({
 });
 
 export const metadata = {
-  title: 'Think Kre8tive | Premium Print & Branding Solutions',
+  title: 'Think Kre8tiv Media | Premium Print & Branding Solutions',
   description:
     'Enterprise invoice and print management system for large format printing, branding, and professional printing services.',
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

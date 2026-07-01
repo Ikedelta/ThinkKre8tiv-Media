@@ -77,7 +77,7 @@ export default function PublicFooter() {
         {/* Footer Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-muted-foreground/60">
           <div className="flex flex-col sm:flex-row items-center gap-2">
-            <span>© 2026 Think Kre8tive Ltd. All Rights Reserved.</span>
+            <span>© 2026 Think Kre8tiv Media Ltd. All Rights Reserved.</span>
             <span className="hidden sm:inline">|</span>
             <div className="flex items-center gap-1.5">
               <MapPin size={10} />

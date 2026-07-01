@@ -6,7 +6,7 @@ export async function GET() {
       SELECT c.*,
         COUNT(DISTINCT i.id) as invoice_count,
         COALESCE(SUM(i.total_amount), 0) as total_billed,
-        COALESCE(SUM(i.amount_paid), 0) as total_paid,
+        COALESCE(SUM(i.total_amount - i.balance_due), 0) as total_paid,
         COALESCE(SUM(i.balance_due), 0) as total_outstanding
       FROM customers c
       LEFT JOIN invoices i ON i.customer_id = c.id
@@ -14,9 +14,9 @@ export async function GET() {
       ORDER BY c.created_at DESC
     `;
     return Response.json(customers);
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return Response.json({ error: 'Failed to fetch customers' }, { status: 500 });
+    return Response.json({ error: error.message || 'Failed to fetch customers' }, { status: 500 });
   }
 }
 

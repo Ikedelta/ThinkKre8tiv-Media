@@ -40,6 +40,7 @@ const trustedOrigins = [
   process.env.NEXT_PUBLIC_CREATE_HOST
     ? `https://${process.env.NEXT_PUBLIC_CREATE_HOST}`
     : null,
+  'http://172.29.187.134:4000', // Allow local network testing
 ].filter((v): v is string => Boolean(v));
 
 // Social providers self-activate when the platform has injected their OAuth

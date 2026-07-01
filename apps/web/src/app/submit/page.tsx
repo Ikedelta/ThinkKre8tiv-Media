@@ -68,27 +68,29 @@ export default function SubmitPage() {
     e.preventDefault();
     setLoading(true);
 
-    const payload = {
-      name,
-      email,
-      phone,
-      company: '',
-      address: '',
-      product: productType,
-      paper: 'Standard',
-      color: 'Standard',
-      finish: 'Standard',
-      qty: parseInt(quantity) || 100,
-      filename: file ? file.name : 'no-file-attached',
-      notes,
-      total: 0 // Price to be decided by admin
-    };
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('phone', phone);
+    formData.append('company', '');
+    formData.append('address', '');
+    formData.append('product', productType);
+    formData.append('paper', 'Standard');
+    formData.append('color', 'Standard');
+    formData.append('finish', 'Standard');
+    formData.append('qty', quantity.toString() || '100');
+    formData.append('filename', file ? file.name : 'no-file-attached');
+    formData.append('notes', notes);
+    formData.append('total', '0');
+    
+    if (file) {
+      formData.append('file', file);
+    }
 
     try {
       const res = await fetch('/api/print-jobs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: formData
       });
       const data = await res.json();
       

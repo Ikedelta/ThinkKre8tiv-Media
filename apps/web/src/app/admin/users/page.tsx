@@ -16,6 +16,7 @@ import {
   X,
   Eye,
   EyeOff,
+  Key,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -149,6 +150,25 @@ export default function UsersPage() {
       toast.success('User status updated');
     },
     onError: () => toast.error('Failed'),
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await fetch('/api/admin/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send reset link');
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Password reset link sent via SMS!');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to send reset link');
+    },
   });
 
   const closeForm = () => {
@@ -322,12 +342,28 @@ export default function UsersPage() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <button
+                            onClick={() => {
+                              if (confirm(`Send a password reset SMS to ${user.name}?`)) {
+                                resetPasswordMutation.mutate(user.id);
+                              }
+                            }}
+                            className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                            title="Reset Password via SMS"
+                            disabled={resetPasswordMutation.isPending}
+                          >
+                            <Key size={14} />
+                          </button>
+                          <button
                             onClick={() => openEdit(user)}
                             className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit User"
                           >
                             <Edit2 size={14} />
                           </button>
-                          <button className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                          <button 
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            title="Remove User"
+                          >
                             <UserX size={14} />
                           </button>
                         </div>
@@ -459,7 +495,7 @@ export default function UsersPage() {
                   disabled={!!editUser}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className={cn(inputClass, editUser && 'bg-slate-50 text-slate-400')}
-                  placeholder="kofi@thinkkre8tive.com"
+                  placeholder="kofi@thinkkre8tivmedia.com"
                 />
               </div>
               {!editUser && (

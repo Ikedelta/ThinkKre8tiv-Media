@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { authClient } from '@/lib/auth-client';
 
 interface Quotation {
   id: string;
@@ -29,6 +30,7 @@ export default function SubmittedFilesPage() {
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
 
   useEffect(() => setMounted(true), []);
 
@@ -233,15 +235,17 @@ export default function SubmittedFilesPage() {
                             <DownloadCloud size={16} />
                           </button>
                           
-                          <button
-                            onClick={() => {
-                              if (confirm('Delete this submission?')) deleteMutation.mutate(job.id);
-                            }}
-                            className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white rounded-lg transition-all border border-rose-100 dark:border-rose-500/20"
-                            title="Delete"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          {(session?.user as any)?.role === 'admin' && (
+                            <button
+                              onClick={() => {
+                                if (confirm('Delete this submission?')) deleteMutation.mutate(job.id);
+                              }}
+                              className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white rounded-lg transition-all border border-rose-100 dark:border-rose-500/20"
+                              title="Delete"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>

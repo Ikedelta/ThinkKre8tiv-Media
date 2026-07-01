@@ -15,7 +15,7 @@ export async function GET(request: Request) {
                i.invoice_number, 
                i.total_amount as invoice_total_amount, 
                i.balance_due as invoice_balance_due, 
-               i.amount_paid as invoice_amount_paid
+               (i.total_amount - i.balance_due) as invoice_amount_paid
         FROM receipts r
         JOIN customers c ON r.customer_id = c.id
         JOIN invoices i ON r.invoice_id = i.id
@@ -48,13 +48,45 @@ export async function POST(request: Request) {
     let finalCustomerId = customer_id;
     let finalInvoiceId = invoice_id;
 
+    // Ensure tables exist before inserting
+    await sql`
+      CREATE TABLE IF NOT EXISTS payments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        invoice_id UUID,
+        amount NUMERIC(10,2) NOT NULL,
+        payment_method VARCHAR(50) DEFAULT 'bank_transfer',
+        payment_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        notes TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS receipts (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        invoice_id UUID,
+        customer_id UUID,
+        payment_id UUID,
+        receipt_number VARCHAR(50) NOT NULL,
+        amount NUMERIC(10,2) NOT NULL,
+        payment_method VARCHAR(50),
+        payment_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        notes TEXT,
+        approval_status VARCHAR(50) DEFAULT 'pending',
+        approved_by VARCHAR(255),
+        approved_at TIMESTAMP WITH TIME ZONE,
+        created_by VARCHAR(255),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      );
+    `;
+
     // Handle customer_name if provided
     if (!finalCustomerId && customer_name) {
       const [existing] = await sql`SELECT id FROM customers WHERE name ILIKE ${customer_name} LIMIT 1`;
       if (existing) {
         finalCustomerId = existing.id;
       } else {
-        const safeEmail = customer_email?.trim() || null;
+        const safeEmail = customer_email?.trim() || `guest_${Date.now()}@example.com`;
         const safePhone = customer_phone?.trim() || null;
         const [newCustomer] = await sql`
           INSERT INTO customers (name, email, phone) 
@@ -147,12 +179,13 @@ export async function PUT(request: Request) {
       if (approval_status === 'approved') {
         const [invoice] = await sql`SELECT * FROM invoices WHERE id = ${receipt.invoice_id}`;
         if (invoice) {
-          const newAmountPaid = parseFloat(invoice.amount_paid) + parseFloat(receipt.amount);
+          const currentAmountPaid = parseFloat(invoice.total_amount) - parseFloat(invoice.balance_due);
+          const newAmountPaid = currentAmountPaid + parseFloat(receipt.amount);
           const newBalance = parseFloat(invoice.total_amount) - newAmountPaid;
           const newStatus = newBalance <= 0 ? 'paid' : newAmountPaid > 0 ? 'partial' : 'unpaid';
           await sql`
             UPDATE invoices
-            SET amount_paid = ${newAmountPaid}, balance_due = ${Math.max(newBalance, 0)}, status = ${newStatus}, updated_at = NOW()
+            SET balance_due = ${Math.max(newBalance, 0)}, status = ${newStatus}, updated_at = NOW()
             WHERE id = ${receipt.invoice_id}
           `;
         }

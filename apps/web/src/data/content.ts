@@ -10,7 +10,7 @@ import {
 
 /**
  * ==========================================
- * THINKKRE8TIVE MASTER CONTENT CONFIGURATION
+ * THINK KRE8TIV MEDIA MASTER CONTENT CONFIGURATION
  * ==========================================
  * 
  * Replace the placeholder strings below with your actual brand messaging.
@@ -18,16 +18,16 @@ import {
  */
 
 export const siteInfo = {
-  name: 'ThinkKre8tive',
+  name: 'Think Kre8tiv Media',
   tagline: "Ghana's Premier Print & Branding Agency",
   // Hero section on the homepage
   heroHeadline: 'Where Vision Meets Precision Printing.',
   heroSubheadline: 'Elevate your brand with high-volume commercial printing, bespoke product packaging, illuminated 3D signage, and dynamic fleet wraps crafted by industry leaders.',
   // Footer / Contact info
   contact: {
-    email: 'info@thinkkre8tive.com',
+    email: 'info@thinkkre8tivmedia.com',
     phone: '+233 24 555 9000',
-    address: 'Osu Oxford Street, Accra, Ghana',
+    address: 'OSU haramani Sport complex',
     facebook: 'https://facebook.com/thinkkre8tive',
     instagram: 'https://instagram.com/thinkkre8tive',
     twitter: 'https://twitter.com/thinkkre8tive'
@@ -39,19 +39,19 @@ export const siteInfo = {
  */
 export const CAROUSEL_SLIDES = [
   {
-    image: 'https://images.unsplash.com/photo-1616400619175-5ebd3009007a?auto=format&fit=crop&w=800&q=80',
+    image: '/images/IMG-20260617-WA0063.jpg',
     title: 'Precision Offset Printing',
     desc: 'High-volume commercial catalog presses delivering crisp ink layers and immaculate resolution.',
     tag: 'Bulk Production',
   },
   {
-    image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
+    image: '/images/IMG-20260617-WA0064.jpg',
     title: 'Bespoke Custom Packaging',
     desc: 'Premium rigid boxes, product sleeves, and luxury shopping bags crafted to build brand authority.',
     tag: 'Packaging Design',
   },
   {
-    image: 'https://images.unsplash.com/photo-1589330273594-fade1ee91647?auto=format&fit=crop&w=800&q=80',
+    image: '/images/IMG-20260617-WA0059.jpg',
     title: 'Luxury Business Cards',
     desc: 'Heavy stock cotton paper with debossed corporate textures and crisp finishes.',
     tag: 'Foil Stamping',
@@ -63,7 +63,7 @@ export const CAROUSEL_SLIDES = [
     tag: 'Brand Merch',
   },
   {
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=800&q=80',
+    image: '/images/IMG-20260617-WA0061.jpg',
     title: 'Large Format Signage',
     desc: 'Durable weather-resistant roll-ups, outdoor banners, and backlit storefront signage.',
     tag: 'Outdoor Media',
@@ -87,22 +87,28 @@ export const CAROUSEL_SLIDES = [
  */
 export const EXPERTISE = [
   {
-    image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=600&q=80',
+    image: '/images/IMG-20260617-WA0062.jpg',
     icon: Printer,
     title: 'Corporate Printing & Stationery',
     desc: 'High-volume letterheads, brochures, presentation folders, and bespoke corporate cards matching your exact brand manual colors.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1512909006721-3d6018887383?auto=format&fit=crop&w=600&q=80',
+    image: '/images/IMG-20260617-WA0058.jpg',
     icon: Layers,
     title: 'Commercial Packaging',
     desc: 'High-quality product packaging boxes, food-grade cartons, paper bags, and customized adhesive labeling for retail products.',
   },
   {
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deceeaf7?auto=format&fit=crop&w=600&q=80',
-    icon: Sparkles,
-    title: 'Large Format & Signage',
-    desc: 'Illuminated 3D acrylic signs, vinyl vehicle branding wraps, promotional roll-up banners, and building storefront signage.',
+    image: '/images/IMG-20260617-WA0057.jpg',
+    icon: Palette,
+    title: 'Brand Activation & Signage',
+    desc: 'Illuminated 3D pylons, teardrop banners, roll-up stands, and wide-format backdrops that make your brand visible from miles away.',
+  },
+  {
+    image: '/images/IMG-20260617-WA0065.jpg',
+    icon: Truck,
+    title: 'Vehicle & Fleet Branding',
+    desc: 'Precision vinyl wrapping for corporate delivery vans, buses, and executive fleets to turn your transport into mobile billboards.',
   },
 ];
 
@@ -283,7 +289,7 @@ export const PROJECTS_LIST = [
     image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80',
     desc: 'City-wide flex billboard and route branch banners across Accra and Kumasi.',
     specs: { size: '12m x 4m Billboard', media: 'Heavy Flex Canvas', speed: '48 Hours delivery' },
-    review: 'Think Kre8tive delivered our route campaigns on exact schedule. Quality is flawless.',
+    review: 'Think Kre8tiv Media delivered our route campaigns on exact schedule. Quality is flawless.',
     client: 'GCB Marketing Dept.'
   },
   {

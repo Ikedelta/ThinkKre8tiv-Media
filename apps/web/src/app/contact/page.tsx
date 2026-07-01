@@ -8,23 +8,23 @@ import PublicFooter from '@/components/PublicFooter';
 const officesList = [
   {
     city: 'Accra (HQ)',
-    address: '14 Commerce Avenue, Osu, Accra',
+    address: 'OSU haramani Sport complex',
     phone: '+233 24 555 9000',
-    email: 'accra@thinkkre8tive.com',
+    email: 'accra@thinkkre8tivmedia.com',
     hours: 'Mon–Fri: 8am–6pm, Sat: 9am–3pm',
   },
   {
     city: 'Kumasi',
     address: '7 Prempeh II Street, Kumasi',
     phone: '+233 32 200 0000',
-    email: 'kumasi@thinkkre8tive.com',
+    email: 'kumasi@thinkkre8tivmedia.com',
     hours: 'Mon–Fri: 8am–5pm, Sat: 9am–2pm',
   },
   {
     city: 'Takoradi',
     address: '3 Market Circle, Takoradi',
     phone: '+233 31 200 0000',
-    email: 'takoradi@thinkkre8tive.com',
+    email: 'takoradi@thinkkre8tivmedia.com',
     hours: 'Mon–Fri: 8am–5pm',
   },
 ];
@@ -163,11 +163,11 @@ export default function ContactPage() {
                     </div>
                     <span>+233 24 555 9000</span>
                   </a>
-                  <a href="mailto:hello@thinkkre8tive.com" className="flex items-center gap-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+                  <a href="mailto:hello@thinkkre8tivmedia.com" className="flex items-center gap-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
                     <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-foreground border border-border">
                       <Mail size={14} />
                     </div>
-                    <span>hello@thinkkre8tive.com</span>
+                    <span>hello@thinkkre8tivmedia.com</span>
                   </a>
                 </div>
               </div>

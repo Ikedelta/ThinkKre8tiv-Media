@@ -36,7 +36,7 @@ export async function PUT(request: Request) {
 
     await sql`
       UPDATE app_settings SET
-        company_name = ${company_name ?? 'Think Kre8tive'},
+        company_name = ${company_name ?? 'Think Kre8tiv Media'},
         company_email = ${company_email ?? null},
         company_phone = ${company_phone ?? null},
         company_address = ${company_address ?? null},
