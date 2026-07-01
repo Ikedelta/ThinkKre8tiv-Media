@@ -158,32 +158,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           "p-4 border-t flex-shrink-0 flex flex-col gap-3",
           theme === 'dark' ? 'border-slate-800' : 'border-slate-100'
         )}>
-          {/* User Profile & Logout */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3 w-full">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#E04D1B] to-orange-400 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-sm border border-orange-500/20">
+          {/* User Profile */}
+          <div className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-8 h-8 rounded-full bg-[#E04D1B] flex items-center justify-center text-white font-bold text-sm shrink-0">
                 {session.user?.name?.[0]?.toUpperCase() || 'A'}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-black truncate text-slate-800 dark:text-white">{session.user?.name || 'Admin User'}</p>
-                <p className="text-[10px] font-medium text-slate-500 truncate">{session.user?.email || 'admin@thinkkre8tivmedia.com'}</p>
+                <p className="text-sm font-bold truncate text-slate-800 dark:text-white">{session.user?.name || 'Admin User'}</p>
+                <p className="text-[10px] text-slate-500 truncate">{session.user?.email || 'admin@thinkkre8tivmedia.com'}</p>
               </div>
             </div>
-            
             <button
               onClick={async () => {
                 await authClient.signOut();
                 router.push('/account/signin');
               }}
               className={cn(
-                "w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 shadow-sm active:scale-95",
-                theme === 'dark' 
-                  ? "bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500 hover:text-white" 
-                  : "bg-white border border-rose-200 text-rose-600 hover:bg-rose-600 hover:border-rose-600 hover:text-white hover:shadow-rose-600/20"
+                "p-1.5 ml-2 rounded-lg transition-colors shrink-0",
+                theme === 'dark' ? "text-slate-400 hover:bg-rose-500/10 hover:text-rose-500" : "text-slate-400 hover:bg-rose-50 hover:text-rose-600"
               )}
+              title="Log out"
             >
-              <LogOut size={15} />
-              Sign Out
+              <LogOut size={16} />
             </button>
           </div>
           

@@ -21,11 +21,11 @@ import PublicFooter from '@/components/PublicFooter';
 import { cn } from '@/lib/utils';
 
 const trackingStages = [
-  { id: 'submitted', label: 'Job Logged', desc: 'Received files & specifications' },
-  { id: 'proofing', label: 'Pre-flight & Proofing', desc: 'Calibrating margins and color space' },
-  { id: 'printing', label: 'Press Printing', desc: 'Heavy lithography offset runs active' },
-  { id: 'finishing', label: 'Coating & Binding', desc: 'Laminations, die cuts, or gold foil stamping' },
-  { id: 'completed', label: 'Ready / Dispatched', desc: 'Packaged for delivery or collection' }
+  { id: 'submitted', label: 'Order Received', desc: 'We have received your order details' },
+  { id: 'proofing', label: 'Reviewing', desc: 'Checking artwork and files' },
+  { id: 'printing', label: 'In Production', desc: 'Your order is currently being printed' },
+  { id: 'finishing', label: 'Finishing', desc: 'Adding final touches and quality check' },
+  { id: 'completed', label: 'Ready', desc: 'Ready for pickup or delivery' }
 ];
 
 function TrackPageContent() {
@@ -111,27 +111,13 @@ function TrackPageContent() {
       <PublicNav />
 
       {/* Header Banner */}
-      <section className="relative py-12 bg-slate-50/40 border-b border-border/40 overflow-hidden">
-        {/* CMYK Calibration Strip Accent */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#00aeef] via-[#ec008c] via-[#fff200] to-[#000000]" />
-        
-        {/* Registration mark */}
-        <div className="absolute top-4 right-4 text-muted-foreground/30 flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest select-none pointer-events-none">
-          <span>CMYK Alignment Plate B</span>
-          <div className="w-3.5 h-3.5 rounded-full border border-dashed border-muted-foreground/20 relative flex items-center justify-center">
-            <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/20" />
-          </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-4 text-center space-y-4 pt-4">
-          <span className="inline-flex items-center gap-1.5 bg-[#FCD20F] text-black font-extrabold text-[9px] uppercase tracking-widest px-3.5 py-1 rounded-full border border-black/5 shadow-sm">
-            <Printer size={11} /> Real-Time Press Monitor
-          </span>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-foreground tracking-tight leading-none">
-            Track Print Job
+      <section className="py-12 bg-slate-50 border-b border-border/40">
+        <div className="max-w-4xl mx-auto px-4 text-center space-y-3 pt-4">
+          <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
+            Track Your Order
           </h1>
-          <p className="text-muted-foreground max-w-lg mx-auto text-xs sm:text-sm font-medium leading-relaxed">
-            Monitor files check, offset calibration progress, heavy machine runs, and packaging handovers in real time.
+          <p className="text-muted-foreground text-sm font-medium max-w-md mx-auto">
+            Enter your tracking code below to see the current status of your order.
           </p>
         </div>
       </section>
@@ -169,7 +155,7 @@ function TrackPageContent() {
           {loading && (
             <div className="py-12 text-center space-y-3">
               <div className="w-10 h-10 border-4 border-[#D22630] border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-xs text-muted-foreground font-semibold">Reading press calibrations...</p>
+              <p className="text-xs text-muted-foreground font-semibold">Finding your order...</p>
             </div>
           )}
 
@@ -198,9 +184,9 @@ function TrackPageContent() {
             <div className="max-w-md mx-auto border border-border border-dashed rounded-2xl p-10 text-center space-y-4 bg-background">
               <Layers className="text-muted-foreground/35 mx-auto" size={40} />
               <div className="space-y-1">
-                <h4 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Awaiting Input</h4>
+                <h4 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Ready to Track</h4>
                 <p className="text-[10px] sm:text-xs text-muted-foreground/80 font-medium leading-relaxed">
-                  Enter your sequence code from your submission summary card to inspect active press configurations.
+                  Enter your tracking code to see the current status of your order.
                 </p>
               </div>
             </div>
@@ -215,14 +201,14 @@ function TrackPageContent() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border/60 pb-5 gap-3">
                   <div>
                     <span className="text-[9px] font-extrabold text-white bg-[#00aeef] px-2.5 py-0.5 rounded uppercase tracking-wider">
-                      Calibration Run Active
+                      Status Update
                     </span>
                     <h3 className="text-lg font-black text-foreground mt-1.5 tracking-tight">
                       Order Progress: <span className="text-[#D22630] font-mono font-black">{job.tracking_code}</span>
                     </h3>
                   </div>
                   <div className="text-right">
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Calculated Valuation</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Order Total</p>
                     <p className="text-xl font-black text-foreground mt-0.5">${job.total_amount || 0} USD</p>
                   </div>
                 </div>
@@ -290,7 +276,7 @@ function TrackPageContent() {
                 <div className="lg:col-span-2 bg-background border border-border/80 rounded-3xl p-6 sm:p-8 shadow-lg space-y-6">
                   <div className="flex items-center gap-2 pb-4 border-b border-border/60">
                     <FileText size={18} className="text-slate-400" />
-                    <h3 className="font-black text-sm text-foreground uppercase tracking-wider">Job Specifications</h3>
+                    <h3 className="font-black text-sm text-foreground uppercase tracking-wider">Order Details</h3>
                   </div>
 
                   <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-xs font-semibold">
@@ -299,27 +285,27 @@ function TrackPageContent() {
                       <p className="text-sm font-black text-foreground">{job.product}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Quantity runs</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Quantity</p>
                       <p className="text-sm font-black text-foreground">{job.specs?.qty} units</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Paper stock type</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Material</p>
                       <p className="text-foreground">{job.specs?.paper || 'Standard'}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Color setup space</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Color</p>
                       <p className="text-foreground">{job.specs?.color || 'CMYK Full Color'}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Finishing coating</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Finishing</p>
                       <p className="text-foreground">{job.specs?.finish || 'No coating'}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Layout dimensions</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Dimensions</p>
                       <p className="text-foreground">{job.specs?.dimensions || 'Standard format'}</p>
                     </div>
                     <div className="col-span-2 pt-2 pb-1 border-t border-border/40">
-                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Attached design file</p>
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Design File</p>
                       <div className="inline-flex items-center gap-1.5 bg-slate-50 border border-border/80 px-3 py-1.5 rounded-lg text-[10px] text-foreground font-bold">
                         <FileText size={12} className="text-slate-450" />
                         <span>{job.specs?.filename || 'no-file-attached.pdf'}</span>
@@ -333,7 +319,7 @@ function TrackPageContent() {
                   <div className="space-y-5">
                     <div className="flex items-center gap-2 pb-4 border-b border-border/60">
                       <Shield size={17} className="text-slate-450" />
-                      <h3 className="font-black text-sm text-foreground uppercase tracking-wider">Contact coordinates</h3>
+                      <h3 className="font-black text-sm text-foreground uppercase tracking-wider">Contact Information</h3>
                     </div>
 
                     <div className="space-y-4 text-xs font-semibold text-muted-foreground">
@@ -372,7 +358,7 @@ function TrackPageContent() {
                     }}
                     className="w-full flex items-center justify-center gap-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold py-3.5 rounded-xl border border-border text-xs transition-colors cursor-pointer mt-6"
                   >
-                    <RotateCcw size={12} /> Lookup Another Code
+                    <RotateCcw size={12} /> Track Another Order
                   </button>
                 </div>
 
@@ -390,7 +376,7 @@ function TrackPageContent() {
 
 export default function TrackPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center font-sans">Loading tracking console...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-background text-foreground flex items-center justify-center font-sans">Loading...</div>}>
       <TrackPageContent />
     </Suspense>
   );

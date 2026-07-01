@@ -155,7 +155,7 @@ export default function SettingsPage() {
                 value={form.company_address}
                 onChange={(e) => update('company_address', e.target.value)}
                 className={inputClass}
-                placeholder="Accra, Ghana"
+                placeholder="OSU haramani Sport complex"
               />
             </div>
           </div>

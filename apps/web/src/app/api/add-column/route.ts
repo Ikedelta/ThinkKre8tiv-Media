@@ -3,15 +3,62 @@ import sql from '@/app/api/utils/sql';
 
 export async function GET() {
   try {
-    await sql`ALTER TABLE invoices ADD COLUMN IF NOT EXISTS approval_status VARCHAR(50) DEFAULT 'pending'`;
-    await sql`ALTER TABLE invoices ADD COLUMN IF NOT EXISTS approved_by VARCHAR(255)`;
-    await sql`ALTER TABLE invoices ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP WITH TIME ZONE`;
-
-    await sql`ALTER TABLE receipts ADD COLUMN IF NOT EXISTS approval_status VARCHAR(50) DEFAULT 'pending'`;
-    await sql`ALTER TABLE receipts ADD COLUMN IF NOT EXISTS approved_by VARCHAR(255)`;
-    await sql`ALTER TABLE receipts ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP WITH TIME ZONE`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS "user" (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        email_verified BOOLEAN NOT NULL,
+        image TEXT,
+        created_at TIMESTAMP NOT NULL,
+        updated_at TIMESTAMP NOT NULL,
+        role TEXT DEFAULT 'staff'
+      );
+    `;
     
-    await sql`ALTER TABLE "user" ADD COLUMN IF NOT EXISTS role VARCHAR(255) DEFAULT 'staff'`;
+    await sql`
+      CREATE TABLE IF NOT EXISTS "session" (
+        id TEXT PRIMARY KEY,
+        expires_at TIMESTAMP NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        created_at TIMESTAMP NOT NULL,
+        updated_at TIMESTAMP NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT,
+        user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
+      );
+    `;
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS "account" (
+        id TEXT PRIMARY KEY,
+        account_id TEXT NOT NULL,
+        provider_id TEXT NOT NULL,
+        user_id TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+        access_token TEXT,
+        refresh_token TEXT,
+        id_token TEXT,
+        access_token_expires_at TIMESTAMP,
+        refresh_token_expires_at TIMESTAMP,
+        scope TEXT,
+        password TEXT,
+        created_at TIMESTAMP NOT NULL,
+        updated_at TIMESTAMP NOT NULL
+      );
+    `;
+    
+    await sql`
+      CREATE TABLE IF NOT EXISTS "verification" (
+        id TEXT PRIMARY KEY,
+        identifier TEXT NOT NULL,
+        value TEXT NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP
+      );
+    `;
+    
+    // Add role just in case user table already existed
+    await sql`ALTER TABLE "user" ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'staff'`;
     
     return NextResponse.json({ success: true });
   } catch (e: any) {

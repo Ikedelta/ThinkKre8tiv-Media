@@ -6,11 +6,9 @@ export async function GET() {
     // to avoid rate limits and reduce roundtrips to exactly 1.
     const [result] = await sql`
       SELECT 
-        (SELECT COALESCE(SUM(total_amount - balance_due), 0) FROM invoices) as total_revenue,
-        (SELECT COALESCE(SUM(balance_due), 0) FROM invoices) as outstanding_balance,
-        (SELECT COUNT(CASE WHEN approval_status = 'pending' THEN 1 END) FROM invoices) as pending_count,
-        (SELECT COUNT(*) FROM invoices) as total_invoices,
-        (SELECT COUNT(*) FROM quotations WHERE status NOT IN ('completed', 'rejected')) as active_print_jobs,
+        (SELECT COUNT(*) FROM quotations) as total_print_jobs,
+        (SELECT COUNT(*) FROM quotations WHERE status IN ('draft', 'sent')) as pending_jobs,
+        (SELECT COUNT(*) FROM quotations WHERE status IN ('accepted', 'printing', 'finishing')) as jobs_in_production,
         (SELECT COUNT(*) FROM customers) as total_customers,
         
         (SELECT COALESCE(json_agg(t), '[]'::json) FROM (
@@ -39,11 +37,9 @@ export async function GET() {
 
     return Response.json({
       metrics: {
-        totalRevenue: Number(result.total_revenue),
-        outstandingBalance: Number(result.outstanding_balance),
-        pendingInvoicesCount: Number(result.pending_count),
-        totalInvoicesCount: Number(result.total_invoices),
-        activePrintJobs: Number(result.active_print_jobs),
+        totalPrintJobs: Number(result.total_print_jobs),
+        pendingJobs: Number(result.pending_jobs),
+        jobsInProduction: Number(result.jobs_in_production),
         totalCustomersCount: Number(result.total_customers)
       },
       recent: {

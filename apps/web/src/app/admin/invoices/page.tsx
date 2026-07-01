@@ -91,7 +91,7 @@ export default function InvoicesPage() {
       const res = await fetch('/api/invoices', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, approval_status, approved_by: 'Admin' }),
+        body: JSON.stringify({ id, approval_status, approved_by: session?.user?.id || null }),
       });
       if (!res.ok) throw new Error('Failed');
       return res.json();
@@ -180,7 +180,7 @@ export default function InvoicesPage() {
       </div>
 
       {/* Status Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {Object.entries(statusConfig).map(([status, cfg]) => {
           const count = invoices.filter((i) => i.status === status).length;
           const total = invoices
@@ -573,8 +573,31 @@ export default function InvoicesPage() {
           {/* A4 Paper Container */}
           <div className="bg-white shadow-2xl w-full max-w-[800px] min-h-[1130px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-h-0 print:m-0 my-auto">
             
-            {/* Action Bar - Hidden in print */}
-            <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex items-center justify-end gap-3 print:hidden">
+            {/* Action buttons (Hidden during print) */}
+            <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex flex-wrap justify-end gap-3 print:hidden z-50">
+              {invoiceDetails?.approval_status === 'pending' && (session?.user as any)?.role === 'admin' && (
+                <>
+                  <Button 
+                    onClick={() => {
+                      approveMutation.mutate({ id: selectedInvoiceId!, approval_status: 'approved' });
+                      setSelectedInvoiceId(null);
+                    }} 
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20 font-bold px-6"
+                  >
+                    <CheckCircle2 size={16} className="mr-2" /> Approve
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      approveMutation.mutate({ id: selectedInvoiceId!, approval_status: 'rejected' });
+                      setSelectedInvoiceId(null);
+                    }} 
+                    className="bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/20 font-bold px-6"
+                  >
+                    <XCircle size={16} className="mr-2" /> Reject
+                  </Button>
+                  <div className="w-px h-8 bg-slate-200/20 mx-1"></div>
+                </>
+              )}
               <Button variant="secondary" onClick={() => setSelectedInvoiceId(null)} className="font-semibold bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md">
                 Close Preview
               </Button>
@@ -584,92 +607,106 @@ export default function InvoicesPage() {
             </div>
 
             {/* Print Area */}
-            <div className="flex-1 flex flex-col text-slate-800">
+            <div className="flex-1 flex flex-col text-slate-800 relative bg-white">
               {isLoadingDetails ? (
                 <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold">Loading invoice details...</div>
               ) : !invoiceDetails ? (
                 <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold">Invoice not found</div>
               ) : (
                 <>
-                  {/* Decorative Top Accent */}
-                  <div className="h-4 w-full bg-[#001F3F] print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }} />
+                  {/* Watermark */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none z-0">
+                    <img src="/logo.png" alt="Watermark" className="w-[600px] h-[600px] object-contain grayscale" />
+                  </div>
 
                   {/* Header Section */}
-                  <div className="px-12 pt-10 pb-8 flex justify-between items-start">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-4 mb-4">
-                        <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 object-contain" />
-                        <div>
-                          <h3 className="text-2xl font-black text-[#001F3F] tracking-tight leading-none">THINK KRE8TIV MEDIA</h3>
-                          <p className="text-[10px] text-blue-600 font-bold uppercase tracking-[0.2em] mt-1">Premium Print & Branding</p>
-                        </div>
+                  <div className="relative z-10 flex border-b-[8px] border-[#001F3F] print:border-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    <div className="bg-[#001F3F] text-white p-10 w-[60%] flex flex-col justify-between print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <div>
+                        <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-20 h-20 object-contain mb-4 brightness-0 invert" />
+                        <h3 className="text-3xl font-black tracking-tight leading-none mb-2">THINK KRE8TIV MEDIA</h3>
+                        <p className="text-sm text-blue-200 font-medium tracking-wide">CREATIVE EXCELLENCE</p>
                       </div>
-                      <p className="text-xs text-slate-500 font-medium">Accra, Ghana</p>
-                      <p className="text-xs text-slate-500 font-medium">+233 20 000 0000</p>
-                      <p className="text-xs text-slate-500 font-medium">billing@thinkkre8tivmedia.com</p>
+                      <div className="mt-8 space-y-1 text-xs text-blue-100/80 font-medium">
+                        <p>OSU haramani Sport complex</p>
+                        <p>+233 20 000 0000</p>
+                        <p>billing@thinkkre8tivmedia.com</p>
+                      </div>
                     </div>
-                    <div className="text-right flex flex-col items-end">
-                      <h1 className="text-4xl font-black text-slate-200 uppercase tracking-widest mb-4 print:text-slate-300">INVOICE</h1>
-                      <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 text-right min-w-[200px] print:border-slate-300" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                        <p className="text-sm font-black text-[#001F3F]">{invoiceDetails.invoice_number}</p>
-                        <p className="text-xs text-slate-500 mt-1">Date: <span className="font-bold text-slate-700">{invoiceDetails.created_at?.split('T')[0]}</span></p>
+                    <div className="w-[40%] p-10 flex flex-col justify-between items-end bg-slate-50 print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <h1 className="text-5xl font-black text-[#FF5722] uppercase tracking-widest mb-4 print:text-[#FF5722]">INVOICE</h1>
+                      <div className="text-right space-y-2 w-full">
+                        <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Invoice No.</span>
+                          <span className="text-sm font-black text-[#001F3F]">{invoiceDetails.invoice_number}</span>
+                        </div>
+                        <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
+                          <span className="text-xs font-bold text-slate-700">{invoiceDetails.created_at?.split('T')[0]}</span>
+                        </div>
                         {invoiceDetails.due_date && (
-                          <p className="text-xs text-slate-500 mt-0.5">Due: <span className="font-bold text-slate-700">{invoiceDetails.due_date.split('T')[0]}</span></p>
+                          <div className="flex justify-between items-center pb-1">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Due Date</span>
+                            <span className="text-xs font-bold text-[#FF5722]">{invoiceDetails.due_date.split('T')[0]}</span>
+                          </div>
                         )}
-                        <p className="text-[9px] text-slate-400 mt-2 uppercase tracking-wider">Created By: {invoiceDetails.created_by || 'System User'}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="px-12 pb-8 grid grid-cols-2 gap-12">
+                  <div className="px-12 py-10 grid grid-cols-2 gap-12 relative z-10">
                     {/* Bill To */}
-                    <div className="space-y-1.5">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Billed To</p>
-                      <p className="text-base font-extrabold text-[#001F3F]">{invoiceDetails.customer_name}</p>
+                    <div className="space-y-2">
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 mb-3 inline-block">Billed To</p>
+                      <p className="text-xl font-extrabold text-[#001F3F]">{invoiceDetails.customer_name}</p>
                       {invoiceDetails.customer_company && (
-                        <p className="text-sm text-slate-600 font-semibold">{invoiceDetails.customer_company}</p>
+                        <p className="text-sm text-[#FF5722] font-black tracking-wide uppercase">{invoiceDetails.customer_company}</p>
                       )}
-                      <div className="text-xs text-slate-500 pt-1 space-y-0.5">
-                        {invoiceDetails.customer_phone && <p>{invoiceDetails.customer_phone}</p>}
-                        {invoiceDetails.customer_email && <p>{invoiceDetails.customer_email}</p>}
-                        {invoiceDetails.customer_address && <p>{invoiceDetails.customer_address}</p>}
+                      <div className="text-sm text-slate-600 font-medium pt-2 space-y-1">
+                        {invoiceDetails.customer_phone && <p className="flex items-center gap-2"><span className="text-slate-400">P:</span> {invoiceDetails.customer_phone}</p>}
+                        {invoiceDetails.customer_email && <p className="flex items-center gap-2"><span className="text-slate-400">E:</span> {invoiceDetails.customer_email}</p>}
+                        {invoiceDetails.customer_address && <p className="flex items-center gap-2 mt-2 max-w-[250px] leading-relaxed"><span className="text-slate-400">A:</span> {invoiceDetails.customer_address}</p>}
                       </div>
                     </div>
                     
                     {/* Status Box */}
-                    <div className="flex flex-col items-end justify-end space-y-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Payment Status:</span>
-                        <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-full shadow-none', statusConfig[invoiceDetails.status]?.color)} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                          {invoiceDetails.status}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Approval:</span>
-                        <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">{invoiceDetails.approval_status}</span>
+                    <div className="flex flex-col items-end justify-start pt-2">
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 w-64 shadow-sm print:border-slate-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                        <div className="flex justify-between items-center mb-3">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</span>
+                          <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-md shadow-none', statusConfig[invoiceDetails.status]?.color)} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            {invoiceDetails.status}
+                          </Badge>
+                        </div>
+                        <div className="flex justify-between items-center pt-3 border-t border-slate-200">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount Due</span>
+                          <span className={cn('text-lg font-black', Number(invoiceDetails.balance_due) > 0 ? 'text-[#FF5722]' : 'text-emerald-600')}>
+                            {fmt(invoiceDetails.balance_due)}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Items list */}
-                  <div className="px-12 flex-1">
-                    <div className="rounded-xl border border-slate-200 overflow-hidden print:border-slate-300">
+                  <div className="px-12 flex-1 relative z-10">
+                    <div className="rounded-xl border border-slate-200 overflow-hidden shadow-sm print:border-slate-300">
                       <table className="w-full text-sm">
-                        <thead className="bg-[#001F3F] text-white print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                          <tr className="text-[10px] font-bold uppercase tracking-widest">
-                            <th className="py-3 px-4 text-left">Description</th>
-                            <th className="py-3 px-4 text-center w-20">Qty</th>
-                            <th className="py-3 px-4 text-right w-32">Unit Price</th>
-                            <th className="py-3 px-4 text-right w-32">Total</th>
+                        <thead className="bg-slate-100 text-slate-700 print:bg-slate-100 border-b border-slate-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <tr className="text-[10px] font-black uppercase tracking-widest">
+                            <th className="py-4 px-5 text-left">Description</th>
+                            <th className="py-4 px-5 text-center w-24">Qty</th>
+                            <th className="py-4 px-5 text-right w-36">Unit Price</th>
+                            <th className="py-4 px-5 text-right w-40">Total</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-200">
+                        <tbody className="divide-y divide-slate-100">
                           {invoiceDetails.items?.map((item: any, i: number) => (
-                            <tr key={i} className="hover:bg-slate-50 transition-colors">
-                              <td className="py-4 px-4 font-semibold text-slate-800">{item.description}</td>
-                              <td className="py-4 px-4 text-center font-bold text-slate-600">{item.quantity}</td>
-                              <td className="py-4 px-4 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
-                              <td className="py-4 px-4 text-right font-black text-[#001F3F]">{fmt(item.total_price)}</td>
+                            <tr key={i} className={cn("hover:bg-slate-50 transition-colors", i % 2 === 0 ? "bg-white" : "bg-slate-50/50")} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                              <td className="py-4 px-5 font-bold text-slate-800">{item.description}</td>
+                              <td className="py-4 px-5 text-center font-bold text-slate-600">{item.quantity}</td>
+                              <td className="py-4 px-5 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
+                              <td className="py-4 px-5 text-right font-black text-[#001F3F]">{fmt(item.total_price)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -677,35 +714,37 @@ export default function InvoicesPage() {
                     </div>
 
                     {/* Summary Totals */}
-                    <div className="flex justify-end pt-6">
-                      <div className="w-80 space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-500 font-medium">Subtotal</span>
-                          <span className="font-bold text-slate-800">{fmt(invoiceDetails.subtotal)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-500 font-medium">VAT ({invoiceDetails.vat_rate}%)</span>
-                          <span className="font-bold text-slate-800">{fmt(invoiceDetails.vat_amount)}</span>
-                        </div>
-                        {Number(invoiceDetails.discount_amount) > 0 && (
-                          <div className="flex justify-between text-sm text-red-500">
-                            <span>Discount</span>
-                            <span className="font-bold">-{fmt(invoiceDetails.discount_amount)}</span>
+                    <div className="flex justify-end pt-8">
+                      <div className="w-[350px]">
+                        <div className="space-y-3 px-4">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
+                            <span className="font-bold text-slate-800">{fmt(invoiceDetails.subtotal)}</span>
                           </div>
-                        )}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">VAT ({invoiceDetails.vat_rate}%)</span>
+                            <span className="font-bold text-slate-800">{fmt(invoiceDetails.vat_amount)}</span>
+                          </div>
+                          {Number(invoiceDetails.discount_amount) > 0 && (
+                            <div className="flex justify-between text-sm text-[#FF5722]">
+                              <span className="text-[11px] font-black uppercase tracking-widest">Discount</span>
+                              <span className="font-bold">-{fmt(invoiceDetails.discount_amount)}</span>
+                            </div>
+                          )}
+                        </div>
                         
-                        <div className="bg-slate-50 rounded-xl p-4 mt-4 border border-slate-100 print:border-slate-300" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm font-black text-[#001F3F] uppercase tracking-wider">Total Amount</span>
-                            <span className="text-xl font-black text-[#001F3F]">{fmt(invoiceDetails.total_amount)}</span>
+                        <div className="bg-[#001F3F] rounded-xl p-6 mt-5 text-white shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-sm font-black uppercase tracking-widest text-blue-200">Total Amount</span>
+                            <span className="text-2xl font-black">{fmt(invoiceDetails.total_amount)}</span>
                           </div>
-                          <div className="flex justify-between items-center text-sm text-green-600 font-bold mb-1">
-                            <span>Amount Paid</span>
-                            <span>{fmt(invoiceDetails.amount_paid)}</span>
+                          <div className="flex justify-between items-center text-sm font-bold mb-3 border-t border-white/10 pt-4">
+                            <span className="text-[11px] font-black uppercase tracking-widest text-blue-200">Amount Paid</span>
+                            <span className="text-emerald-400">{fmt(invoiceDetails.amount_paid)}</span>
                           </div>
-                          <div className="flex justify-between items-center text-sm border-t border-slate-200 pt-2 mt-2">
-                            <span className="font-black text-[#001F3F] uppercase tracking-wider">Balance Due</span>
-                            <span className={cn('font-black text-lg', Number(invoiceDetails.balance_due) > 0 ? 'text-red-500' : 'text-green-600')}>
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-[11px] font-black uppercase tracking-widest text-blue-200">Balance Due</span>
+                            <span className={cn('font-black text-lg', Number(invoiceDetails.balance_due) > 0 ? 'text-[#FF5722]' : 'text-emerald-400')}>
                               {fmt(invoiceDetails.balance_due)}
                             </span>
                           </div>
@@ -715,16 +754,18 @@ export default function InvoicesPage() {
 
                     {/* Receipts Payment History */}
                     {invoiceDetails.receipts?.length > 0 && (
-                      <div className="mt-10">
-                        <h4 className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-3 border-b border-slate-200 pb-2">Payment History</h4>
+                      <div className="mt-12">
+                        <h4 className="text-[11px] font-black text-[#001F3F] uppercase tracking-widest mb-4 border-b-2 border-slate-100 pb-2 inline-block">Payment History</h4>
                         <div className="grid grid-cols-2 gap-4">
                           {invoiceDetails.receipts.map((rec: any) => (
-                            <div key={rec.id} className="flex justify-between items-center text-sm bg-slate-50 p-3 rounded-lg border border-slate-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                            <div key={rec.id} className="flex justify-between items-center text-sm bg-white p-4 rounded-xl border border-slate-200 shadow-sm" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               <div>
-                                <p className="font-bold text-slate-800">{rec.receipt_number}</p>
-                                <p className="text-xs text-slate-500 font-medium mt-0.5">{rec.payment_method.replace('_', ' ')} · {rec.payment_date?.split('T')[0]}</p>
+                                <p className="font-black text-[#001F3F]">{rec.receipt_number}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                                  {rec.payment_method.replace('_', ' ')} · {rec.payment_date?.split('T')[0]}
+                                </p>
                               </div>
-                              <span className="font-black text-green-600">{fmt(rec.amount)}</span>
+                              <span className="font-black text-emerald-600 text-lg">{fmt(rec.amount)}</span>
                             </div>
                           ))}
                         </div>
@@ -733,18 +774,29 @@ export default function InvoicesPage() {
                   </div>
 
                   {/* Footer */}
-                  <div className="px-12 py-8 mt-auto border-t border-slate-100">
-                    <div className="flex justify-between items-end">
-                      {invoiceDetails.notes ? (
-                        <div className="max-w-md text-xs text-slate-500">
-                          <p className="font-bold text-[#001F3F] uppercase tracking-wider mb-1">Notes & Terms</p>
-                          <p className="font-medium leading-relaxed">{invoiceDetails.notes}</p>
+                  <div className="px-12 py-10 mt-auto relative z-10">
+                    <div className="border-t-2 border-slate-100 pt-8 flex justify-between items-end">
+                      <div className="max-w-md space-y-6">
+                        {invoiceDetails.notes && (
+                          <div className="text-xs text-slate-500 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                            <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-1.5">Notes & Terms</p>
+                            <p className="font-medium leading-relaxed">{invoiceDetails.notes}</p>
+                          </div>
+                        )}
+                        <div className="text-xs text-slate-500">
+                          <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-1.5">Payment Instructions</p>
+                          <p className="font-medium">Please include the Invoice Number when making payment.</p>
+                          <p className="font-medium mt-1">Mobile Money: <span className="font-bold text-slate-700">020 000 0000</span> (Think Kre8tiv Media)</p>
                         </div>
-                      ) : <div />}
+                      </div>
                       
-                       <div className="text-right">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Thank you for your business!</p>
-                        <p className="text-[10px] font-medium text-slate-400 mt-1">Think Kre8tiv Media</p>
+                      <div className="text-center flex flex-col items-center">
+                        <div className="relative">
+                          <img src="/logo.png" alt="Signature Stamp" className="w-24 h-24 object-contain opacity-20 grayscale absolute -top-8 -left-8" />
+                          <div className="w-48 border-b-2 border-[#001F3F] mt-16 mb-2 relative z-10"></div>
+                        </div>
+                        <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest">Authorized Signatory</p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Think Kre8tiv Media</p>
                       </div>
                     </div>
                   </div>
