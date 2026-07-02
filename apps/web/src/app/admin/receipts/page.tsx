@@ -573,13 +573,13 @@ export default function BillingAndReceiptsPage() {
 
               {/* Right Column: Preview */}
               <div className="flex w-full xl:w-[45%] p-4 sm:p-6 overflow-y-auto bg-slate-50/50 dark:bg-[#06080D]/50 border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-slate-800/60 relative justify-center">
-                <div className="w-full max-w-sm">
+                <div className="w-full max-w-2xl">
                   <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-4">
                     Real-Time Sheet Preview
                   </h3>
                   
                   {/* The Preview Sheet */}
-                  <div className="bg-white border border-slate-200 shadow-2xl p-0 relative overflow-hidden transition-all duration-300 transform scale-[0.85] origin-top-center w-[115%] -ml-[7.5%]">
+                  <div className="bg-white border border-slate-200 shadow-2xl p-0 relative overflow-hidden transition-all duration-300 w-full rounded-xl">
                     <div className="absolute top-6 right-6 bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-wider px-3 py-1 rounded-full border border-rose-200 shadow-sm z-20">
                       Draft Preview
                     </div>
@@ -594,23 +594,23 @@ export default function BillingAndReceiptsPage() {
                       <div className="h-1.5 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722]"></div>
                       
                       {/* Header Section */}
-                      <div className="p-6 sm:p-8 flex flex-col lg:flex-row justify-between items-start gap-6">
-                        <div className="flex items-center gap-4 sm:gap-5 w-full lg:w-auto">
+                      <div className="p-6 sm:p-8 flex flex-col items-center text-center 2xl:text-left 2xl:flex-row justify-between 2xl:items-start gap-6">
+                        <div className="flex flex-col 2xl:flex-row items-center gap-4 sm:gap-5 w-full 2xl:w-auto">
                           <div className="shrink-0">
-                            <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-sm" />
+                            <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-sm" />
                           </div>
                           <div className="min-w-0">
-                            <h3 className="text-lg sm:text-xl font-black tracking-tight text-[#001F3F] leading-none mb-1.5 truncate">THINK KRE8TIV MEDIA</h3>
-                            <p className="text-[9px] sm:text-[10px] text-slate-500 font-extrabold tracking-widest uppercase mb-2">Creative Excellence</p>
-                            <div className="space-y-0.5 text-[8px] sm:text-[9px] text-slate-400 font-medium truncate">
+                            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-[#001F3F] leading-none mb-1.5 uppercase">Think Kre8tiv Media</h3>
+                            <p className="text-[10px] sm:text-xs text-slate-500 font-extrabold tracking-widest uppercase mb-2">Creative Excellence</p>
+                            <div className="space-y-0.5 text-[9px] sm:text-[10px] text-slate-400 font-medium">
                               <p>OSU haramani Sport complex</p>
                               <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
                             </div>
                           </div>
                         </div>
-                        <div className="text-left lg:text-right flex flex-col lg:items-end w-full lg:w-auto">
-                          <h1 className="text-xl sm:text-2xl font-black text-[#FF5722] uppercase tracking-widest mb-3 sm:mb-4">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
-                          <div className="space-y-2 bg-slate-50/80 border border-slate-100 p-3 sm:p-4 rounded-xl w-full lg:w-56 text-left shadow-sm">
+                        <div className="flex flex-col items-center 2xl:items-end w-full 2xl:w-auto">
+                          <h1 className="text-2xl sm:text-3xl font-black text-[#FF5722] uppercase tracking-widest mb-3 sm:mb-4">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
+                          <div className="space-y-2 bg-slate-50/80 border border-slate-100 p-4 rounded-xl w-full sm:w-64 text-left shadow-sm">
                             <div className="flex justify-between items-center gap-4">
                               <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">Doc No.</span>
                               <span className="text-[10px] sm:text-xs font-bold text-[#001F3F] truncate">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</span>
