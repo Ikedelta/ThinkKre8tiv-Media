@@ -568,13 +568,11 @@ export default function InvoicesPage() {
         )}
       </div>
 
-      {selectedInvoiceId && (
-        <div className="fixed inset-0 bg-slate-900/80 z-50 flex items-start justify-center p-4 sm:p-8 overflow-auto print:p-0 print:bg-white print:block backdrop-blur-sm">
-          {/* A4 Paper Container */}
-          <div className="bg-white shadow-2xl w-full max-w-[800px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto rounded-xl sm:rounded-none overflow-hidden sm:overflow-visible">
-            
-            {/* Action buttons (Hidden during print) */}
-            <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex flex-wrap justify-end gap-3 print:hidden z-50">
+      {selectedInvoiceId && invoiceDetails && (
+        <div className="fixed inset-0 bg-slate-900/80 z-50 flex flex-col items-center justify-start overflow-hidden print:bg-white print:block backdrop-blur-sm">
+          
+          {/* Action buttons (Sticky Top Bar) */}
+          <div className="w-full bg-[#0B0F19] border-b border-slate-800 p-4 flex justify-end gap-3 shrink-0 print:hidden shadow-md z-50">
               {invoiceDetails?.approval_status === 'pending' && (session?.user as any)?.role === 'admin' && (
                 <>
                   <Button 
@@ -606,8 +604,14 @@ export default function InvoicesPage() {
               </Button>
             </div>
 
-            {/* Print Area */}
-            <div className="flex-1 flex flex-col text-slate-800 relative bg-white">
+            {/* Scrollable Document Area */}
+            <div className="flex-1 w-full overflow-auto p-4 sm:p-8 flex justify-center">
+              
+              {/* A4 Paper Container */}
+              <div className="bg-white shadow-2xl w-full max-w-[800px] relative flex flex-col shrink-0 print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto rounded-xl sm:rounded-none overflow-hidden sm:overflow-visible">
+                
+                {/* Print Area */}
+                <div className="flex-1 flex flex-col text-slate-800 relative bg-white">
               {isLoadingDetails ? (
                 <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold">Loading invoice details...</div>
               ) : !invoiceDetails ? (
@@ -623,10 +627,8 @@ export default function InvoicesPage() {
                   <div className="relative z-10">
                     <div className="h-2 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722] print:bg-[#001F3F]"></div>
                     <div className="p-6 sm:p-12 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0 print:flex-row print:p-12">
-                      <div className="flex items-start gap-4 sm:gap-5">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#001F3F] rounded-2xl flex items-center justify-center p-3 shadow-lg print:bg-[#001F3F] print:w-20 print:h-20" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                          <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-full h-full object-contain brightness-0 invert" />
-                        </div>
+                      <div className="flex items-center gap-4 sm:gap-5">
+                        <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain print:w-20 print:h-20" />
                         <div>
                           <h3 className="text-xl sm:text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-1 sm:mb-2 print:text-3xl">THINK KRE8TIV MEDIA</h3>
                           <p className="text-[10px] sm:text-xs text-slate-500 font-bold tracking-widest uppercase mb-2 sm:mb-4 print:text-xs">Creative Excellence</p>
@@ -791,11 +793,10 @@ export default function InvoicesPage() {
                           <p className="font-medium mt-1">Mobile Money: <span className="font-bold text-slate-700">020 000 0000</span> (Think Kre8tiv Media)</p>
                         </div>
                       </div>
-                      
                       <div className="text-left sm:text-right w-full sm:w-auto flex flex-col items-start sm:items-end print:items-end print:text-right">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
                         <div className="relative mt-2 mb-1">
-                          <img src="/logo.png" alt="Signature Stamp" className="h-12 object-contain opacity-20 grayscale" />
+                          <img src="/logo.png" alt="Signature Stamp" className="h-12 object-contain opacity-20" />
                         </div>
                         <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest">Think Kre8tiv Media</p>
                       </div>
