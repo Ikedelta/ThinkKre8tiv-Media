@@ -432,13 +432,13 @@ export default function BillingAndReceiptsPage() {
         <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden animate-fade-in">
           <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800 w-full max-w-6xl rounded-2xl shadow-2xl flex flex-col max-h-[95vh] overflow-hidden">
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-6">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ReceiptIcon className="text-[#FF5722]" size={24} />
-                  {editDocId ? 'Edit' : 'Generate'} {generateType === 'invoice' ? 'Invoice' : 'Receipt'}
+            <div className="flex justify-between items-start sm:items-center p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 gap-4 shrink-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full">
+                <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 shrink-0">
+                  <ReceiptIcon className="text-[#FF5722] shrink-0" size={24} />
+                  <span>{editDocId ? 'Edit' : 'Generate'} {generateType === 'invoice' ? 'Invoice' : 'Receipt'}</span>
                 </h2>
-                <div className="flex items-center bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-200 dark:border-slate-700/50">
+                <div className="flex items-center bg-slate-100 dark:bg-slate-800/50 rounded-full p-1 border border-slate-200 dark:border-slate-700/50 shrink-0">
                   <button 
                     onClick={() => setGenerateType('invoice')}
                     className={cn("px-4 py-1.5 text-xs font-bold rounded-full transition-all", generateType === 'invoice' ? "bg-[#FF5722] text-white shadow-sm" : "text-slate-500 hover:text-slate-900 dark:hover:text-white")}
@@ -452,10 +452,10 @@ export default function BillingAndReceiptsPage() {
                     Receipt
                   </button>
                 </div>
-                <p className="text-xs font-medium text-slate-400 hidden sm:block">• Requires admin approval before sending</p>
+                <p className="text-xs font-medium text-slate-400 hidden lg:block shrink-0">• Requires admin approval before sending</p>
               </div>
-              <button onClick={resetForm} className="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
-                <X size={20} />
+              <button onClick={resetForm} className="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors shrink-0 p-1">
+                <X size={24} />
               </button>
             </div>
             
@@ -548,10 +548,10 @@ export default function BillingAndReceiptsPage() {
                     </button>
                   </div>
                   
-                  <div className="space-y-3">
+                  <div className="space-y-4 sm:space-y-3">
                     {lineItems.map((item, index) => (
-                      <div key={item.id} className="flex gap-3 items-start">
-                        <div className="flex-1">
+                      <div key={item.id} className="flex gap-2 sm:gap-3 items-start flex-wrap sm:flex-nowrap bg-slate-50 dark:bg-slate-800/20 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none border border-slate-100 dark:border-slate-800 sm:border-none">
+                        <div className="w-full sm:flex-1">
                           <input 
                             type="text"
                             placeholder="Description"
@@ -561,10 +561,10 @@ export default function BillingAndReceiptsPage() {
                               newItems[index].description = e.target.value;
                               setLineItems(newItems);
                             }}
-                            className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                            className="w-full bg-white sm:bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 sm:py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
                           />
                         </div>
-                        <div className="w-20">
+                        <div className="w-20 sm:w-20">
                           <input 
                             type="number"
                             min="1"
@@ -575,10 +575,10 @@ export default function BillingAndReceiptsPage() {
                               newItems[index].quantity = parseInt(e.target.value) || 0;
                               setLineItems(newItems);
                             }}
-                            className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                            className="w-full bg-white sm:bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 sm:py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
                           />
                         </div>
-                        <div className="w-32">
+                        <div className="flex-1 sm:w-32">
                           <input 
                             type="number"
                             min="0"
@@ -590,15 +590,15 @@ export default function BillingAndReceiptsPage() {
                               newItems[index].unit_price = parseFloat(e.target.value) || 0;
                               setLineItems(newItems);
                             }}
-                            className="w-full bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
+                            className="w-full bg-white sm:bg-slate-50 dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2.5 sm:py-2 text-sm text-slate-900 dark:text-slate-200 outline-none focus:border-[#FF5722]"
                           />
                         </div>
                         <button 
                           onClick={() => setLineItems(lineItems.filter((_, i) => i !== index))}
                           disabled={lineItems.length === 1}
-                          className="p-2 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30 disabled:hover:text-slate-400 mt-1"
+                          className="p-2 sm:p-2 bg-red-50 sm:bg-transparent text-red-500 sm:text-slate-400 hover:text-red-500 rounded-lg transition-colors disabled:opacity-30 disabled:hover:text-slate-400 shrink-0 mt-0.5"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={18} className="sm:w-4 sm:h-4" />
                         </button>
                       </div>
                     ))}
@@ -728,20 +728,20 @@ export default function BillingAndReceiptsPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] flex justify-end gap-3">
+            <div className="p-4 sm:p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] flex flex-col sm:flex-row justify-end gap-3 shrink-0">
               <button 
                 type="button" 
                 onClick={resetForm} 
-                className="px-6 py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-lg font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors order-2 sm:order-1"
               >
                 Cancel
               </button>
               <button 
                 onClick={() => createMutation.mutate()}
                 disabled={createMutation.isPending || !customerName.trim()} 
-                className="px-6 py-2.5 bg-[#FF5722] hover:bg-[#FF7043] text-white rounded-lg font-bold transition-colors disabled:opacity-50"
+                className="w-full sm:w-auto px-6 py-3 sm:py-2.5 bg-[#FF5722] hover:bg-[#FF7043] text-white rounded-lg font-bold transition-colors disabled:opacity-50 order-1 sm:order-2"
               >
-                {createMutation.isPending ? 'Saving...' : `Save ${generateType === 'invoice' ? 'Invoice' : 'Receipt'} (Pending Approval)`}
+                {createMutation.isPending ? 'Saving...' : `Save ${generateType === 'invoice' ? 'Invoice' : 'Receipt'}`} <span className="hidden sm:inline">(Pending Approval)</span>
               </button>
             </div>
             
