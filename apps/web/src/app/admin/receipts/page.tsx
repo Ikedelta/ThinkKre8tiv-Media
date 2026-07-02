@@ -688,6 +688,7 @@ export default function BillingAndReceiptsPage() {
                   </div>
                 </div>
               </div>
+            </div>
 
             {/* Modal Footer */}
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] flex justify-end gap-3">
