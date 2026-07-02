@@ -584,28 +584,32 @@ export default function BillingAndReceiptsPage() {
                       Draft Preview
                     </div>
                     
+                    {/* Top Accent Line */}
+                    <div className="h-1.5 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722]"></div>
+                    
                     {/* Header Section */}
-                    <div className="relative z-10 flex border-b-[6px] border-[#001F3F]">
-                      <div className="bg-[#001F3F] text-white p-6 w-[60%] flex flex-col justify-between">
-                        <div>
-                          <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-12 h-12 object-contain mb-3 brightness-0 invert" />
-                          <h3 className="text-xl font-black tracking-tight leading-none mb-1">THINK KRE8TIV MEDIA</h3>
-                          <p className="text-[9px] text-blue-200 font-medium tracking-wide">CREATIVE EXCELLENCE</p>
+                    <div className="p-8 flex justify-between items-start">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 bg-[#001F3F] rounded-xl flex items-center justify-center p-2 shadow-md">
+                          <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-full h-full object-contain brightness-0 invert" />
                         </div>
-                        <div className="mt-4 space-y-0.5 text-[8px] text-blue-100/80 font-medium">
-                          <p>OSU haramani Sport complex</p>
-                          <p>+233 20 000 0000</p>
-                          <p>info@thinkkre8tivmedia.com</p>
+                        <div>
+                          <h3 className="text-xl font-black tracking-tight text-[#001F3F] leading-none mb-1">THINK KRE8TIV MEDIA</h3>
+                          <p className="text-[9px] text-slate-500 font-bold tracking-widest uppercase mb-3">Creative Excellence</p>
+                          <div className="space-y-0.5 text-[8px] text-slate-400 font-medium">
+                            <p>OSU haramani Sport complex</p>
+                            <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
+                          </div>
                         </div>
                       </div>
-                      <div className="w-[40%] p-6 flex flex-col justify-between items-end bg-slate-50">
-                        <h1 className="text-2xl font-black text-[#FF5722] uppercase tracking-widest mb-3">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
-                        <div className="text-right space-y-1.5 w-full">
-                          <div className="flex justify-between items-center border-b border-slate-200 pb-1">
+                      <div className="text-right flex flex-col items-end">
+                        <h1 className="text-2xl font-black text-[#FF5722] uppercase tracking-widest mb-4">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
+                        <div className="space-y-2 bg-slate-50 border border-slate-100 p-3 rounded-lg w-48 text-left">
+                          <div className="flex justify-between items-center">
                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Doc No.</span>
-                            <span className="text-[10px] font-black text-[#001F3F]">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</span>
+                            <span className="text-[10px] font-bold text-[#001F3F]">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</span>
                           </div>
-                          <div className="flex justify-between items-center border-b border-slate-200 pb-1">
+                          <div className="flex justify-between items-center">
                             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Date</span>
                             <span className="text-[9px] font-bold text-slate-700">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                           </div>
@@ -613,71 +617,64 @@ export default function BillingAndReceiptsPage() {
                       </div>
                     </div>
 
-                    <div className="px-6 py-6 grid grid-cols-2 gap-6 relative z-10">
-                      <div className="space-y-1.5">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-1.5 mb-2 inline-block">Billed To</p>
-                        <p className="text-sm font-extrabold text-[#001F3F] leading-tight">{customerName || 'Client Name'}</p>
-                        <div className="text-[8px] text-slate-600 font-medium pt-1 space-y-0.5">
-                          {customerPhone && <p className="flex items-center gap-1.5"><span className="text-slate-400">P:</span> {customerPhone}</p>}
-                          {customerEmail && <p className="flex items-center gap-1.5"><span className="text-slate-400">E:</span> {customerEmail}</p>}
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end justify-start">
-                        <div className="bg-slate-50 border border-slate-100 rounded-lg p-3 w-40 shadow-sm mt-1">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Total</span>
-                            <span className="text-xs font-black text-[#FF5722]">₵{grandTotal.toFixed(2)}</span>
-                          </div>
-                        </div>
+                    <div className="px-8 pb-6 border-b border-slate-100 mb-6 mx-8 mt-2">
+                      <p className="text-[9px] font-black text-[#FF5722] uppercase tracking-widest mb-2">Billed To</p>
+                      <p className="text-sm font-extrabold text-[#001F3F] leading-tight mb-1">{customerName || 'Client Name'}</p>
+                      <div className="text-[9px] text-slate-500 font-medium space-y-0.5">
+                        {customerPhone && <p>{customerPhone}</p>}
+                        {customerEmail && <p>{customerEmail}</p>}
                       </div>
                     </div>
 
-                    <div className="px-6 flex-1 relative z-10">
-                      <div className="rounded-lg border border-slate-200 overflow-hidden shadow-sm mb-6">
-                        <table className="w-full text-sm">
-                          <thead className="bg-slate-100 text-slate-700 border-b border-slate-200">
-                            <tr className="text-[8px] font-black uppercase tracking-widest">
-                              <th className="py-2 px-3 text-left">Description</th>
-                              <th className="py-2 px-3 text-center w-12">Qty</th>
-                              <th className="py-2 px-3 text-right w-20">Amount</th>
+                    <div className="px-8 flex-1 relative z-10">
+                      <table className="w-full text-sm mb-6">
+                        <thead className="border-b-2 border-slate-800">
+                          <tr className="text-[9px] font-black text-slate-800 uppercase tracking-widest">
+                            <th className="py-3 px-2 text-left">Description</th>
+                            <th className="py-3 px-2 text-center w-16">Qty</th>
+                            <th className="py-3 px-2 text-right w-24">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {lineItems.map((item, i) => (
+                            <tr key={item.id} className="group hover:bg-slate-50 transition-colors">
+                              <td className="py-3 px-2 text-[10px] font-bold text-slate-700 max-w-[120px]">{item.description || <span className="text-slate-300 italic font-medium">New Line Item</span>}</td>
+                              <td className="py-3 px-2 text-[10px] text-center font-bold text-slate-600">{item.quantity}</td>
+                              <td className="py-3 px-2 text-[10px] text-right font-black text-[#001F3F]">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
                             </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
-                            {lineItems.map((item, i) => (
-                              <tr key={item.id} className={cn("transition-colors", i % 2 === 0 ? "bg-white" : "bg-slate-50/50")}>
-                                <td className="py-2 px-3 text-[9px] font-bold text-slate-800 truncate max-w-[120px]">{item.description || <span className="text-slate-300 italic">New Line Item</span>}</td>
-                                <td className="py-2 px-3 text-[9px] text-center font-bold text-slate-600">{item.quantity}</td>
-                                <td className="py-2 px-3 text-[9px] text-right font-black text-[#001F3F]">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                          ))}
+                        </tbody>
+                      </table>
 
-                      <div className="flex justify-end mb-6">
-                        <div className="w-[180px]">
-                          <div className="space-y-1.5 px-2">
-                            <div className="flex justify-between items-center text-[9px]">
-                              <span className="font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
-                              <span className="font-bold text-slate-700">₵{subtotal.toFixed(2)}</span>
+                      <div className="flex justify-end">
+                        <div className="w-[200px]">
+                          <div className="space-y-2 px-2 pb-3 border-b border-slate-100">
+                            <div className="flex justify-between items-center text-[10px]">
+                              <span className="font-bold text-slate-500">Subtotal</span>
+                              <span className="font-bold text-slate-800">₵{subtotal.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between items-center text-[9px]">
-                              <span className="font-black text-slate-400 uppercase tracking-widest">VAT (20%)</span>
-                              <span className="font-bold text-slate-700">₵{vatAmount.toFixed(2)}</span>
+                            <div className="flex justify-between items-center text-[10px]">
+                              <span className="font-bold text-slate-500">VAT (20%)</span>
+                              <span className="font-bold text-slate-800">₵{vatAmount.toFixed(2)}</span>
                             </div>
                           </div>
-                          <div className="bg-[#001F3F] rounded-lg p-3 mt-3 text-white shadow-sm">
-                            <div className="flex justify-between items-center">
-                              <span className="text-[8px] font-black uppercase tracking-widest text-blue-200">Total</span>
-                              <span className="text-sm font-black text-white">₵{grandTotal.toFixed(2)}</span>
-                            </div>
+                          <div className="flex justify-between items-center pt-3 px-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[#001F3F]">Total</span>
+                            <span className="text-sm font-black text-[#FF5722]">₵{grandTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 text-center text-[8px] font-bold text-slate-400">
-                      <p>Thank you for choosing Think Kre8tiv Media!</p>
+                    <div className="px-8 py-6 mt-8 bg-slate-50 flex items-center justify-between border-t border-slate-200">
+                      <div>
+                        <p className="text-[10px] font-black text-[#001F3F] mb-0.5">Thank you for your business!</p>
+                        <p className="text-[8px] text-slate-500">If you have any questions about this document, please contact us.</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
+                        <img src="/logo.png" alt="Signature" className="h-6 object-contain opacity-20 mt-1 inline-block" />
+                      </div>
                     </div>
 
                   </div>
@@ -764,137 +761,124 @@ export default function BillingAndReceiptsPage() {
               )}
 
               {/* Header Section */}
-              <div className="relative z-10 flex border-b-[8px] border-[#001F3F] print:border-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                <div className="bg-[#001F3F] text-white p-10 w-[60%] flex flex-col justify-between print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                  <div>
-                    <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-20 h-20 object-contain mb-4 brightness-0 invert" />
-                    <h3 className="text-3xl font-black tracking-tight leading-none mb-2">THINK KRE8TIV MEDIA</h3>
-                    <p className="text-sm text-blue-200 font-medium tracking-wide">CREATIVE EXCELLENCE</p>
-                  </div>
-                  <div className="mt-8 space-y-1 text-xs text-blue-100/80 font-medium">
-                    <p>OSU haramani Sport complex</p>
-                    <p>+233 20 000 0000</p>
-                    <p>info@thinkkre8tivmedia.com</p>
-                  </div>
-                </div>
-                <div className="w-[40%] p-10 flex flex-col justify-between items-end bg-slate-50 print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                  <h1 className="text-4xl font-black text-[#FF5722] uppercase tracking-widest mb-4 print:text-[#FF5722]">
-                    {viewedDoc.total_amount === viewedDoc.amount ? 'RECEIPT' : 'INVOICE'}
-                  </h1>
-                  <div className="text-right space-y-2 w-full">
-                    <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Doc No.</span>
-                      <span className="text-sm font-black text-[#001F3F]">{viewedDoc.invoice_number || viewedDoc.receipt_number}</span>
+              <div className="relative z-10">
+                <div className="h-2 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722] print:bg-[#001F3F]"></div>
+                <div className="p-12 flex justify-between items-start">
+                  <div className="flex items-start gap-5">
+                    <div className="w-20 h-20 bg-[#001F3F] rounded-2xl flex items-center justify-center p-3 shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-full h-full object-contain brightness-0 invert" />
                     </div>
-                    <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
-                      <span className="text-xs font-bold text-slate-700">{new Date(viewedDoc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    </div>
-                    {viewedDoc.due_date && (
-                      <div className="flex justify-between items-center pb-1">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Due Date</span>
-                        <span className="text-xs font-bold text-[#FF5722]">{new Date(viewedDoc.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                    <div>
+                      <h3 className="text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-2">THINK KRE8TIV MEDIA</h3>
+                      <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-4">Creative Excellence</p>
+                      <div className="space-y-1 text-xs text-slate-400 font-medium">
+                        <p>OSU haramani Sport complex</p>
+                        <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
                       </div>
+                    </div>
+                  </div>
+                  <div className="text-right flex flex-col items-end">
+                    <h1 className="text-4xl font-black text-[#FF5722] uppercase tracking-widest mb-6 print:text-[#FF5722]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      {viewedDoc.total_amount === viewedDoc.amount ? 'RECEIPT' : 'INVOICE'}
+                    </h1>
+                    <div className="space-y-3 bg-slate-50 border border-slate-100 p-5 rounded-xl w-64 text-left print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Doc No.</span>
+                        <span className="text-sm font-bold text-[#001F3F]">{viewedDoc.invoice_number || viewedDoc.receipt_number}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
+                        <span className="text-xs font-bold text-slate-700">{new Date(viewedDoc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      </div>
+                      {viewedDoc.due_date && (
+                        <div className="flex justify-between items-center pt-1 border-t border-slate-200 mt-1">
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Due Date</span>
+                          <span className="text-xs font-bold text-[#FF5722]">{new Date(viewedDoc.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </div>
+                      )}
+                    </div>
+                    {viewedDoc.approval_status !== 'approved' && (
+                      <span className="inline-block mt-4 bg-rose-50 text-rose-600 px-3 py-1 rounded-md text-[10px] font-black tracking-widest border border-rose-200 uppercase shadow-sm">
+                        Draft (Unapproved)
+                      </span>
                     )}
                   </div>
-                  {viewedDoc.approval_status !== 'approved' && (
-                    <span className="inline-block mt-4 bg-rose-50 text-rose-600 px-3 py-1 rounded-md text-[10px] font-black tracking-widest border border-rose-200 uppercase shadow-sm">
-                      Draft (Unapproved)
-                    </span>
-                  )}
                 </div>
               </div>
 
-              {/* Parties */}
-              <div className="px-12 py-10 grid grid-cols-2 gap-12 relative z-10">
-                <div className="space-y-2">
-                  <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-2 mb-3 inline-block">Billed To</p>
-                  <p className="text-xl font-extrabold text-[#001F3F]">{viewedDoc.customer_name}</p>
-                  <div className="text-sm text-slate-600 font-medium pt-2 space-y-1">
-                    {viewedDoc.customer_phone && <p className="flex items-center gap-2"><span className="text-slate-400">P:</span> {viewedDoc.customer_phone}</p>}
-                    {viewedDoc.customer_email && <p className="flex items-center gap-2"><span className="text-slate-400">E:</span> {viewedDoc.customer_email}</p>}
-                    {viewedDoc.customer_address && <p className="flex items-center gap-2 mt-2 max-w-[250px] leading-relaxed"><span className="text-slate-400">A:</span> {viewedDoc.customer_address}</p>}
-                  </div>
-                </div>
-                <div className="flex flex-col items-end justify-start pt-2">
-                  <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 w-64 shadow-sm print:border-slate-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total Amount</span>
-                      <span className="text-xl font-black text-[#FF5722]">{fmt(viewedDoc.total_amount || viewedDoc.amount)}</span>
-                    </div>
-                  </div>
+              {/* Billed To Section */}
+              <div className="px-12 pb-8 border-b border-slate-100 mb-8 mx-12 mt-2">
+                <p className="text-[10px] font-black text-[#FF5722] uppercase tracking-widest mb-3">Billed To</p>
+                <p className="text-xl font-extrabold text-[#001F3F] leading-tight mb-2">{viewedDoc.customer_name}</p>
+                <div className="text-xs text-slate-500 font-medium space-y-1">
+                  {viewedDoc.customer_phone && <p>{viewedDoc.customer_phone}</p>}
+                  {viewedDoc.customer_email && <p>{viewedDoc.customer_email}</p>}
+                  {viewedDoc.customer_address && <p className="max-w-[300px] leading-relaxed pt-1">{viewedDoc.customer_address}</p>}
                 </div>
               </div>
 
               {/* Line Items */}
               <div className="px-12 flex-1 relative z-10">
-                <div className="rounded-xl border border-slate-200 overflow-hidden shadow-sm print:border-slate-300">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-100 text-slate-700 print:bg-slate-100 border-b border-slate-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      <tr className="text-[10px] font-black uppercase tracking-widest">
-                        <th className="py-4 px-5 text-left">Description</th>
-                        <th className="py-4 px-5 text-center w-24">Qty</th>
-                        <th className="py-4 px-5 text-right w-40">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {viewedDoc.items && viewedDoc.items.length > 0 ? (
-                        viewedDoc.items.map((item: any, i: number) => (
-                          <tr key={item.id} className={cn("transition-colors", i % 2 === 0 ? "bg-white" : "bg-slate-50/50")} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            <td className="py-4 px-5 font-bold text-slate-800">{item.description}</td>
-                            <td className="py-4 px-5 text-center font-bold text-slate-600">{item.quantity}</td>
-                            <td className="py-4 px-5 text-right font-black text-[#001F3F]">{fmt(item.total_price || (item.quantity * item.unit_price))}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={3} className="py-8 px-5 font-bold text-slate-400 italic text-center">Custom Document Total</td>
+                <table className="w-full text-sm mb-8">
+                  <thead className="border-b-2 border-slate-800">
+                    <tr className="text-xs font-black text-slate-800 uppercase tracking-widest">
+                      <th className="py-4 px-3 text-left">Description</th>
+                      <th className="py-4 px-3 text-center w-24">Qty</th>
+                      <th className="py-4 px-3 text-right w-40">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {viewedDoc.items && viewedDoc.items.length > 0 ? (
+                      viewedDoc.items.map((item: any, i: number) => (
+                        <tr key={item.id} className="group hover:bg-slate-50 transition-colors">
+                          <td className="py-4 px-3 font-bold text-slate-700">{item.description}</td>
+                          <td className="py-4 px-3 text-center font-bold text-slate-600">{item.quantity}</td>
+                          <td className="py-4 px-3 text-right font-black text-[#001F3F]">{fmt(item.total_price || (item.quantity * item.unit_price))}</td>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="py-8 px-5 font-bold text-slate-400 italic text-center">Custom Document Total</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
 
                 {/* Totals */}
-                <div className="flex justify-end pt-8">
+                <div className="flex justify-end">
                   <div className="w-[350px]">
-                    <div className="space-y-3 px-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
+                    <div className="space-y-4 px-3 pb-5 border-b border-slate-100">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">Subtotal</span>
                         <span className="font-bold text-slate-800">{fmt(viewedDoc.subtotal || viewedDoc.amount)}</span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">VAT (20%)</span>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">VAT (20%)</span>
                         <span className="font-bold text-slate-800">{fmt(viewedDoc.vat_amount || ((viewedDoc.subtotal || viewedDoc.amount) * 0.2))}</span>
                       </div>
                     </div>
                     
-                    <div className="bg-[#001F3F] rounded-xl p-6 mt-5 text-white shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-black uppercase tracking-widest text-blue-200">Grand Total</span>
-                        <span className="text-2xl font-black">{fmt(viewedDoc.total_amount || viewedDoc.amount)}</span>
-                      </div>
+                    <div className="flex justify-between items-center pt-5 px-3">
+                      <span className="text-sm font-black uppercase tracking-widest text-[#001F3F]">Grand Total</span>
+                      <span className="text-2xl font-black text-[#FF5722]">{fmt(viewedDoc.total_amount || viewedDoc.amount)}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="px-12 py-10 mt-auto relative z-10">
-                <div className="border-t-2 border-slate-100 pt-8 flex justify-between items-end">
-                  <div className="max-w-md space-y-6">
-                    <div className="text-xs text-slate-500">
-                      <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-1.5">Thank you for choosing Think Kre8tiv Media!</p>
-                      <p className="font-medium leading-relaxed">Payment is due upon receipt. Please make all checks payable to Think Kre8tiv Media.</p>
-                    </div>
+              <div className="px-12 py-10 mt-12 bg-slate-50 flex flex-col justify-between border-t border-slate-200 print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                <div className="flex justify-between items-end">
+                  <div className="max-w-sm">
+                    <p className="text-sm font-black text-[#001F3F] mb-1.5 uppercase tracking-widest">Thank you for your business!</p>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">Payment is due upon receipt. Please make all checks payable to Think Kre8tiv Media. If you have any questions, please contact us.</p>
                   </div>
-                  <div className="text-center flex flex-col items-center">
-                    <div className="relative">
-                      <img src="/logo.png" alt="Signature Stamp" className="w-24 h-24 object-contain opacity-20 grayscale absolute -top-8 -left-8" />
-                      <div className="w-48 border-b-2 border-[#001F3F] mt-16 mb-2 relative z-10"></div>
+                  <div className="text-right">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
+                    <div className="relative mt-2 mb-1">
+                      <img src="/logo.png" alt="Signature Stamp" className="h-12 object-contain opacity-20 grayscale" />
                     </div>
-                    <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest">Authorized Signatory</p>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Think Kre8tiv Media</p>
+                    <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest">Think Kre8tiv Media</p>
                   </div>
                 </div>
               </div>
