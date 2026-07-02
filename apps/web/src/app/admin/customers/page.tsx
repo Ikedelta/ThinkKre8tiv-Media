@@ -78,6 +78,7 @@ export default function CustomersPage() {
       return data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sms_balance'] });
       toast.success('SMS sent successfully!');
     },
     onError: (err: any) => {

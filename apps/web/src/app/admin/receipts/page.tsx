@@ -194,6 +194,7 @@ export default function BillingAndReceiptsPage() {
       return data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sms_balance'] });
       toast.success('SMS sent to customer!');
     },
     onError: (err: any) => {

@@ -119,6 +119,7 @@ export default function InvoicesPage() {
       return data;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sms_balance'] });
       toast.success('SMS sent to customer!');
     },
     onError: (err) => {
