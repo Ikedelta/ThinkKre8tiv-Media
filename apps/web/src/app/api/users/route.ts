@@ -5,6 +5,11 @@ import { hashPassword } from 'better-auth/crypto';
 
 export async function GET() {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || (session.user as any)?.role !== 'admin') {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Ensure tables exist for user, account, and activity_logs
     await sql`
       CREATE TABLE IF NOT EXISTS "user" (
@@ -83,7 +88,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || (session.user as any)?.role !== 'admin') {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Ensure tables exist for user, account, and activity_logs
     await sql`
@@ -196,7 +203,9 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || (session.user as any)?.role !== 'admin') {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const body = await request.json();
     const { id, name, phone, role, position, is_active } = body;

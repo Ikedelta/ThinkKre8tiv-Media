@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { authClient } from '@/lib/auth-client';
 import {
   Plus,
   UserCheck,
@@ -80,6 +81,19 @@ export default function UsersPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [expandedRole, setExpandedRole] = useState<string | null>(null);
   const queryClient = useQueryClient();
+
+  const { data: session } = authClient.useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
+
+  if (session && !isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[70vh]">
+        <Shield size={64} className="text-slate-300 mb-4" />
+        <h1 className="text-2xl font-bold text-slate-800">Access Denied</h1>
+        <p className="text-slate-500 mt-2">Only administrators can manage users and roles.</p>
+      </div>
+    );
+  }
 
   const { data: users = [], isLoading } = useQuery<StaffUser[]>({
     queryKey: ['users'],
