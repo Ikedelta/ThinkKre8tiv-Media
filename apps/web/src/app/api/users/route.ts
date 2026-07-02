@@ -237,17 +237,27 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
-    if (!session) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || (session.user as any)?.role !== 'admin') {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
 
-    // Deactivate instead of hard delete
-    await sql`UPDATE "user" SET is_active = FALSE WHERE id = ${id}`;
+    // Hard delete user and associated records
+    await sql`DELETE FROM "account" WHERE "userId" = ${id}`;
+    await sql`DELETE FROM "session" WHERE "userId" = ${id}`;
+    await sql`DELETE FROM "user" WHERE id = ${id}`;
+
+    await sql`
+      INSERT INTO activity_logs (user_name, action, resource, resource_id, details)
+      VALUES (${session?.user?.name || 'Admin'}, 'Deleted user', 'user', ${id}, 'User completely deleted')
+    `;
+
     return Response.json({ success: true });
   } catch (error) {
     console.error(error);
-    return Response.json({ error: 'Failed to deactivate user' }, { status: 500 });
+    return Response.json({ error: 'Failed to delete user' }, { status: 500 });
   }
 }

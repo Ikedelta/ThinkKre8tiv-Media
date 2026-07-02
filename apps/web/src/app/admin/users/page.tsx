@@ -166,6 +166,21 @@ export default function UsersPage() {
     onError: () => toast.error('Failed'),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      const res = await fetch(`/api/users?id=${userId}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User deleted successfully');
+    },
+    onError: () => toast.error('Failed to delete user'),
+  });
+
   const resetPasswordMutation = useMutation({
     mutationFn: async (userId: string) => {
       const res = await fetch('/api/admin/reset-password', {
@@ -375,8 +390,14 @@ export default function UsersPage() {
                             <Edit2 size={14} />
                           </button>
                           <button 
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to completely delete ${user.name}? This action cannot be undone.`)) {
+                                deleteMutation.mutate(user.id);
+                              }
+                            }}
                             className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                             title="Remove User"
+                            disabled={deleteMutation.isPending}
                           >
                             <UserX size={14} />
                           </button>
@@ -418,12 +439,25 @@ export default function UsersPage() {
                         </div>
                       </div>
                     </div>
-                    <button
-                      onClick={() => openEdit(user)}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      <Edit2 size={16} />
-                    </button>
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => openEdit(user)}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Are you sure you want to completely delete ${user.name}? This action cannot be undone.`)) {
+                            deleteMutation.mutate(user.id);
+                          }
+                        }}
+                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        disabled={deleteMutation.isPending}
+                      >
+                        <UserX size={16} />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
