@@ -883,9 +883,9 @@ export default function BillingAndReceiptsPage() {
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
+        </div>
         </div>
       )}
 
