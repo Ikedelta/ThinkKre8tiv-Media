@@ -572,7 +572,7 @@ export default function BillingAndReceiptsPage() {
               </div>
 
               {/* Right Column: Preview */}
-              <div className="hidden xl:flex w-full xl:w-[45%] p-6 overflow-y-auto bg-slate-50/50 dark:bg-[#06080D]/50 border-l border-slate-100 dark:border-slate-800/60 relative justify-center">
+              <div className="flex w-full xl:w-[45%] p-4 sm:p-6 overflow-y-auto bg-slate-50/50 dark:bg-[#06080D]/50 border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-slate-800/60 relative justify-center">
                 <div className="w-full max-w-sm">
                   <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-4">
                     Real-Time Sheet Preview
@@ -709,7 +709,7 @@ export default function BillingAndReceiptsPage() {
         <div className="fixed inset-0 bg-slate-900/80 z-50 flex items-start justify-center p-4 sm:p-8 overflow-auto print:p-0 print:bg-white print:block backdrop-blur-sm">
           
           {/* A4 Paper Container */}
-          <div className="bg-white shadow-2xl min-w-[800px] max-w-[800px] min-h-[1130px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto">
+          <div className="bg-white shadow-2xl w-full max-w-[800px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto rounded-xl sm:rounded-none overflow-hidden sm:overflow-visible">
             
             {/* Action buttons (Hidden during print) */}
             <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex flex-wrap justify-end gap-3 print:hidden z-50">
@@ -763,25 +763,25 @@ export default function BillingAndReceiptsPage() {
               {/* Header Section */}
               <div className="relative z-10">
                 <div className="h-2 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722] print:bg-[#001F3F]"></div>
-                <div className="p-12 flex justify-between items-start">
-                  <div className="flex items-start gap-5">
-                    <div className="w-20 h-20 bg-[#001F3F] rounded-2xl flex items-center justify-center p-3 shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                <div className="p-6 sm:p-12 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0 print:flex-row print:p-12">
+                  <div className="flex items-start gap-4 sm:gap-5">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#001F3F] rounded-2xl flex items-center justify-center p-3 shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                       <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-full h-full object-contain brightness-0 invert" />
                     </div>
                     <div>
-                      <h3 className="text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-2">THINK KRE8TIV MEDIA</h3>
-                      <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-4">Creative Excellence</p>
-                      <div className="space-y-1 text-xs text-slate-400 font-medium">
+                      <h3 className="text-xl sm:text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-1 sm:mb-2 print:text-3xl">THINK KRE8TIV MEDIA</h3>
+                      <p className="text-[10px] sm:text-xs text-slate-500 font-bold tracking-widest uppercase mb-2 sm:mb-4 print:text-xs">Creative Excellence</p>
+                      <div className="space-y-1 text-[10px] sm:text-xs text-slate-400 font-medium print:text-xs">
                         <p>OSU haramani Sport complex</p>
                         <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
                       </div>
                     </div>
                   </div>
-                  <div className="text-right flex flex-col items-end">
-                    <h1 className="text-4xl font-black text-[#FF5722] uppercase tracking-widest mb-6 print:text-[#FF5722]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                  <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-auto print:items-end print:text-right">
+                    <h1 className="text-2xl sm:text-4xl font-black text-[#FF5722] uppercase tracking-widest mb-4 sm:mb-6 print:text-[#FF5722] print:text-4xl" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                       {viewedDoc.total_amount === viewedDoc.amount ? 'RECEIPT' : 'INVOICE'}
                     </h1>
-                    <div className="space-y-3 bg-slate-50 border border-slate-100 p-5 rounded-xl w-64 text-left print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    <div className="space-y-2 sm:space-y-3 bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-xl w-full sm:w-64 text-left print:bg-slate-50 print:w-64" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Doc No.</span>
                         <span className="text-sm font-bold text-[#001F3F]">{viewedDoc.invoice_number || viewedDoc.receipt_number}</span>
@@ -807,19 +807,19 @@ export default function BillingAndReceiptsPage() {
               </div>
 
               {/* Billed To Section */}
-              <div className="px-12 pb-8 border-b border-slate-100 mb-8 mx-12 mt-2">
-                <p className="text-[10px] font-black text-[#FF5722] uppercase tracking-widest mb-3">Billed To</p>
-                <p className="text-xl font-extrabold text-[#001F3F] leading-tight mb-2">{viewedDoc.customer_name}</p>
+              <div className="px-6 sm:px-12 pb-6 sm:pb-8 border-b border-slate-100 mb-6 sm:mb-8 mx-6 sm:mx-12 mt-2 print:px-12 print:mx-12">
+                <p className="text-[10px] font-black text-[#FF5722] uppercase tracking-widest mb-2 sm:mb-3">Billed To</p>
+                <p className="text-lg sm:text-xl font-extrabold text-[#001F3F] leading-tight mb-1 sm:mb-2 print:text-xl">{viewedDoc.customer_name}</p>
                 <div className="text-xs text-slate-500 font-medium space-y-1">
                   {viewedDoc.customer_phone && <p>{viewedDoc.customer_phone}</p>}
-                  {viewedDoc.customer_email && <p>{viewedDoc.customer_email}</p>}
-                  {viewedDoc.customer_address && <p className="max-w-[300px] leading-relaxed pt-1">{viewedDoc.customer_address}</p>}
+                  {viewedDoc.customer_email && <p className="break-all sm:break-normal">{viewedDoc.customer_email}</p>}
+                  {viewedDoc.customer_address && <p className="max-w-full sm:max-w-[300px] leading-relaxed pt-1 print:max-w-[300px]">{viewedDoc.customer_address}</p>}
                 </div>
               </div>
 
               {/* Line Items */}
-              <div className="px-12 flex-1 relative z-10">
-                <table className="w-full text-sm mb-8">
+              <div className="px-4 sm:px-12 flex-1 relative z-10 print:px-12 overflow-x-auto">
+                <table className="w-full text-sm mb-6 sm:mb-8 min-w-[400px]">
                   <thead className="border-b-2 border-slate-800">
                     <tr className="text-xs font-black text-slate-800 uppercase tracking-widest">
                       <th className="py-4 px-3 text-left">Description</th>
@@ -845,9 +845,9 @@ export default function BillingAndReceiptsPage() {
                 </table>
 
                 {/* Totals */}
-                <div className="flex justify-end">
-                  <div className="w-[350px]">
-                    <div className="space-y-4 px-3 pb-5 border-b border-slate-100">
+                <div className="flex justify-end mt-4 sm:mt-0">
+                  <div className="w-full sm:w-[350px] print:w-[350px]">
+                    <div className="space-y-3 sm:space-y-4 px-2 sm:px-3 pb-4 sm:pb-5 border-b border-slate-100">
                       <div className="flex justify-between items-center text-sm">
                         <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">Subtotal</span>
                         <span className="font-bold text-slate-800">{fmt(viewedDoc.subtotal || viewedDoc.amount)}</span>
@@ -867,13 +867,13 @@ export default function BillingAndReceiptsPage() {
               </div>
 
               {/* Footer */}
-              <div className="px-12 py-10 mt-12 bg-slate-50 flex flex-col justify-between border-t border-slate-200 print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                <div className="flex justify-between items-end">
-                  <div className="max-w-sm">
+              <div className="px-6 sm:px-12 py-8 sm:py-10 mt-8 sm:mt-12 bg-slate-50 flex flex-col justify-between border-t border-slate-200 print:bg-slate-50 print:px-12 print:mt-12" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 sm:gap-0 print:flex-row">
+                  <div className="max-w-full sm:max-w-sm print:max-w-sm">
                     <p className="text-sm font-black text-[#001F3F] mb-1.5 uppercase tracking-widest">Thank you for your business!</p>
                     <p className="text-xs text-slate-500 font-medium leading-relaxed">Payment is due upon receipt. Please make all checks payable to Think Kre8tiv Media. If you have any questions, please contact us.</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right print:text-right w-full sm:w-auto flex flex-col items-start sm:items-end print:items-end">
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
                     <div className="relative mt-2 mb-1">
                       <img src="/logo.png" alt="Signature Stamp" className="h-12 object-contain opacity-20 grayscale" />

@@ -571,7 +571,7 @@ export default function InvoicesPage() {
       {selectedInvoiceId && (
         <div className="fixed inset-0 bg-slate-900/80 z-50 flex items-start justify-center p-4 sm:p-8 overflow-auto print:p-0 print:bg-white print:block backdrop-blur-sm">
           {/* A4 Paper Container */}
-          <div className="bg-white shadow-2xl min-w-[800px] max-w-[800px] min-h-[1130px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto">
+          <div className="bg-white shadow-2xl w-full max-w-[800px] relative flex flex-col print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto rounded-xl sm:rounded-none overflow-hidden sm:overflow-visible">
             
             {/* Action buttons (Hidden during print) */}
             <div className="absolute top-0 left-0 right-0 -translate-y-full pb-4 flex flex-wrap justify-end gap-3 print:hidden z-50">
@@ -622,23 +622,23 @@ export default function InvoicesPage() {
                   {/* Header Section */}
                   <div className="relative z-10">
                     <div className="h-2 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722] print:bg-[#001F3F]"></div>
-                    <div className="p-12 flex justify-between items-start">
-                      <div className="flex items-start gap-5">
-                        <div className="w-20 h-20 bg-[#001F3F] rounded-2xl flex items-center justify-center p-3 shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    <div className="p-6 sm:p-12 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0 print:flex-row print:p-12">
+                      <div className="flex items-start gap-4 sm:gap-5">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#001F3F] rounded-2xl flex items-center justify-center p-3 shadow-lg print:bg-[#001F3F] print:w-20 print:h-20" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-full h-full object-contain brightness-0 invert" />
                         </div>
                         <div>
-                          <h3 className="text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-2">THINK KRE8TIV MEDIA</h3>
-                          <p className="text-xs text-slate-500 font-bold tracking-widest uppercase mb-4">Creative Excellence</p>
-                          <div className="space-y-1 text-xs text-slate-400 font-medium">
+                          <h3 className="text-xl sm:text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-1 sm:mb-2 print:text-3xl">THINK KRE8TIV MEDIA</h3>
+                          <p className="text-[10px] sm:text-xs text-slate-500 font-bold tracking-widest uppercase mb-2 sm:mb-4 print:text-xs">Creative Excellence</p>
+                          <div className="space-y-1 text-[10px] sm:text-xs text-slate-400 font-medium print:text-xs">
                             <p>OSU haramani Sport complex</p>
                             <p>+233 20 000 0000 | billing@thinkkre8tivmedia.com</p>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right flex flex-col items-end">
-                        <h1 className="text-4xl font-black text-[#FF5722] uppercase tracking-widest mb-6 print:text-[#FF5722]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>INVOICE</h1>
-                        <div className="space-y-3 bg-slate-50 border border-slate-100 p-5 rounded-xl w-64 text-left print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-auto print:text-right print:items-end">
+                        <h1 className="text-3xl sm:text-4xl font-black text-[#FF5722] uppercase tracking-widest mb-4 sm:mb-6 print:text-[#FF5722] print:text-4xl" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>INVOICE</h1>
+                        <div className="space-y-2 sm:space-y-3 bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-xl w-full sm:w-64 text-left print:bg-slate-50 print:w-64" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                           <div className="flex justify-between items-center">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Invoice No.</span>
                             <span className="text-sm font-bold text-[#001F3F]">{invoiceDetails.invoice_number}</span>
@@ -658,24 +658,24 @@ export default function InvoicesPage() {
                     </div>
                   </div>
 
-                  <div className="px-12 pb-8 border-b border-slate-100 mb-8 mx-12 mt-2 flex justify-between items-start">
+                  <div className="px-6 sm:px-12 pb-6 sm:pb-8 border-b border-slate-100 mb-6 sm:mb-8 mx-6 sm:mx-12 mt-2 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0 print:px-12 print:mx-12 print:flex-row">
                     {/* Bill To */}
-                    <div className="space-y-2">
-                      <p className="text-[10px] font-black text-[#FF5722] uppercase tracking-widest mb-3">Billed To</p>
-                      <p className="text-xl font-extrabold text-[#001F3F] leading-tight mb-1">{invoiceDetails.customer_name}</p>
+                    <div className="space-y-2 w-full sm:w-auto">
+                      <p className="text-[10px] font-black text-[#FF5722] uppercase tracking-widest mb-2 sm:mb-3">Billed To</p>
+                      <p className="text-lg sm:text-xl font-extrabold text-[#001F3F] leading-tight mb-1 print:text-xl">{invoiceDetails.customer_name}</p>
                       {invoiceDetails.customer_company && (
-                        <p className="text-sm text-[#FF5722] font-black tracking-wide uppercase mb-2">{invoiceDetails.customer_company}</p>
+                        <p className="text-xs sm:text-sm text-[#FF5722] font-black tracking-wide uppercase mb-1 sm:mb-2">{invoiceDetails.customer_company}</p>
                       )}
                       <div className="text-xs text-slate-500 font-medium space-y-1">
                         {invoiceDetails.customer_phone && <p>{invoiceDetails.customer_phone}</p>}
-                        {invoiceDetails.customer_email && <p>{invoiceDetails.customer_email}</p>}
-                        {invoiceDetails.customer_address && <p className="max-w-[300px] leading-relaxed pt-1">{invoiceDetails.customer_address}</p>}
+                        {invoiceDetails.customer_email && <p className="break-all sm:break-normal">{invoiceDetails.customer_email}</p>}
+                        {invoiceDetails.customer_address && <p className="max-w-full sm:max-w-[300px] leading-relaxed pt-1 print:max-w-[300px]">{invoiceDetails.customer_address}</p>}
                       </div>
                     </div>
                     
                     {/* Status Box */}
-                    <div className="flex flex-col items-end justify-start">
-                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-5 w-64 shadow-sm print:border-slate-200" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    <div className="flex flex-col items-start sm:items-end justify-start w-full sm:w-auto print:items-end">
+                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 sm:p-5 w-full sm:w-64 shadow-sm print:border-slate-200 print:w-64" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                         <div className="flex justify-between items-center mb-3">
                           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</span>
                           <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-md shadow-none', statusConfig[invoiceDetails.status]?.color)} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
@@ -693,8 +693,8 @@ export default function InvoicesPage() {
                   </div>
 
                   {/* Items list */}
-                  <div className="px-12 flex-1 relative z-10">
-                    <table className="w-full text-sm mb-8">
+                  <div className="px-4 sm:px-12 flex-1 relative z-10 print:px-12 overflow-x-auto">
+                    <table className="w-full text-sm mb-6 sm:mb-8 min-w-[400px]">
                       <thead className="border-b-2 border-slate-800">
                         <tr className="text-xs font-black text-slate-800 uppercase tracking-widest">
                           <th className="py-4 px-3 text-left">Description</th>
@@ -717,8 +717,8 @@ export default function InvoicesPage() {
 
                     {/* Summary Totals */}
                     <div className="flex justify-end pt-4">
-                      <div className="w-[350px]">
-                        <div className="space-y-4 px-3 pb-5 border-b border-slate-100">
+                      <div className="w-full sm:w-[350px] print:w-[350px]">
+                        <div className="space-y-3 sm:space-y-4 px-2 sm:px-3 pb-4 sm:pb-5 border-b border-slate-100">
                           <div className="flex justify-between items-center text-sm">
                             <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">Subtotal</span>
                             <span className="font-bold text-slate-800">{fmt(invoiceDetails.subtotal)}</span>
@@ -756,9 +756,9 @@ export default function InvoicesPage() {
 
                     {/* Receipts Payment History */}
                     {invoiceDetails.receipts?.length > 0 && (
-                      <div className="mt-12">
+                      <div className="mt-8 sm:mt-12">
                         <h4 className="text-[11px] font-black text-[#001F3F] uppercase tracking-widest mb-4 border-b-2 border-slate-100 pb-2 inline-block">Payment History</h4>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           {invoiceDetails.receipts.map((rec: any) => (
                             <div key={rec.id} className="flex justify-between items-center text-sm bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
                               <div>
@@ -776,9 +776,9 @@ export default function InvoicesPage() {
                   </div>
 
                   {/* Footer */}
-                  <div className="px-12 py-10 mt-12 bg-slate-50 flex flex-col justify-between border-t border-slate-200 print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                    <div className="flex justify-between items-end">
-                      <div className="max-w-md space-y-6">
+                  <div className="px-6 sm:px-12 py-8 sm:py-10 mt-8 sm:mt-12 bg-slate-50 flex flex-col justify-between border-t border-slate-200 print:bg-slate-50 print:px-12 print:mt-12" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 sm:gap-0 print:flex-row">
+                      <div className="max-w-full sm:max-w-md space-y-6 print:max-w-md">
                         {invoiceDetails.notes && (
                           <div className="text-xs text-slate-500 bg-white p-4 rounded-lg border border-slate-200 print:border-slate-300">
                             <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-1.5">Notes & Terms</p>
@@ -792,7 +792,7 @@ export default function InvoicesPage() {
                         </div>
                       </div>
                       
-                      <div className="text-right">
+                      <div className="text-left sm:text-right w-full sm:w-auto flex flex-col items-start sm:items-end print:items-end print:text-right">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
                         <div className="relative mt-2 mb-1">
                           <img src="/logo.png" alt="Signature Stamp" className="h-12 object-contain opacity-20 grayscale" />
