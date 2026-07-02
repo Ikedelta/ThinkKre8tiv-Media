@@ -584,24 +584,28 @@ export default function BillingAndReceiptsPage() {
                       Draft Preview
                     </div>
                     
-                    {/* Top Accent Line */}
-                    <div className="h-1.5 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722]"></div>
-                    
-                    {/* Header Section */}
-                    <div className="p-8 flex justify-between items-start">
-                      <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 bg-[#001F3F] rounded-xl flex items-center justify-center p-2 shadow-md">
-                          <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-full h-full object-contain brightness-0 invert" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-black tracking-tight text-[#001F3F] leading-none mb-1">THINK KRE8TIV MEDIA</h3>
-                          <p className="text-[9px] text-slate-500 font-bold tracking-widest uppercase mb-3">Creative Excellence</p>
-                          <div className="space-y-0.5 text-[8px] text-slate-400 font-medium">
-                            <p>OSU haramani Sport complex</p>
-                            <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
+                    {/* Watermark Logo */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none flex items-center justify-center z-0">
+                      <img src="/logo.png" alt="Watermark" className="w-[400px] h-[400px] object-contain grayscale" />
+                    </div>
+
+                    <div className="relative z-10">
+                      {/* Top Accent Line */}
+                      <div className="h-1.5 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722]"></div>
+                      
+                      {/* Header Section */}
+                      <div className="p-8 flex justify-between items-start">
+                        <div className="flex items-center gap-4">
+                          <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 object-contain" />
+                          <div>
+                            <h3 className="text-xl font-black tracking-tight text-[#001F3F] leading-none mb-1">THINK KRE8TIV MEDIA</h3>
+                            <p className="text-[9px] text-slate-500 font-bold tracking-widest uppercase mb-2">Creative Excellence</p>
+                            <div className="space-y-0.5 text-[8px] text-slate-400 font-medium">
+                              <p>OSU haramani Sport complex</p>
+                              <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
                       <div className="text-right flex flex-col items-end">
                         <h1 className="text-2xl font-black text-[#FF5722] uppercase tracking-widest mb-4">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
                         <div className="space-y-2 bg-slate-50 border border-slate-100 p-3 rounded-lg w-48 text-left">
@@ -666,21 +670,24 @@ export default function BillingAndReceiptsPage() {
                       </div>
                     </div>
 
-                    <div className="px-8 py-6 mt-8 bg-slate-50 flex items-center justify-between border-t border-slate-200">
-                      <div>
-                        <p className="text-[10px] font-black text-[#001F3F] mb-0.5">Thank you for your business!</p>
-                        <p className="text-[8px] text-slate-500">If you have any questions about this document, please contact us.</p>
+                      <div className="px-8 py-6 mt-8 bg-slate-50 flex items-center justify-between border-t border-slate-200">
+                        <div>
+                          <p className="text-[10px] font-black text-[#001F3F] mb-0.5">Thank you for your business!</p>
+                          <p className="text-[8px] text-slate-500">If you have any questions about this document, please contact us.</p>
+                        </div>
+                        <div className="text-right flex flex-col items-end">
+                          <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
+                          <div className="relative mt-2 mb-1">
+                            <img src="/logo.png" alt="Signature Stamp" className="h-8 object-contain opacity-20" />
+                          </div>
+                          <p className="text-[8px] font-black text-[#001F3F] uppercase tracking-widest">Think Kre8tiv Media</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
-                        <img src="/logo.png" alt="Signature" className="h-6 object-contain opacity-20 mt-1 inline-block" />
-                      </div>
-                    </div>
 
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
             {/* Modal Footer */}
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0B0F19] flex justify-end gap-3">
