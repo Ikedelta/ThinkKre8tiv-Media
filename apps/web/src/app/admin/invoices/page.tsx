@@ -630,9 +630,8 @@ export default function InvoicesPage() {
                       <div className="flex items-center gap-4 sm:gap-5">
                         <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain print:w-20 print:h-20" />
                         <div>
-                          <h3 className="text-xl sm:text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-1 sm:mb-2 print:text-3xl">THINK KRE8TIV MEDIA</h3>
-                          <p className="text-[10px] sm:text-xs text-slate-500 font-bold tracking-widest uppercase mb-2 sm:mb-4 print:text-xs">Creative Excellence</p>
-                          <div className="space-y-1 text-[10px] sm:text-xs text-slate-400 font-medium print:text-xs">
+                          <h3 className="text-xl sm:text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-3 sm:mb-4 print:text-3xl uppercase">THINK KRE8TIV MEDIA</h3>
+                          <div className="space-y-0.5 text-[9px] sm:text-[10px] text-slate-400 font-medium print:text-[10px]">
                             <p>OSU haramani Sport complex</p>
                             <p>+233 20 000 0000 | billing@thinkkre8tivmedia.com</p>
                           </div>
