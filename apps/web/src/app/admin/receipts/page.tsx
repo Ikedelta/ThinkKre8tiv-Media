@@ -423,9 +423,9 @@ export default function BillingAndReceiptsPage() {
               </button>
             </div>
             
-            <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+            <div className="flex flex-col xl:flex-row flex-1 overflow-hidden">
               {/* Left Column: Form */}
-              <div className="w-full md:w-[55%] p-6 overflow-y-auto space-y-8 bg-white dark:bg-[#0B0F19]">
+              <div className="w-full xl:w-[55%] p-6 overflow-y-auto space-y-8 bg-white dark:bg-[#0B0F19]">
                 
                 {/* Quick Fill Section */}
                 <div className="bg-orange-50/50 dark:bg-[#FF5722]/5 border border-orange-100 dark:border-[#FF5722]/20 rounded-xl p-5">
@@ -572,7 +572,7 @@ export default function BillingAndReceiptsPage() {
               </div>
 
               {/* Right Column: Preview */}
-              <div className="w-full md:w-[45%] p-6 overflow-y-auto bg-slate-50/50 dark:bg-[#06080D]/50 border-l border-slate-100 dark:border-slate-800/60 relative flex justify-center">
+              <div className="hidden xl:flex w-full xl:w-[45%] p-6 overflow-y-auto bg-slate-50/50 dark:bg-[#06080D]/50 border-l border-slate-100 dark:border-slate-800/60 relative justify-center">
                 <div className="w-full max-w-sm">
                   <h3 className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest mb-4">
                     Real-Time Sheet Preview
