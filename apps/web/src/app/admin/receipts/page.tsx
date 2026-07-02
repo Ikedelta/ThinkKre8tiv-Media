@@ -594,95 +594,95 @@ export default function BillingAndReceiptsPage() {
                       <div className="h-1.5 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722]"></div>
                       
                       {/* Header Section */}
-                      <div className="p-6 sm:p-8 flex flex-col items-center text-center 2xl:text-left 2xl:flex-row justify-between 2xl:items-start gap-6">
-                        <div className="flex flex-col 2xl:flex-row items-center gap-4 sm:gap-5 w-full 2xl:w-auto">
+                      <div className="p-4 sm:p-6 flex flex-col items-center text-center 2xl:text-left 2xl:flex-row justify-between 2xl:items-start gap-4">
+                        <div className="flex flex-col 2xl:flex-row items-center gap-3 sm:gap-4 w-full 2xl:w-auto">
                           <div className="shrink-0">
-                            <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-sm" />
+                            <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-12 h-12 sm:w-16 sm:h-16 object-contain drop-shadow-sm" />
                           </div>
                           <div className="min-w-0">
-                            <h3 className="text-xl sm:text-2xl font-black tracking-tight text-[#001F3F] leading-none mb-1.5 uppercase">Think Kre8tiv Media</h3>
-                            <p className="text-[10px] sm:text-xs text-slate-500 font-extrabold tracking-widest uppercase mb-2">Creative Excellence</p>
-                            <div className="space-y-0.5 text-[9px] sm:text-[10px] text-slate-400 font-medium">
+                            <h3 className="text-base sm:text-lg font-black tracking-tight text-[#001F3F] leading-none mb-1 uppercase">Think Kre8tiv Media</h3>
+                            <p className="text-[8px] sm:text-[9px] text-slate-500 font-extrabold tracking-widest uppercase mb-1.5">Creative Excellence</p>
+                            <div className="space-y-0.5 text-[7px] sm:text-[8px] text-slate-400 font-medium">
                               <p>OSU haramani Sport complex</p>
                               <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
                             </div>
                           </div>
                         </div>
                         <div className="flex flex-col items-center 2xl:items-end w-full 2xl:w-auto">
-                          <h1 className="text-2xl sm:text-3xl font-black text-[#FF5722] uppercase tracking-widest mb-3 sm:mb-4">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
-                          <div className="space-y-2 bg-slate-50/80 border border-slate-100 p-4 rounded-xl w-full sm:w-64 text-left shadow-sm">
-                            <div className="flex justify-between items-center gap-4">
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">Doc No.</span>
-                              <span className="text-[10px] sm:text-xs font-bold text-[#001F3F] truncate">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</span>
+                          <h1 className="text-lg sm:text-xl font-black text-[#FF5722] uppercase tracking-widest mb-2 sm:mb-3">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
+                          <div className="space-y-1.5 bg-slate-50/80 border border-slate-100 p-2.5 rounded-lg w-full sm:w-48 text-left shadow-sm">
+                            <div className="flex justify-between items-center gap-2">
+                              <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest shrink-0">Doc No.</span>
+                              <span className="text-[8px] sm:text-[9px] font-bold text-[#001F3F] truncate">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</span>
                             </div>
-                            <div className="flex justify-between items-center gap-4">
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">Date</span>
-                              <span className="text-[9px] sm:text-[10px] font-bold text-slate-700 truncate">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            <div className="flex justify-between items-center gap-2">
+                              <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest shrink-0">Date</span>
+                              <span className="text-[7px] sm:text-[8px] font-bold text-slate-700 truncate">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                    <div className="px-8 pb-6 border-b border-slate-100 mb-6 mx-8 mt-2">
-                      <p className="text-[9px] font-black text-[#FF5722] uppercase tracking-widest mb-2">Billed To</p>
-                      <p className="text-sm font-extrabold text-[#001F3F] leading-tight mb-1">{customerName || 'Client Name'}</p>
-                      <div className="text-[9px] text-slate-500 font-medium space-y-0.5">
+                    <div className="px-6 pb-4 border-b border-slate-100 mb-4 mx-6 mt-1">
+                      <p className="text-[7px] font-black text-[#FF5722] uppercase tracking-widest mb-1.5">Billed To</p>
+                      <p className="text-xs font-extrabold text-[#001F3F] leading-tight mb-1">{customerName || 'Client Name'}</p>
+                      <div className="text-[7px] text-slate-500 font-medium space-y-0.5">
                         {customerPhone && <p>{customerPhone}</p>}
                         {customerEmail && <p>{customerEmail}</p>}
                       </div>
                     </div>
 
-                    <div className="px-8 flex-1 relative z-10">
-                      <table className="w-full text-sm mb-6">
+                    <div className="px-6 flex-1 relative z-10">
+                      <table className="w-full text-xs mb-4">
                         <thead className="border-b-2 border-slate-800">
-                          <tr className="text-[9px] font-black text-slate-800 uppercase tracking-widest">
-                            <th className="py-3 px-2 text-left">Description</th>
-                            <th className="py-3 px-2 text-center w-16">Qty</th>
-                            <th className="py-3 px-2 text-right w-24">Amount</th>
+                          <tr className="text-[7px] font-black text-slate-800 uppercase tracking-widest">
+                            <th className="py-2 px-1 text-left">Description</th>
+                            <th className="py-2 px-1 text-center w-12">Qty</th>
+                            <th className="py-2 px-1 text-right w-16">Amount</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                           {lineItems.map((item, i) => (
                             <tr key={item.id} className="group hover:bg-slate-50 transition-colors">
-                              <td className="py-3 px-2 text-[10px] font-bold text-slate-700 max-w-[120px]">{item.description || <span className="text-slate-300 italic font-medium">New Line Item</span>}</td>
-                              <td className="py-3 px-2 text-[10px] text-center font-bold text-slate-600">{item.quantity}</td>
-                              <td className="py-3 px-2 text-[10px] text-right font-black text-[#001F3F]">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
+                              <td className="py-2 px-1 text-[8px] font-bold text-slate-700 max-w-[120px]">{item.description || <span className="text-slate-300 italic font-medium">New Line Item</span>}</td>
+                              <td className="py-2 px-1 text-[8px] text-center font-bold text-slate-600">{item.quantity}</td>
+                              <td className="py-2 px-1 text-[8px] text-right font-black text-[#001F3F]">₵{(item.quantity * item.unit_price).toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
                       </table>
 
                       <div className="flex justify-end">
-                        <div className="w-[200px]">
-                          <div className="space-y-2 px-2 pb-3 border-b border-slate-100">
-                            <div className="flex justify-between items-center text-[10px]">
+                        <div className="w-[160px]">
+                          <div className="space-y-1.5 px-1 pb-2 border-b border-slate-100">
+                            <div className="flex justify-between items-center text-[8px]">
                               <span className="font-bold text-slate-500">Subtotal</span>
                               <span className="font-bold text-slate-800">₵{subtotal.toFixed(2)}</span>
                             </div>
-                            <div className="flex justify-between items-center text-[10px]">
+                            <div className="flex justify-between items-center text-[8px]">
                               <span className="font-bold text-slate-500">VAT (20%)</span>
                               <span className="font-bold text-slate-800">₵{vatAmount.toFixed(2)}</span>
                             </div>
                           </div>
-                          <div className="flex justify-between items-center pt-3 px-2">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-[#001F3F]">Total</span>
-                            <span className="text-sm font-black text-[#FF5722]">₵{grandTotal.toFixed(2)}</span>
+                          <div className="flex justify-between items-center pt-2 px-1">
+                            <span className="text-[8px] font-black uppercase tracking-widest text-[#001F3F]">Total</span>
+                            <span className="text-xs font-black text-[#FF5722]">₵{grandTotal.toFixed(2)}</span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                      <div className="px-8 py-6 mt-8 bg-slate-50 flex items-center justify-between border-t border-slate-200">
+                      <div className="px-6 py-4 mt-6 bg-slate-50 flex items-center justify-between border-t border-slate-200">
                         <div>
-                          <p className="text-[10px] font-black text-[#001F3F] mb-0.5">Thank you for your business!</p>
-                          <p className="text-[8px] text-slate-500">If you have any questions about this document, please contact us.</p>
+                          <p className="text-[8px] font-black text-[#001F3F] mb-0.5">Thank you for your business!</p>
+                          <p className="text-[7px] text-slate-500">If you have any questions about this document, please contact us.</p>
                         </div>
                         <div className="text-right flex flex-col items-end">
-                          <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
-                          <div className="relative mt-2 mb-1">
-                            <img src="/logo.png" alt="Signature Stamp" className="h-8 object-contain opacity-20" />
+                          <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
+                          <div className="relative mt-1.5 mb-1">
+                            <img src="/logo.png" alt="Signature Stamp" className="h-6 object-contain opacity-20" />
                           </div>
-                          <p className="text-[8px] font-black text-[#001F3F] uppercase tracking-widest">Think Kre8tiv Media</p>
+                          <p className="text-[7px] font-black text-[#001F3F] uppercase tracking-widest">Think Kre8tiv Media</p>
                         </div>
                       </div>
 
