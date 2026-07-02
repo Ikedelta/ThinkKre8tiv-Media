@@ -36,7 +36,6 @@ const navItems: NavItem[] = [
   { name: 'Submitted Files', href: '/admin/quotations', icon: FileText },
   { name: 'Services List', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
   { name: 'User Accounts', href: '/admin/users', icon: UserCog, requiresAdmin: true },
-  { name: 'SMS & Broadcasts', href: '/admin/sms', icon: MessageSquare, requiresAdmin: true },
   { name: 'CMS (Edit Website)', href: '/admin/cms', icon: Globe, requiresAdmin: true },
   { name: 'My Profile', href: '/admin/profile', icon: Settings },
 ];

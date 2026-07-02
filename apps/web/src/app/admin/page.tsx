@@ -17,6 +17,7 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { authClient } from '@/lib/auth-client';
 
 const statusColors: Record<string, string> = {
   pending: 'bg-amber-100 text-amber-800 border-amber-200',
@@ -45,6 +46,9 @@ export default function AdminDashboardPage() {
     staleTime: 60000, // Keep fresh for 60 seconds to avoid spamming the DB
   });
 
+  const { data: session } = authClient.useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
+
   const { data: smsData } = useQuery({
     queryKey: ['sms_balance'],
     queryFn: async () => {
@@ -52,6 +56,7 @@ export default function AdminDashboardPage() {
       if (!res.ok) throw new Error('Failed to fetch SMS balance');
       return res.json();
     },
+    enabled: isAdmin,
     refetchInterval: 30000,
   });
 
@@ -88,15 +93,17 @@ export default function AdminDashboardPage() {
           <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Overview</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your print operations, billing, and customers.</p>
         </div>
-        <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 shadow-sm">
-          <MessageSquare className="w-5 h-5 text-indigo-500" />
-          <div>
-            <p className="text-xs font-medium text-slate-500">SMS Balance</p>
-            <p className="text-sm font-bold text-slate-900 dark:text-white">
-              {smsData?.balance !== undefined ? `${smsData.balance} Credits` : 'Loading...'}
-            </p>
+        {isAdmin && (
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2.5 shadow-sm">
+            <MessageSquare className="w-5 h-5 text-indigo-500" />
+            <div>
+              <p className="text-xs font-medium text-slate-500">SMS Balance</p>
+              <p className="text-sm font-bold text-slate-900 dark:text-white">
+                {smsData?.balance !== undefined ? `${smsData.balance} Credits` : 'Loading...'}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Metrics Grid */}
