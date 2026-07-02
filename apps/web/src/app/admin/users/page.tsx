@@ -412,7 +412,7 @@ export default function UsersPage() {
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div>
                       <p className="text-slate-400 font-medium uppercase tracking-wider text-[9px] mb-1">Role</p>
                       {roleCfg ? (
@@ -520,7 +520,7 @@ export default function UsersPage() {
                   </div>
                 </div>
               )}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Role *</label>
                   <select

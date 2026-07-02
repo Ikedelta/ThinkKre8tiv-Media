@@ -252,7 +252,7 @@ export default function SmsPage() {
 
             {/* Recipients */}
             {mode === 'manual' && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
                     Name

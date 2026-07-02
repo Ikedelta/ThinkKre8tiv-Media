@@ -73,7 +73,7 @@ export default function AboutPage() {
             </div>
 
             {/* Visual Grid Collage */}
-            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="col-span-2 rounded-2xl overflow-hidden h-60 border border-border shadow-sm hover:shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:border-foreground/30 transition-all duration-300 animate-fade-in">
                 <img
                   src={IMG_FACILITY}

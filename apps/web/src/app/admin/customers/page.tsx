@@ -247,7 +247,7 @@ export default function CustomersPage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <div className="text-center">
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center justify-center gap-1">
                       <FileText size={9} /> Invoices

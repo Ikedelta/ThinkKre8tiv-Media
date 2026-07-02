@@ -147,7 +147,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">
                 Joined
@@ -202,7 +202,7 @@ export default function ProfilePage() {
                 className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm bg-slate-50 text-slate-400"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
                   <span className="flex items-center gap-1">
@@ -264,7 +264,7 @@ export default function ProfilePage() {
                 placeholder="••••••••"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
                   New Password

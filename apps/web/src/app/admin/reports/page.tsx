@@ -63,7 +63,7 @@ export default function ReportsPage() {
     return (
       <div className="space-y-6">
         <div className="h-8 w-48 bg-slate-100 rounded-lg" />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {Array(4)
             .fill(0)
             .map((_, i) => (
@@ -192,7 +192,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Summary Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {summaryCards.map((card) => (
           <Card key={card.label} className="border-none shadow-sm hover:shadow-md transition-all dark:bg-slate-900">
             <CardContent className="p-4">

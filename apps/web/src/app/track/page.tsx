@@ -279,7 +279,7 @@ function TrackPageContent() {
                     <h3 className="font-black text-sm text-foreground uppercase tracking-wider">Order Details</h3>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-xs font-semibold">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-xs font-semibold">
                     <div>
                       <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Print item</p>
                       <p className="text-sm font-black text-foreground">{job.product}</p>
