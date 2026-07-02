@@ -594,32 +594,34 @@ export default function BillingAndReceiptsPage() {
                       <div className="h-1.5 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722]"></div>
                       
                       {/* Header Section */}
-                      <div className="p-8 flex justify-between items-start">
-                        <div className="flex items-center gap-4">
-                          <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 object-contain" />
-                          <div>
-                            <h3 className="text-xl font-black tracking-tight text-[#001F3F] leading-none mb-1">THINK KRE8TIV MEDIA</h3>
-                            <p className="text-[9px] text-slate-500 font-bold tracking-widest uppercase mb-2">Creative Excellence</p>
-                            <div className="space-y-0.5 text-[8px] text-slate-400 font-medium">
+                      <div className="p-6 sm:p-8 flex flex-col lg:flex-row justify-between items-start gap-6">
+                        <div className="flex items-center gap-4 sm:gap-5 w-full lg:w-auto">
+                          <div className="shrink-0">
+                            <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-sm" />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="text-lg sm:text-xl font-black tracking-tight text-[#001F3F] leading-none mb-1.5 truncate">THINK KRE8TIV MEDIA</h3>
+                            <p className="text-[9px] sm:text-[10px] text-slate-500 font-extrabold tracking-widest uppercase mb-2">Creative Excellence</p>
+                            <div className="space-y-0.5 text-[8px] sm:text-[9px] text-slate-400 font-medium truncate">
                               <p>OSU haramani Sport complex</p>
                               <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
                             </div>
                           </div>
                         </div>
-                      <div className="text-right flex flex-col items-end">
-                        <h1 className="text-2xl font-black text-[#FF5722] uppercase tracking-widest mb-4">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
-                        <div className="space-y-2 bg-slate-50 border border-slate-100 p-3 rounded-lg w-48 text-left">
-                          <div className="flex justify-between items-center">
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Doc No.</span>
-                            <span className="text-[10px] font-bold text-[#001F3F]">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Date</span>
-                            <span className="text-[9px] font-bold text-slate-700">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        <div className="text-left lg:text-right flex flex-col lg:items-end w-full lg:w-auto">
+                          <h1 className="text-xl sm:text-2xl font-black text-[#FF5722] uppercase tracking-widest mb-3 sm:mb-4">{generateType === 'invoice' ? 'INVOICE' : 'RECEIPT'}</h1>
+                          <div className="space-y-2 bg-slate-50/80 border border-slate-100 p-3 sm:p-4 rounded-xl w-full lg:w-56 text-left shadow-sm">
+                            <div className="flex justify-between items-center gap-4">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">Doc No.</span>
+                              <span className="text-[10px] sm:text-xs font-bold text-[#001F3F] truncate">{generateType === 'invoice' ? 'INV-DRAFT' : 'REC-DRAFT'}</span>
+                            </div>
+                            <div className="flex justify-between items-center gap-4">
+                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0">Date</span>
+                              <span className="text-[9px] sm:text-[10px] font-bold text-slate-700 truncate">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
 
                     <div className="px-8 pb-6 border-b border-slate-100 mb-6 mx-8 mt-2">
                       <p className="text-[9px] font-black text-[#FF5722] uppercase tracking-widest mb-2">Billed To</p>
