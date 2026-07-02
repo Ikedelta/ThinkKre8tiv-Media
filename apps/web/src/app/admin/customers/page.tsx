@@ -15,6 +15,7 @@ import {
   TrendingUp,
   DollarSign,
   AlertCircle,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -64,6 +65,39 @@ export default function CustomersPage() {
     },
     onError: () => toast.error('Failed to delete customer'),
   });
+
+  const smsMutation = useMutation({
+    mutationFn: async (payload: { recipients: { phone: string; name?: string }[], message: string }) => {
+      const res = await fetch('/api/sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send SMS');
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('SMS sent successfully!');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to send SMS');
+    }
+  });
+
+  const handleSendSMS = (customer: any) => {
+    if (!customer.phone) {
+      toast.error('Customer has no phone number on record.');
+      return;
+    }
+    const msg = prompt(`Enter message to send to ${customer.name} (${customer.phone}):`);
+    if (msg && msg.trim()) {
+      smsMutation.mutate({
+        recipients: [{ phone: customer.phone, name: customer.name }],
+        message: msg.trim()
+      });
+    }
+  };
 
   const filtered = customers.filter(
     (c) =>
@@ -207,6 +241,14 @@ export default function CustomersPage() {
                     </div>
                   </div>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => handleSendSMS(customer)}
+                      className="p-1.5 hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-400 hover:text-amber-600 rounded-lg transition-colors"
+                      title="Send SMS"
+                      disabled={smsMutation.isPending}
+                    >
+                      <MessageSquare size={14} />
+                    </button>
                     {(session?.user as any)?.role === 'admin' && (
                       <button
                         onClick={() => {

@@ -12,6 +12,8 @@ import {
   CheckCircle2,
   XCircle,
   Clock,
+  Phone,
+  MessageSquare,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -104,6 +106,39 @@ export default function InvoicesPage() {
     },
     onError: () => toast.error('Failed to update approval'),
   });
+
+  const smsMutation = useMutation({
+    mutationFn: async (payload: { recipients: { phone: string; name?: string }[], message: string }) => {
+      const res = await fetch('/api/sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send SMS');
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('SMS sent to customer!');
+    },
+    onError: (err) => {
+      toast.error(err.message || 'Failed to send SMS');
+    }
+  });
+
+  const handleSendSMS = (doc: any) => {
+    if (!doc.customer_phone) {
+      toast.error('Customer has no phone number on record.');
+      return;
+    }
+    const msg = `Dear ${doc.customer_name}, your invoice (${doc.invoice_number}) from Think Kre8tiv Media for GHS ${doc.total_amount} is ready.`;
+    if (confirm(`Send SMS to ${doc.customer_phone}? \n\nMessage: "${msg}"`)) {
+      smsMutation.mutate({
+        recipients: [{ phone: doc.customer_phone, name: doc.customer_name }],
+        message: msg
+      });
+    }
+  };
 
   const pendingInvoices = invoices.filter((i) => i.approval_status === 'pending');
   const displayInvoices = activeTab === 'pending' ? pendingInvoices : invoices;
@@ -598,6 +633,13 @@ export default function InvoicesPage() {
               )}
               <Button variant="secondary" onClick={() => setSelectedInvoiceId(null)} className="font-semibold bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md">
                 Close Preview
+              </Button>
+              <Button 
+                onClick={() => handleSendSMS(invoiceDetails)} 
+                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 shadow-lg shadow-amber-900/20"
+                disabled={smsMutation.isPending}
+              >
+                <MessageSquare size={16} className="mr-2" /> Send SMS
               </Button>
               <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 shadow-lg shadow-blue-900/20">
                 Print Invoice

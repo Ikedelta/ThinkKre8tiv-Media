@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
+import { useQuery } from '@tanstack/react-query';
 import {
   LayoutDashboard,
   FileText,
@@ -35,6 +36,7 @@ const navItems: NavItem[] = [
   { name: 'Submitted Files', href: '/admin/quotations', icon: FileText },
   { name: 'Services List', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
   { name: 'User Accounts', href: '/admin/users', icon: UserCog, requiresAdmin: true },
+  { name: 'SMS & Broadcasts', href: '/admin/sms', icon: MessageSquare, requiresAdmin: true },
   { name: 'CMS (Edit Website)', href: '/admin/cms', icon: Globe, requiresAdmin: true },
   { name: 'My Profile', href: '/admin/profile', icon: Settings },
 ];
@@ -46,6 +48,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const { data: session, isPending } = authClient.useSession();
+
+  const { data: smsData, refetch: refetchSms } = useQuery<{ balance: number }>({
+    queryKey: ['sms_balance'],
+    queryFn: async () => {
+      const res = await fetch('/api/sms');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    enabled: (session?.user as any)?.role === 'admin',
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -193,10 +206,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     SMS Credits
                   </h3>
                   <span className={cn("text-lg font-black leading-none", theme === 'dark' ? 'text-white' : 'text-slate-800')}>
-                    0 <span className="text-[10px] font-medium text-slate-500">pts</span>
+                    {smsData?.balance ?? '...'} <span className="text-[10px] font-medium text-slate-500">pts</span>
                   </span>
                 </div>
-                <button className="text-[#E04D1B] hover:text-orange-400 text-[10px] font-bold transition-colors">
+                <button 
+                  onClick={() => refetchSms()}
+                  className="text-[#E04D1B] hover:text-orange-400 text-[10px] font-bold transition-colors"
+                >
                   Refresh
                 </button>
               </div>

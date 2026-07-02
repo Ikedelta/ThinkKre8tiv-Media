@@ -4,6 +4,36 @@ import { headers } from 'next/headers';
 
 export async function GET() {
   try {
+    // Ensure SMS tables exist
+    await sql`
+      CREATE TABLE IF NOT EXISTS app_settings (
+        id TEXT PRIMARY KEY,
+        sms_balance INTEGER DEFAULT 0,
+        sms_api_key TEXT,
+        sms_sender_id TEXT
+      );
+    `;
+
+    await sql`
+      CREATE TABLE IF NOT EXISTS sms_logs (
+        id SERIAL PRIMARY KEY,
+        recipient_name TEXT,
+        recipient_phone TEXT NOT NULL,
+        message TEXT NOT NULL,
+        status TEXT NOT NULL,
+        sent_by TEXT,
+        credits_used INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `;
+
+    // Ensure default settings exist
+    await sql`
+      INSERT INTO app_settings (id, sms_balance)
+      VALUES ('default', 0)
+      ON CONFLICT (id) DO NOTHING;
+    `;
+
     const [settings] =
       await sql`SELECT sms_balance, sms_sender_id FROM app_settings WHERE id = 'default'`;
     const logs = await sql`SELECT * FROM sms_logs ORDER BY created_at DESC LIMIT 100`;

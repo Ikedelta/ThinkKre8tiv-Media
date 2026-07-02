@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, ChevronDown, Eye, Download, Trash2, Plus, Receipt as ReceiptIcon, X, CheckCircle2, XCircle, FileText, Edit2 } from 'lucide-react';
+import { Search, ChevronDown, Eye, Download, Trash2, Plus, Receipt as ReceiptIcon, X, CheckCircle2, XCircle, FileText, Edit2, Phone, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
@@ -181,6 +181,41 @@ export default function BillingAndReceiptsPage() {
     },
     onError: () => toast.error('Failed to delete document'),
   });
+
+  const smsMutation = useMutation({
+    mutationFn: async (payload: { recipients: { phone: string; name?: string }[], message: string }) => {
+      const res = await fetch('/api/sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send SMS');
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('SMS sent to customer!');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to send SMS');
+    }
+  });
+
+  const handleSendSMS = (doc: any) => {
+    if (!doc.customer_phone) {
+      toast.error('Customer has no phone number on record.');
+      return;
+    }
+    const isInvoice = doc.amount !== doc.total_amount;
+    const docType = isInvoice ? 'invoice' : 'receipt';
+    const msg = `Dear ${doc.customer_name}, your ${docType} (${doc.invoice_number}) from Think Kre8tiv Media for GHS ${doc.total_amount} is ready.`;
+    if (confirm(`Send SMS to ${doc.customer_phone}? \n\nMessage: "${msg}"`)) {
+      smsMutation.mutate({
+        recipients: [{ phone: doc.customer_phone, name: doc.customer_name }],
+        message: msg
+      });
+    }
+  };
 
   if (!mounted) return null;
 
@@ -745,7 +780,17 @@ export default function BillingAndReceiptsPage() {
               <Button variant="secondary" onClick={handleEditDoc} className="bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md shadow-lg font-semibold">
                 <Edit2 size={16} className="mr-2" /> Edit
               </Button>
-              <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 font-bold px-6">
+              <Button variant="secondary" onClick={() => setViewDocId(null)} className="font-semibold bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md">
+                Close Preview
+              </Button>
+              <Button 
+                onClick={() => handleSendSMS(viewedDoc)} 
+                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 shadow-lg shadow-amber-900/20"
+                disabled={smsMutation.isPending}
+              >
+                <MessageSquare size={16} className="mr-2" /> Send SMS
+              </Button>
+              <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 shadow-lg shadow-blue-900/20">
                 <Download size={16} className="mr-2" /> Print PDF
               </Button>
               <Button variant="outline" onClick={() => setViewDocId(null)} className="font-semibold bg-white text-slate-900 border-none shadow-lg">
