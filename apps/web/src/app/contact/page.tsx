@@ -5,6 +5,8 @@ import { Phone, Mail, MapPin, Send, CheckCircle2, Sparkles } from 'lucide-react'
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
+import { useQuery } from '@tanstack/react-query';
+
 const officesList = [
   {
     city: 'Accra (HQ)',
@@ -30,6 +32,20 @@ const officesList = [
 ];
 
 export default function ContactPage() {
+  const { data: cmsContent } = useQuery({
+    queryKey: ['cms'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms');
+      return res.json();
+    }
+  });
+
+  const contactSection = cmsContent?.filter((c: any) => c.section === 'contact' && c.is_active) || [];
+  
+  // Extract contact details from CMS, fallback to defaults
+  const directPhone = contactSection.find((c: any) => c.id === 'contact_phone')?.content || '+233 24 555 9000';
+  const directEmail = contactSection.find((c: any) => c.id === 'contact_email')?.content || 'hello@thinkkre8tivmedia.com';
+
   const [msgForm, setMsgForm] = useState({ name: '', email: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -157,17 +173,17 @@ export default function ContactPage() {
               <div className="bg-slate-50 border border-border p-6 rounded-2xl space-y-4 shadow-sm">
                 <h3 className="font-bold text-lg text-foreground">Direct Contacts</h3>
                 <div className="space-y-3.5">
-                  <a href="tel:+233245559000" className="flex items-center gap-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+                  <a href={`tel:${directPhone.replace(/\s/g, '')}`} className="flex items-center gap-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
                     <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-foreground border border-border">
                       <Phone size={14} />
                     </div>
-                    <span>+233 24 555 9000</span>
+                    <span>{directPhone}</span>
                   </a>
-                  <a href="mailto:hello@thinkkre8tivmedia.com" className="flex items-center gap-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+                  <a href={`mailto:${directEmail}`} className="flex items-center gap-3 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
                     <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-foreground border border-border">
                       <Mail size={14} />
                     </div>
-                    <span>hello@thinkkre8tivmedia.com</span>
+                    <span>{directEmail}</span>
                   </a>
                 </div>
               </div>

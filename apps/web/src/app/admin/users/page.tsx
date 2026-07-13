@@ -1,5 +1,7 @@
 'use client';
 
+import { useConfirm } from '@/components/providers/ConfirmProvider';
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authClient } from '@/lib/auth-client';
@@ -75,6 +77,7 @@ const roleMap = Object.fromEntries(ROLES.map((r) => [r.key, r]));
 const defaultForm = { name: '', email: '', password: '', role: 'staff', phone: '', position: '' };
 
 export default function UsersPage() {
+  const { confirm } = useConfirm();
   const [showForm, setShowForm] = useState(false);
   const [editUser, setEditUser] = useState<StaffUser | null>(null);
   const [form, setForm] = useState(defaultForm);
@@ -371,12 +374,12 @@ export default function UsersPage() {
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => {
-                              if (confirm(`Send a password reset SMS to ${user.name}?`)) {
+                            onClick={async () => {
+                              if (await confirm({ title: 'Confirmation', message: `Send a password reset SMS to ${user.name}?`, variant: 'destructive' })) {
                                 resetPasswordMutation.mutate(user.id);
                               }
                             }}
-                            className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                            className="p-2 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-md transition-colors shadow-sm font-medium"
                             title="Reset Password via SMS"
                             disabled={resetPasswordMutation.isPending}
                           >
@@ -384,18 +387,18 @@ export default function UsersPage() {
                           </button>
                           <button
                             onClick={() => openEdit(user)}
-                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors shadow-sm font-medium"
                             title="Edit User"
                           >
                             <Edit2 size={14} />
                           </button>
                           <button 
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to completely delete ${user.name}? This action cannot be undone.`)) {
+                            onClick={async () => {
+                              if (await confirm({ title: 'Confirmation', message: `Are you sure you want to completely delete ${user.name}? This action cannot be undone.`, variant: 'destructive' })) {
                                 deleteMutation.mutate(user.id);
                               }
                             }}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                            className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition-colors shadow-sm font-medium"
                             title="Remove User"
                             disabled={deleteMutation.isPending}
                           >
@@ -442,17 +445,17 @@ export default function UsersPage() {
                     <div className="flex gap-1">
                       <button
                         onClick={() => openEdit(user)}
-                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors shadow-sm font-medium"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm(`Are you sure you want to completely delete ${user.name}? This action cannot be undone.`)) {
+                        onClick={async () => {
+                          if (await confirm({ title: 'Confirmation', message: `Are you sure you want to completely delete ${user.name}? This action cannot be undone.`, variant: 'destructive' })) {
                             deleteMutation.mutate(user.id);
                           }
                         }}
-                        className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition-colors shadow-sm font-medium"
                         disabled={deleteMutation.isPending}
                       >
                         <UserX size={16} />

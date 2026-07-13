@@ -21,6 +21,8 @@ import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import { SERVICES_LIST as servicesList, PROJECTS_LIST as projectsList } from '@/data/content';
 
+import { useQuery } from '@tanstack/react-query';
+
 export default function ServicesPage() {
 
   // Expanded portfolio items per service drawer state
@@ -32,6 +34,28 @@ export default function ServicesPage() {
       [title]: !prev[title],
     }));
   };
+
+  const { data: cmsContent } = useQuery({
+    queryKey: ['cms'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms');
+      return res.json();
+    }
+  });
+
+  let displayServices = servicesList;
+  const dbServices = cmsContent?.filter((c: any) => c.section === 'services' && c.is_active);
+  if (dbServices && dbServices.length > 0) {
+    displayServices = dbServices.sort((a:any, b:any) => a.sort_order - b.sort_order).map((c:any, i:number) => ({
+      title: c.title,
+      description: c.content,
+      image: c.image_url || servicesList[i % servicesList.length].image,
+      icon: servicesList[i % servicesList.length].icon,
+      tag: servicesList[i % servicesList.length].tag,
+      tagColor: servicesList[i % servicesList.length].tagColor,
+      features: servicesList[i % servicesList.length].features,
+    }));
+  }
 
 
   return (
@@ -68,7 +92,7 @@ export default function ServicesPage() {
       <section className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {servicesList.map((service, i) => {
+            {displayServices.map((service, i) => {
               const isDrawerOpen = !!expandedServices[service.title];
               const associatedProjects = projectsList.filter((p) => p.category === service.title);
               

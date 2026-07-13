@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 
-const emptyForm = { name: '', email: '', phone: '', address: '', company: '', notes: '' };
+const emptyForm = { name: '', email: '', phone: '', address: '', company: '', notes: '', industry: '', social_handle: '', birthday: '' };
 
 export default function NewCustomerPage() {
   const router = useRouter();
@@ -102,6 +102,33 @@ export default function NewCustomerPage() {
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className={inputClass}
                   placeholder="+233 20 000 0000"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Industry / Niche</label>
+                <input
+                  value={form.industry}
+                  onChange={(e) => setForm({ ...form, industry: e.target.value })}
+                  className={inputClass}
+                  placeholder="e.g. Real Estate, Tech, Retail"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Social Media Handle</label>
+                <input
+                  value={form.social_handle}
+                  onChange={(e) => setForm({ ...form, social_handle: e.target.value })}
+                  className={inputClass}
+                  placeholder="e.g. @thinkkre8tiv"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Birthday / Anniversary</label>
+                <input
+                  type="date"
+                  value={form.birthday}
+                  onChange={(e) => setForm({ ...form, birthday: e.target.value })}
+                  className={inputClass}
                 />
               </div>
             </div>

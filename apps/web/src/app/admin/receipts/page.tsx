@@ -1,5 +1,7 @@
 'use client';
 
+import { useConfirm } from '@/components/providers/ConfirmProvider';
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, ChevronDown, Eye, Download, Trash2, Plus, Receipt as ReceiptIcon, X, CheckCircle2, XCircle, FileText, Edit2, Phone, MessageSquare } from 'lucide-react';
@@ -27,6 +29,7 @@ interface Customer {
 }
 
 export default function BillingAndReceiptsPage() {
+  const { confirm } = useConfirm();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
@@ -42,6 +45,8 @@ export default function BillingAndReceiptsPage() {
   const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [customerId, setCustomerId] = useState('');
+  const [linkedQuotationId, setLinkedQuotationId] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [lineItems, setLineItems] = useState([{ id: '1', description: '', quantity: 1, unit_price: 0 }]);
 
@@ -57,6 +62,26 @@ export default function BillingAndReceiptsPage() {
     queryKey: ['invoices'],
     queryFn: async () => {
       const res = await fetch('/api/invoices');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    enabled: mounted,
+  });
+
+  const { data: customers = [] } = useQuery<Customer[]>({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const res = await fetch('/api/customers');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+    enabled: mounted,
+  });
+
+  const { data: quotations = [] } = useQuery<any[]>({
+    queryKey: ['quotations'],
+    queryFn: async () => {
+      const res = await fetch('/api/quotations');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -81,6 +106,8 @@ export default function BillingAndReceiptsPage() {
     setCustomerName('');
     setCustomerEmail('');
     setCustomerPhone('');
+    setCustomerId('');
+    setLinkedQuotationId('');
     setDueDate('');
     setLineItems([{ id: '1', description: '', quantity: 1, unit_price: 0 }]);
   };
@@ -92,6 +119,7 @@ export default function BillingAndReceiptsPage() {
     setCustomerName(viewedDoc.customer_name || '');
     setCustomerEmail(viewedDoc.customer_email || '');
     setCustomerPhone(viewedDoc.customer_phone || '');
+    setCustomerId(viewedDoc.customer_id || '');
     setDueDate(viewedDoc.due_date ? new Date(viewedDoc.due_date).toISOString().split('T')[0] : '');
     
     if (viewedDoc.items && viewedDoc.items.length > 0) {
@@ -115,6 +143,7 @@ export default function BillingAndReceiptsPage() {
       const endpoint = isInvoice ? '/api/invoices' : '/api/receipts';
       
       const payload = {
+        customer_id: customerId || undefined,
         customer_name: customerName,
         customer_email: customerEmail,
         customer_phone: customerPhone,
@@ -202,15 +231,15 @@ export default function BillingAndReceiptsPage() {
     }
   });
 
-  const handleSendSMS = (doc: any) => {
+  const handleSendSMS = async (doc: any, isInvoice = false) => {
     if (!doc.customer_phone) {
       toast.error('Customer has no phone number on record.');
       return;
     }
-    const isInvoice = doc.amount !== doc.total_amount;
-    const docType = isInvoice ? 'invoice' : 'receipt';
+    const docIsInvoice = doc.amount !== doc.total_amount;
+    const docType = docIsInvoice ? 'invoice' : 'receipt';
     const msg = `Dear ${doc.customer_name}, your ${docType} (${doc.invoice_number}) from Think Kre8tiv Media for GHS ${doc.total_amount} is ready.`;
-    if (confirm(`Send SMS to ${doc.customer_phone}? \n\nMessage: "${msg}"`)) {
+    if (await confirm({ title: 'Confirmation', message: `Send SMS to ${doc.customer_phone}? \n\nMessage: "${msg}"`, variant: 'destructive' })) {
       smsMutation.mutate({
         recipients: [{ phone: doc.customer_phone, name: doc.customer_name }],
         message: msg
@@ -404,8 +433,8 @@ export default function BillingAndReceiptsPage() {
                             </button>
                             {(session?.user as any)?.role === 'admin' && (
                               <button 
-                                onClick={() => {
-                                  if (confirm('Are you sure you want to delete this document?')) {
+                                onClick={async () => {
+                                  if (await confirm({ title: 'Confirmation', message: `Are you sure you want to delete this document?`, variant: 'destructive' })) {
                                     deleteMutation.mutate(doc.id);
                                   }
                                 }}
@@ -471,14 +500,45 @@ export default function BillingAndReceiptsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Linked Service Request</label>
-                      <select className="w-full bg-white dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none">
-                        <option>-- Don't link request --</option>
+                      <select 
+                        value={linkedQuotationId}
+                        onChange={(e) => {
+                          setLinkedQuotationId(e.target.value);
+                          const q = quotations.find(qt => qt.id === e.target.value);
+                          if (q) {
+                            setCustomerName(q.name || '');
+                            setCustomerEmail(q.email || '');
+                            setCustomerPhone(q.phone || '');
+                            setLineItems([{ id: '1', description: q.service_type || 'Service Request', quantity: 1, unit_price: 0 }]);
+                          }
+                        }}
+                        className="w-full bg-white dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none"
+                      >
+                        <option value="">-- Don't link request --</option>
+                        {quotations.map(q => (
+                          <option key={q.id} value={q.id}>{q.name} - {q.service_type}</option>
+                        ))}
                       </select>
                     </div>
                     <div>
                       <label className="block text-xs font-bold text-slate-600 dark:text-slate-400 mb-2">Existing Customer Profile</label>
-                      <select className="w-full bg-white dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none">
-                        <option>-- Don't link profile --</option>
+                      <select 
+                        value={customerId}
+                        onChange={(e) => {
+                          setCustomerId(e.target.value);
+                          const c = customers.find(cus => cus.id === e.target.value);
+                          if (c) {
+                            setCustomerName(c.name || '');
+                            setCustomerEmail(c.email || '');
+                            setCustomerPhone((c as any).phone || '');
+                          }
+                        }}
+                        className="w-full bg-white dark:bg-[#06080D] border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-slate-200 outline-none"
+                      >
+                        <option value="">-- Don't link profile --</option>
+                        {customers.map(c => (
+                          <option key={c.id} value={c.id}>{c.name} { (c as any).company ? `- ${(c as any).company}` : '' }</option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -913,9 +973,25 @@ export default function BillingAndReceiptsPage() {
                       </div>
                     </div>
                     
-                    <div className="flex justify-between items-center pt-5 px-3">
-                      <span className="text-sm font-black uppercase tracking-widest text-[#001F3F]">Grand Total</span>
-                      <span className="text-2xl font-black text-[#FF5722]">{fmt(viewedDoc.total_amount || viewedDoc.amount)}</span>
+                    <div className="bg-[#001F3F] rounded-xl p-5 mt-4 text-white shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-xs font-black uppercase tracking-widest text-blue-200">Grand Total</span>
+                        <span className="text-xl font-black text-white">{fmt(viewedDoc.total_amount || viewedDoc.amount)}</span>
+                      </div>
+                      {viewedDoc.amount_paid !== undefined && (
+                        <div className="flex justify-between items-center text-xs font-bold mb-2 border-t border-white/10 pt-3">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">Amount Paid</span>
+                          <span className="text-emerald-400">{fmt(viewedDoc.amount_paid || 0)}</span>
+                        </div>
+                      )}
+                      {viewedDoc.balance_due !== undefined && (
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-blue-200">Balance Due</span>
+                          <span className={cn('font-black text-sm', Number(viewedDoc.balance_due) > 0 ? 'text-[#FF5722]' : 'text-emerald-400')}>
+                            {fmt(viewedDoc.balance_due)}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

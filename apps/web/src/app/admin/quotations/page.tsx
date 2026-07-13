@@ -1,8 +1,11 @@
 'use client';
 
+import { useConfirm } from '@/components/providers/ConfirmProvider';
+
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText } from 'lucide-react';
+import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText, Edit2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
@@ -19,14 +22,15 @@ interface Quotation {
 }
 
 const statusConfig: Record<string, { label: string; dot: string; bg: string }> = {
-  draft: { label: 'New Submission', dot: 'bg-blue-500', bg: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-500 dark:border-blue-500/20' },
-  sent: { label: 'Proofing', dot: 'bg-purple-500', bg: 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-500 dark:border-purple-500/20' },
-  accepted: { label: 'Printing', dot: 'bg-yellow-500', bg: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-500 dark:border-yellow-500/20' },
-  rejected: { label: 'Finishing', dot: 'bg-orange-500', bg: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-500 dark:border-orange-500/20' },
-  converted: { label: 'Completed', dot: 'bg-emerald-500', bg: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-500 dark:border-emerald-500/20' },
+  draft: { label: 'Draft', dot: 'bg-slate-500', bg: 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-500 dark:border-slate-500/20' },
+  sent: { label: 'Sent', dot: 'bg-blue-500', bg: 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-500 dark:border-blue-500/20' },
+  accepted: { label: 'Accepted', dot: 'bg-emerald-500', bg: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-500 dark:border-emerald-500/20' },
+  rejected: { label: 'Rejected', dot: 'bg-rose-500', bg: 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-500 dark:border-rose-500/20' },
+  converted: { label: 'Converted', dot: 'bg-indigo-500', bg: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-500 dark:border-indigo-500/20' },
 };
 
-export default function SubmittedFilesPage() {
+export default function QuotationsPage() {
+  const { confirm } = useConfirm();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
@@ -75,13 +79,14 @@ export default function SubmittedFilesPage() {
 
   if (!mounted) return null;
 
-  const filtered = quotations.filter(
+  const estimates = quotations.filter(q => q.status === 'draft' || q.status === 'sent' || q.status === 'rejected');
+  const filtered = estimates.filter(
     (q) =>
       q.quotation_number.toLowerCase().includes(search.toLowerCase()) ||
       q.customer_name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const pendingJobs = quotations.filter(q => q.status !== 'converted').length;
+  const sentQuotes = quotations.filter(q => q.status === 'sent').length;
   const newSubmissions = quotations.filter(q => q.status === 'draft').length;
 
   return (
@@ -90,26 +95,24 @@ export default function SubmittedFilesPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Submitted Files & Jobs</h1>
-          <p className="text-slate-500 text-sm font-medium">
-            Manage incoming customer designs and track production stages.
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Estimates & Quotations</h1>
+          <p className="text-slate-500 text-sm font-medium">Manage estimates and send quotes to customers.</p>
         </div>
       </div>
 
       {/* Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Submissions</p>
-          <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{quotations.length}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Estimates</p>
+          <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{estimates.length}</p>
         </div>
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">New (Awaiting Review)</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Draft Estimates</p>
           <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{newSubmissions}</p>
         </div>
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
-          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">In Production</p>
-          <p className="text-3xl font-black text-yellow-600 dark:text-yellow-500">{pendingJobs - newSubmissions}</p>
+          <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Sent to Customer</p>
+          <p className="text-3xl font-black text-yellow-600 dark:text-yellow-500">{sentQuotes}</p>
         </div>
       </div>
 
@@ -139,12 +142,12 @@ export default function SubmittedFilesPage() {
           <table className="w-full whitespace-nowrap text-sm text-left">
             <thead className="border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-[#080B12]">
               <tr>
-                <th className="px-6 py-4">Tracking Code</th>
+                <th className="px-6 py-4">Estimate #</th>
                 <th className="px-6 py-4">Customer Details</th>
-                <th className="px-6 py-4">Product Specs</th>
+                <th className="px-6 py-4">Product Details</th>
                 <th className="px-6 py-4">File Name</th>
-                <th className="px-6 py-4">Production Stage</th>
-                <th className="px-6 py-4">Advance Workflow</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
@@ -203,48 +206,59 @@ export default function SubmittedFilesPage() {
                               onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'sent' })}
                               className="px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white text-blue-600 dark:text-blue-500 border border-blue-200 dark:border-blue-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <Play size={12} /> Start Proofing
+                              <Send size={12} /> Send Estimate
                             </button>
                           )}
                           {job.status === 'sent' && (
                             <button
                               onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'accepted' })}
-                              className="px-3 py-1.5 bg-purple-50 dark:bg-purple-500/10 hover:bg-purple-600 dark:hover:bg-purple-500 hover:text-white text-purple-600 dark:text-purple-500 border border-purple-200 dark:border-purple-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
-                            >
-                              <Check size={12} /> Send to Press
-                            </button>
-                          )}
-                          {job.status === 'accepted' && (
-                            <button
-                              onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'rejected' })}
-                              className="px-3 py-1.5 bg-yellow-50 dark:bg-yellow-500/10 hover:bg-yellow-500 hover:text-yellow-900 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
-                            >
-                              <CheckCircle2 size={12} /> Finish Post-Press
-                            </button>
-                          )}
-                          {job.status === 'rejected' && (
-                            <button
-                              onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'converted' })}
                               className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-600 dark:hover:bg-emerald-500 hover:text-white text-emerald-600 dark:text-emerald-500 border border-emerald-200 dark:border-emerald-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <Send size={12} /> Mark Complete
+                              <Check size={12} /> Mark Accepted
+                            </button>
+                          )}
+                          {job.status === 'sent' && (
+                            <button
+                              onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'rejected' })}
+                              className="px-3 py-1.5 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white text-rose-600 dark:text-rose-500 border border-rose-200 dark:border-rose-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+                            >
+                              <AlertCircle size={12} /> Mark Rejected
                             </button>
                           )}
                           
-                          <button className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" title="Download File">
+                          
+                          <button className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors shadow-sm font-medium" title="Download File">
                             <DownloadCloud size={16} />
                           </button>
+
+                          <a
+                            href={`/admin/invoices/new?customer_id=${job.customer_id}&description=${encodeURIComponent(specs.product || 'Custom Job')}`}
+                            className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                            title="Convert to Invoice"
+                          >
+                            <FileText size={16} />
+                          </a>
                           
                           {(session?.user as any)?.role === 'admin' && (
-                            <button
-                              onClick={() => {
-                                if (confirm('Delete this submission?')) deleteMutation.mutate(job.id);
-                              }}
-                              className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white rounded-lg transition-all border border-rose-100 dark:border-rose-500/20"
-                              title="Delete"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            <>
+                              <Link href={`/admin/quotations/${job.id}/edit`}>
+                                <button
+                                  className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-md transition-colors shadow-sm font-medium"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={16} />
+                                </button>
+                              </Link>
+                              <button
+                                onClick={async () => {
+                                  if (await confirm({ title: 'Confirmation', message: `Delete this submission?`, variant: 'destructive' })) deleteMutation.mutate(job.id);
+                                }}
+                                className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </>
                           )}
                         </div>
                       </td>

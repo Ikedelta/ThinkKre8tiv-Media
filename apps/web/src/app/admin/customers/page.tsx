@@ -1,5 +1,7 @@
 'use client';
 
+import { useConfirm } from '@/components/providers/ConfirmProvider';
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -16,6 +18,7 @@ import {
   DollarSign,
   AlertCircle,
   MessageSquare,
+  Edit2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -37,9 +40,13 @@ interface Customer {
   total_paid: number;
   total_outstanding: number;
   created_at: string;
+  industry?: string;
+  social_handle?: string;
+  birthday?: string;
 }
 
 export default function CustomersPage() {
+  const { confirm } = useConfirm();
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
@@ -241,24 +248,34 @@ export default function CustomersPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1 transition-opacity">
                     <button
                       onClick={() => handleSendSMS(customer)}
-                      className="p-1.5 hover:bg-amber-50 dark:hover:bg-amber-950/30 text-slate-400 hover:text-amber-600 rounded-lg transition-colors"
+                      className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-md transition-colors shadow-sm font-medium"
                       title="Send SMS"
                       disabled={smsMutation.isPending}
                     >
                       <MessageSquare size={14} />
                     </button>
                     {(session?.user as any)?.role === 'admin' && (
-                      <button
-                        onClick={() => {
-                          if (confirm('Delete this customer?')) deleteMutation.mutate(customer.id);
+                      <>
+                        <Link href={`/admin/customers/${customer.id}/edit`}>
+                          <button
+                            className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-md transition-colors shadow-sm font-medium"
+                            title="Edit"
+                          >
+                            <Edit2 size={14} />
+                          </button>
+                        </Link>
+                        <button
+                          onClick={async () => {
+                          if (await confirm({ title: 'Confirmation', message: `Delete this customer?`, variant: 'destructive' })) deleteMutation.mutate(customer.id);
                         }}
-                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
+                        className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-md transition-colors shadow-sm font-medium"
                       >
                         <Trash2 size={14} />
                       </button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -286,6 +303,22 @@ export default function CustomersPage() {
                         <MapPin size={10} className="text-indigo-400" />
                       </div>
                       <span className="truncate">{customer.address}</span>
+                    </div>
+                  )}
+                  {customer.industry && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                      <div className="w-5 h-5 bg-amber-50 dark:bg-amber-950/20 rounded flex items-center justify-center flex-shrink-0">
+                        <Building2 size={10} className="text-amber-500" />
+                      </div>
+                      <span className="truncate">{customer.industry}</span>
+                    </div>
+                  )}
+                  {customer.social_handle && (
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                      <div className="w-5 h-5 bg-pink-50 dark:bg-pink-950/20 rounded flex items-center justify-center flex-shrink-0">
+                        <span className="text-pink-500 font-bold text-[10px]">@</span>
+                      </div>
+                      <span className="truncate">{customer.social_handle}</span>
                     </div>
                   )}
                 </div>

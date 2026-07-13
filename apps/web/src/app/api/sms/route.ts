@@ -70,28 +70,40 @@ export async function POST(request: Request) {
     const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY;
     const arkeselSenderId = process.env.ARKESEL_SMS_SENDER_ID || settings?.sms_sender_id || 'ThinkKre8';
 
-    if (arkeselApiKey) {
-      // Actually send via Arkesel
-      const phoneNumbers = recipients.map((r: any) => r.phone);
-      
-      const arkeselResponse = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
-        method: 'POST',
-        headers: {
-          'api-key': arkeselApiKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          sender: arkeselSenderId,
-          message: message,
-          recipients: phoneNumbers
-        })
-      });
+    if (!arkeselApiKey || arkeselApiKey.trim() === '') {
+      return Response.json({ error: 'SMS API Key is not configured. Please check your environment variables.' }, { status: 500 });
+    }
 
-      if (!arkeselResponse.ok) {
-        const errorData = await arkeselResponse.text();
-        console.error('Arkesel API Error:', errorData);
-        return Response.json({ error: 'Failed to send SMS via Arkesel' }, { status: 502 });
+    // Actually send via Arkesel
+    // Arkesel V2 expects numbers in international format without the '+' sign and without spaces.
+    const phoneNumbers = recipients.map((r: any) => {
+      let phone = String(r.phone).replace(/\+/g, '').replace(/\s+/g, '');
+      // Example: '0245559000' -> '233245559000'
+      if (phone.startsWith('0') && phone.length === 10) {
+        phone = '233' + phone.slice(1);
       }
+      return phone;
+    });
+    
+    console.log('Sending SMS via Arkesel to:', phoneNumbers);
+    
+    const arkeselResponse = await fetch('https://sms.arkesel.com/api/v2/sms/send', {
+      method: 'POST',
+      headers: {
+        'api-key': arkeselApiKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: arkeselSenderId,
+        message: message,
+        recipients: phoneNumbers
+      })
+    });
+
+    if (!arkeselResponse.ok) {
+      const errorData = await arkeselResponse.text();
+      console.error('Arkesel API Error:', errorData);
+      return Response.json({ error: `Failed to send SMS via Arkesel. Details: ${errorData}` }, { status: 502 });
     }
 
     // Log each SMS

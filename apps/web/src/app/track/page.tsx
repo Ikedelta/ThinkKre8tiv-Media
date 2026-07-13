@@ -209,7 +209,7 @@ function TrackPageContent() {
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Order Total</p>
-                    <p className="text-xl font-black text-foreground mt-0.5">${job.total_amount || 0} USD</p>
+                    <p className="text-xl font-black text-foreground mt-0.5">GH₵{job.total_amount || 0}</p>
                   </div>
                 </div>
 

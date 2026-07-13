@@ -31,14 +31,18 @@ function getQueryClient() {
   }
 }
 
+import { ConfirmProvider } from '@/components/providers/ConfirmProvider';
+
 export function Providers({ children }: { children: ReactNode }) {
   // Initialize query client once
   const [queryClient] = useState(() => getQueryClient());
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster position="bottom-right" />
+      <ConfirmProvider>
+        {children}
+        <Toaster position="bottom-right" />
+      </ConfirmProvider>
     </QueryClientProvider>
   );
 }

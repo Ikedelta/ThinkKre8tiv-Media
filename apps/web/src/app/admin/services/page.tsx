@@ -1,5 +1,7 @@
 'use client';
 
+import { useConfirm } from '@/components/providers/ConfirmProvider';
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Search, ChevronDown, Trash2, Edit, Plus, AlertCircle, X, Loader2, Package } from 'lucide-react';
@@ -18,6 +20,7 @@ interface Service {
 }
 
 export default function ServicesPage() {
+  const { confirm } = useConfirm();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
@@ -248,8 +251,8 @@ export default function ServicesPage() {
                           <Edit size={16} />
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm(`Remove "${service.name}" from the catalog?`)) deleteMutation.mutate(service.id);
+                          onClick={async () => {
+                            if (await confirm({ title: 'Confirmation', message: `Remove "${service.name}" from the catalog?`, variant: 'destructive' })) deleteMutation.mutate(service.id);
                           }}
                           className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all"
                         >

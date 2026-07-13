@@ -1,7 +1,18 @@
 import sql from '@/app/api/utils/sql';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (id) {
+      const [customer] = await sql`
+        SELECT * FROM customers WHERE id = ${id}
+      `;
+      if (!customer) return Response.json({ error: 'Not found' }, { status: 404 });
+      return Response.json(customer);
+    }
+
     const customers = await sql`
       SELECT c.*,
         COUNT(DISTINCT i.id) as invoice_count,
@@ -23,12 +34,12 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, phone, address, company, notes } = body;
+    const { name, email, phone, address, company, notes, industry, social_handle, birthday } = body;
     if (!name) return Response.json({ error: 'Name is required' }, { status: 400 });
 
     const [customer] = await sql`
-      INSERT INTO customers (name, email, phone, address, company, notes)
-      VALUES (${name}, ${email ?? null}, ${phone ?? null}, ${address ?? null}, ${company ?? null}, ${notes ?? null})
+      INSERT INTO customers (name, email, phone, address, company, notes, industry, social_handle, birthday)
+      VALUES (${name}, ${email ?? null}, ${phone ?? null}, ${address ?? null}, ${company ?? null}, ${notes ?? null}, ${industry ?? null}, ${social_handle ?? null}, ${birthday || null})
       RETURNING *
     `;
     return Response.json(customer);
@@ -41,13 +52,14 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, name, email, phone, address, company, notes } = body;
+    const { id, name, email, phone, address, company, notes, industry, social_handle, birthday } = body;
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
 
     const [customer] = await sql`
       UPDATE customers
       SET name = ${name}, email = ${email ?? null}, phone = ${phone ?? null},
           address = ${address ?? null}, company = ${company ?? null}, notes = ${notes ?? null},
+          industry = ${industry ?? null}, social_handle = ${social_handle ?? null}, birthday = ${birthday || null},
           updated_at = NOW()
       WHERE id = ${id}
       RETURNING *

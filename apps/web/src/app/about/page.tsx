@@ -5,6 +5,8 @@ import { ArrowRight, Zap, Shield, Award, CheckCircle2 } from 'lucide-react';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
+import { useQuery } from '@tanstack/react-query';
+
 const IMG_FACILITY = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80';
 const IMG_DIGITAL = 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=600&q=80';
 const IMG_BRANDING = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80';
@@ -12,6 +14,19 @@ const IMG_BRANDING = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57f
 
 
 export default function AboutPage() {
+  const { data: cmsContent } = useQuery({
+    queryKey: ['cms'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms');
+      return res.json();
+    }
+  });
+
+  const aboutTitle = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_title')?.content || "From a Small Studio to Ghana’s Premier Print Partner";
+  const aboutP1 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p1')?.content || "Established in 2012, Think Kre8tiv Media set out with a simple promise: make high-resolution branding stickers and premium signs accessible to growing Ghanaian businesses.";
+  const aboutP2 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p2')?.content || "Today, we run integrated workshops across Accra, Kumasi, and Takoradi. From digital linen cards to towering steel billboards, our fabrication engineers and layout artists build to the highest quality standards.";
+  const aboutP3 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p3')?.content || "We combine heavy industrial equipment with detailed client portals to ensure your print estimates, approvals, and SMS alerts are processed seamlessly.";
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden pt-20">
       <PublicNav />
@@ -52,16 +67,16 @@ export default function AboutPage() {
                 Our Story
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
-                From a Small Studio to Ghana’s Premier Print Partner
+                {aboutTitle}
               </h2>
               <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-                Established in 2012, Think Kre8tiv Media set out with a simple promise: make high-resolution branding stickers and premium signs accessible to growing Ghanaian businesses.
+                {aboutP1}
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-                Today, we run integrated workshops across Accra, Kumasi, and Takoradi. From digital linen cards to towering steel billboards, our fabrication engineers and layout artists build to the highest quality standards.
+                {aboutP2}
               </p>
               <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-                We combine heavy industrial equipment with detailed client portals to ensure your print estimates, approvals, and SMS alerts are processed seamlessly.
+                {aboutP3}
               </p>
               <div className="pt-2">
                 <Link href="/quote">

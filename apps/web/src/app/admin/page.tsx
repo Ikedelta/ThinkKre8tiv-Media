@@ -12,7 +12,15 @@ import {
   Plus,
   ChevronRight,
   MoreHorizontal,
-  MessageSquare
+  MessageSquare,
+  Banknote,
+  Receipt,
+  FileSignature,
+  Wallet,
+  CircleDollarSign,
+  Activity,
+  ArrowDownRight,
+  LayoutGrid
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,11 +39,9 @@ const statusColors: Record<string, string> = {
 
 export default function AdminDashboardPage() {
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<'print-jobs' | 'invoices' | 'customers'>('print-jobs');
-
   useEffect(() => setMounted(true), []);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
       const r = await fetch('/api/dashboard-stats');
@@ -44,6 +50,7 @@ export default function AdminDashboardPage() {
     },
     enabled: mounted,
     staleTime: 60000, // Keep fresh for 60 seconds to avoid spamming the DB
+    retry: false,
   });
 
   const { data: session } = authClient.useSession();
@@ -72,17 +79,22 @@ export default function AdminDashboardPage() {
   }
 
   const metrics = data?.metrics || {
-    totalPrintJobs: 0,
-    pendingJobs: 0,
-    jobsInProduction: 0,
     totalCustomersCount: 0,
+    totalInvoiced: 0,
+    totalReceived: 0,
+    totalOutstanding: 0,
+    totalExpenses: 0,
+    netProfit: 0,
   };
 
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const recentInvoices = data?.recent?.invoices || [];
-  const recentQuotations = data?.recent?.quotations || [];
-  const recentCustomers = data?.recent?.customers || [];
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto pb-12 font-sans">
@@ -90,7 +102,9 @@ export default function AdminDashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">Overview</h1>
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            {getGreeting()}, {session?.user?.name?.split(' ')[0] || 'Team'}! 👋
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage your print operations, billing, and customers.</p>
         </div>
         {isAdmin && (
@@ -106,20 +120,53 @@ export default function AdminDashboardPage() {
         )}
       </div>
 
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Quick Actions Grid */}
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-4 flex items-center gap-2">
+        <LayoutGrid className="w-5 h-5 text-indigo-500" /> 
+        Quick Actions
+      </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         {[
-          { label: 'Total Print Jobs', value: metrics.totalPrintJobs.toString(), secondary: 'All recorded orders' },
-          { label: 'Pending Jobs', value: metrics.pendingJobs.toString(), secondary: 'Awaiting proofs/approval', alert: metrics.pendingJobs > 0 },
-          { label: 'Jobs in Production', value: metrics.jobsInProduction.toString(), secondary: 'Currently printing/finishing' },
-          { label: 'Total Customers', value: metrics.totalCustomersCount.toString(), secondary: 'Registered clients' },
-        ].map((stat, i) => (
-          <Card key={i} className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-lg bg-white dark:bg-slate-900">
-            <CardContent className="p-5">
-              <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{stat.label}</p>
-              <div className="flex items-baseline gap-2">
-                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white">{stat.value}</h3>
+          { label: 'Create Invoice', href: '/admin/invoices/new', icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+          { label: 'Create Estimate', href: '/admin/quotations/new', icon: FileSignature, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
+          { label: 'Record Payment', href: '/admin/payments/new', icon: Banknote, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+          { label: 'Log Expense', href: '/admin/expenses/new', icon: Receipt, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-900/20' },
+          { label: 'Add Customer', href: '/admin/customers/new', icon: Users, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+          { label: 'Add Service', href: '/admin/services', icon: Briefcase, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-900/20' },
+        ].map((action, i) => (
+          <Link key={i} href={action.href}>
+            <div className="flex items-center gap-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-lg p-3 shadow-sm transition-all hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md cursor-pointer h-full group">
+              <div className={cn("p-2 rounded-lg", action.bg, action.color)}>
+                <action.icon className="w-4 h-4" />
               </div>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{action.label}</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Financial Metrics */}
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-white mt-8 mb-4 flex items-center gap-2">
+        <Activity className="w-5 h-5 text-indigo-500" /> 
+        Financial Overview
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        {[
+          { label: 'Net Profit', value: fmt(metrics.netProfit || 0), secondary: 'Income minus Expenses', color: (metrics.netProfit || 0) >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400', icon: TrendingUp, iconBg: 'bg-emerald-50 dark:bg-emerald-900/20', iconColor: 'text-emerald-600' },
+          { label: 'Total Income', value: fmt(metrics.totalReceived || 0), secondary: 'Payments collected', color: 'text-blue-600 dark:text-blue-400', icon: Wallet, iconBg: 'bg-blue-50 dark:bg-blue-900/20', iconColor: 'text-blue-600' },
+          { label: 'Total Expenses', value: fmt(metrics.totalExpenses || 0), secondary: 'Money spent', color: 'text-rose-600 dark:text-rose-400', icon: ArrowDownRight, iconBg: 'bg-rose-50 dark:bg-rose-900/20', iconColor: 'text-rose-600' },
+          { label: 'Outstanding A/R', value: fmt(metrics.totalOutstanding || 0), secondary: 'Unpaid invoices', color: 'text-amber-600 dark:text-amber-400', alert: (metrics.totalOutstanding || 0) > 0, icon: AlertCircle, iconBg: 'bg-amber-50 dark:bg-amber-900/20', iconColor: 'text-amber-600' },
+          { label: 'Total Invoiced', value: fmt(metrics.totalInvoiced || 0), secondary: 'Total billed to date', color: 'text-slate-700 dark:text-slate-300', icon: CircleDollarSign, iconBg: 'bg-slate-100 dark:bg-slate-800', iconColor: 'text-slate-600 dark:text-slate-400' },
+        ].map((stat, i) => (
+          <Card key={i} className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden relative">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{stat.label}</p>
+                <div className={cn("p-2 rounded-lg", stat.iconBg)}>
+                  <stat.icon className={cn("w-4 h-4", stat.iconColor)} />
+                </div>
+              </div>
+              <h3 className={cn("text-2xl font-bold", stat.color)}>{stat.value}</h3>
               <p className={cn("text-xs mt-2", stat.alert ? "text-rose-600 font-medium" : "text-slate-500 dark:text-slate-500")}>
                 {stat.secondary}
               </p>
@@ -128,193 +175,6 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Tabbed Activity Feed */}
-      <div className="mt-8 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 overflow-hidden shadow-sm w-full max-w-full">
-        <div className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 px-4 flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
-          <button
-            onClick={() => setActiveTab('print-jobs')}
-            className={cn(
-              "py-4 text-sm font-medium border-b-2 transition-colors",
-              activeTab === 'print-jobs' ? "border-indigo-600 text-indigo-600 dark:text-indigo-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-            )}
-          >
-            Recent Print Jobs
-          </button>
-          <button
-            onClick={() => setActiveTab('invoices')}
-            className={cn(
-              "py-4 text-sm font-medium border-b-2 transition-colors",
-              activeTab === 'invoices' ? "border-indigo-600 text-indigo-600 dark:text-indigo-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-            )}
-          >
-            Recent Invoices
-          </button>
-          <button
-            onClick={() => setActiveTab('customers')}
-            className={cn(
-              "py-4 text-sm font-medium border-b-2 transition-colors",
-              activeTab === 'customers' ? "border-indigo-600 text-indigo-600 dark:text-indigo-400" : "border-transparent text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-            )}
-          >
-            New Customers
-          </button>
-        </div>
-
-        <div className="p-0">
-          {/* Print Jobs Tab */}
-          {activeTab === 'print-jobs' && (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {recentQuotations.length === 0 ? (
-                <div className="p-8 text-center text-sm text-slate-500">No print jobs found.</div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400">
-                    <tr>
-                      <th className="px-6 py-3 font-medium">Job ID</th>
-                      <th className="px-6 py-3 font-medium">Customer</th>
-                      <th className="px-6 py-3 font-medium">Amount</th>
-                      <th className="px-6 py-3 font-medium">Status</th>
-                      <th className="px-6 py-3 font-medium text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {recentQuotations.map((job: any) => (
-                      <tr key={job.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{job.quotation_number}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{job.customer_name}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{fmt(job.total_amount)}</td>
-                        <td className="px-6 py-4">
-                          <Badge className={cn('border font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none', statusColors[job.status] || statusColors.draft)}>
-                            {job.status || 'draft'}
-                          </Badge>
-                        </td>
-                        <td className="px-6 py-4 text-right flex items-center justify-end gap-3">
-                          {job.file_url && (
-                            <a href={job.file_url} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-800 text-sm font-medium flex items-center gap-1">
-                              Download File
-                            </a>
-                          )}
-                          <Link href={`/admin/quotations?id=${job.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                            View details
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </div>
-              )}
-              {recentQuotations.length > 0 && (
-                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 text-right">
-                  <Link href="/admin/quotations" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-end gap-1">
-                    View all print jobs <ChevronRight size={16} />
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Invoices Tab */}
-          {activeTab === 'invoices' && (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {recentInvoices.length === 0 ? (
-                <div className="p-8 text-center text-sm text-slate-500">No invoices found.</div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400">
-                    <tr>
-                      <th className="px-6 py-3 font-medium">Invoice #</th>
-                      <th className="px-6 py-3 font-medium">Customer</th>
-                      <th className="px-6 py-3 font-medium">Total</th>
-                      <th className="px-6 py-3 font-medium">Status</th>
-                      <th className="px-6 py-3 font-medium text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {recentInvoices.map((inv: any) => (
-                      <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{inv.invoice_number}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{inv.customer_name}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{fmt(inv.total_amount)}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex gap-2">
-                            <Badge className={cn('border font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none', statusColors[inv.status] || statusColors.draft)}>
-                              {inv.status || 'draft'}
-                            </Badge>
-                            {inv.approval_status === 'pending' && (
-                              <Badge className="border border-amber-200 bg-amber-50 text-amber-700 font-medium uppercase text-[10px] px-2 py-0.5 rounded-full shadow-none">
-                                Pending
-                              </Badge>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right">
-                          <Link href={`/admin/invoices?id=${inv.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                            View details
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </div>
-              )}
-              {recentInvoices.length > 0 && (
-                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 text-right">
-                  <Link href="/admin/invoices" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-end gap-1">
-                    View all invoices <ChevronRight size={16} />
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Customers Tab */}
-          {activeTab === 'customers' && (
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
-              {recentCustomers.length === 0 ? (
-                <div className="p-8 text-center text-sm text-slate-500">No customers found.</div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead className="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400">
-                    <tr>
-                      <th className="px-6 py-3 font-medium">Customer Name</th>
-                      <th className="px-6 py-3 font-medium">Email / Contact</th>
-                      <th className="px-6 py-3 font-medium">Orders</th>
-                      <th className="px-6 py-3 font-medium text-right">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {recentCustomers.map((cust: any) => (
-                      <tr key={cust.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-slate-200">{cust.name}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{cust.email || cust.phone || 'N/A'}</td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">{cust.invoice_count || 0} orders</td>
-                        <td className="px-6 py-4 text-right">
-                          <Link href={`/admin/customers?id=${cust.id}`} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                            View profile
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                </div>
-              )}
-              {recentCustomers.length > 0 && (
-                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/80 border-t border-slate-100 dark:border-slate-800 text-right">
-                  <Link href="/admin/customers" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white flex items-center justify-end gap-1">
-                    View all customers <ChevronRight size={16} />
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

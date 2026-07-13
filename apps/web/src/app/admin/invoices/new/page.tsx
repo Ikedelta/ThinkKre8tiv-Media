@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useSession } from '@/lib/auth-client';
+import { DocumentViewer } from '@/components/DocumentViewer';
 
 interface Customer {
   id: string;
@@ -27,8 +28,9 @@ const emptyItem: LineItem = { description: '', quantity: 1, unit_price: 0, total
 export default function NewInvoicePage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const [customerId, setCustomerId] = useState('');
-  const [items, setItems] = useState<LineItem[]>([{ ...emptyItem }]);
+  const searchParams = useSearchParams();
+  const [customerId, setCustomerId] = useState(searchParams?.get('customer_id') || '');
+  const [items, setItems] = useState<LineItem[]>([{ ...emptyItem, description: searchParams?.get('description') || '' }]);
   const [vatRate, setVatRate] = useState(15);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [dueDate, setDueDate] = useState('');
@@ -47,6 +49,15 @@ export default function NewInvoicePage() {
     queryKey: ['invoices'],
     queryFn: async () => {
       const res = await fetch('/api/invoices');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+  });
+
+  const { data: products = [] } = useQuery<any[]>({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const res = await fetch('/api/products');
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
@@ -79,10 +90,38 @@ export default function NewInvoicePage() {
     setItems(updated);
   };
 
+  const selectProduct = (index: number, productId: string) => {
+    const product = products.find((p: any) => p.id === productId);
+    if (product) {
+      updateItem(index, 'description', product.name);
+      updateItem(index, 'unit_price', product.default_price);
+    }
+  };
+
   const subtotal = items.reduce((s, i) => s + Number(i.total_price), 0);
   const vatAmount = (subtotal * vatRate) / 100;
   const total = subtotal + vatAmount - Number(discountAmount);
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
+
+  const selectedCustomer = customers.find(c => c.id === customerId);
+
+  const previewDocument = {
+    status: 'draft',
+    invoice_number: 'INV-PREVIEW',
+    created_at: new Date().toISOString(),
+    due_date: dueDate,
+    customer_name: selectedCustomer?.name || 'Select a customer',
+    customer_phone: (selectedCustomer as any)?.phone || '',
+    customer_email: (selectedCustomer as any)?.email || '',
+    customer_address: selectedCustomer?.company || '',
+    items,
+    subtotal,
+    vat_rate: vatRate,
+    vat_amount: vatAmount,
+    amount: subtotal,
+    total_amount: total,
+    balance_due: total,
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,29 +154,37 @@ export default function NewInvoicePage() {
     'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all';
 
   return (
-    <div className="max-w-4xl space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/admin/invoices">
-          <button className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#001F3F] transition-colors">
-            <ArrowLeft size={16} /> Back to Invoices
-          </button>
-        </Link>
-      </div>
+    <div className="flex flex-col lg:flex-row gap-6 max-w-[1600px] mx-auto pb-12">
+      {/* Form Section */}
+      <div className="flex-1 space-y-6 max-w-4xl">
+        <div className="flex items-center gap-4">
+          <Link href="/admin/invoices">
+            <button className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-[#001F3F] transition-colors">
+              <ArrowLeft size={16} /> Back to Invoices
+            </button>
+          </Link>
+        </div>
 
-      <div>
-        <h1 className="text-2xl font-black text-[#001F3F] tracking-tight">New Invoice</h1>
-        <p className="text-sm text-slate-500 font-medium mt-0.5">Create a new customer invoice</p>
-      </div>
+        <div>
+          <h1 className="text-2xl font-black text-[#001F3F] tracking-tight">New Invoice</h1>
+          <p className="text-sm text-slate-500 font-medium mt-0.5">
+            Create an invoice for a customer
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
         {/* Customer & Date */}
         <Card className="border border-slate-100 shadow-none">
           <CardContent className="p-6">
             <h2 className="text-sm font-bold text-[#001F3F] mb-4">Invoice Details</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className={labelClass}>Customer *</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest">Customer *</label>
+                  <Link href="/admin/customers/new" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                    + New Customer
+                  </Link>
+                </div>
                 <select
                   required
                   value={customerId}
@@ -189,26 +236,41 @@ export default function NewInvoicePage() {
                 Qty
               </span>
               <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                Unit Price
+                Price
               </span>
               <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                 Total
               </span>
-              <span className="col-span-1" />
+              <span className="col-span-1"></span>
             </div>
-
+            
             <div className="space-y-3">
               {items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="grid grid-cols-12 gap-3 items-center p-3 bg-slate-50 rounded-lg"
-                >
-                  <input
-                    value={item.description}
-                    onChange={(e) => updateItem(idx, 'description', e.target.value)}
-                    placeholder="Item description"
-                    className="col-span-12 sm:col-span-5 border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
+                <div key={idx} className="grid grid-cols-12 gap-3 items-center bg-slate-50 p-3 rounded-lg border border-slate-200">
+                  <div className="col-span-12 sm:col-span-5 relative">
+                    <input
+                      type="text"
+                      placeholder="Description"
+                      value={item.description}
+                      onChange={(e) => updateItem(idx, 'description', e.target.value)}
+                      className={inputClass}
+                      required
+                    />
+                    {products.length > 0 && (
+                      <div className="absolute right-2 top-1.5 opacity-50 hover:opacity-100 transition-opacity">
+                        <select 
+                          className="text-xs bg-transparent outline-none cursor-pointer border-none py-1"
+                          onChange={(e) => selectProduct(idx, e.target.value)}
+                          title="Quick select standard service"
+                        >
+                          <option value="">+ Standard Service</option>
+                          {products.map((p: any) => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
                   <input
                     type="number"
                     value={item.quantity}
@@ -317,7 +379,16 @@ export default function NewInvoicePage() {
             {createMutation.isPending ? 'Creating...' : 'Create Invoice'}
           </Button>
         </div>
-      </form>
+        </form>
+      </div>
+
+      {/* Live Preview Section */}
+      <div className="w-full lg:w-[600px] xl:w-[700px] shrink-0 sticky top-6 self-start hidden lg:block">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-bold text-[#001F3F]">Live A4 Preview</h2>
+        </div>
+        <DocumentViewer inline type="invoice" document={previewDocument} />
+      </div>
     </div>
   );
 }

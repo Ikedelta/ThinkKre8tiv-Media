@@ -1,7 +1,24 @@
 import sql from '@/app/api/utils/sql';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (id) {
+      const [[quotation], items] = await Promise.all([
+        sql`
+          SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone
+          FROM quotations q
+          JOIN customers c ON q.customer_id = c.id
+          WHERE q.id = ${id}
+        `,
+        sql`SELECT * FROM quotation_items WHERE quotation_id = ${id}`
+      ]);
+      if (!quotation) return Response.json({ error: 'Not found' }, { status: 404 });
+      return Response.json({ ...quotation, items });
+    }
+
     const quotations = await sql`
       SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone
       FROM quotations q
@@ -67,6 +84,44 @@ export async function PATCH(request: Request) {
       WHERE id = ${id} RETURNING *
     `;
     return Response.json(quotation);
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error: 'Failed to update quotation' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, customer_id, subtotal, vat_rate, vat_amount, discount_amount, total_amount, notes, valid_until, items } = body;
+    if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
+
+    const [updated] = await sql`
+      UPDATE quotations
+      SET customer_id = COALESCE(${customer_id}, customer_id),
+          subtotal = COALESCE(${subtotal}, subtotal),
+          vat_rate = COALESCE(${vat_rate}, vat_rate),
+          vat_amount = COALESCE(${vat_amount}, vat_amount),
+          discount_amount = COALESCE(${discount_amount}, discount_amount),
+          total_amount = COALESCE(${total_amount}, total_amount),
+          notes = COALESCE(${notes}, notes),
+          valid_until = COALESCE(${valid_until}, valid_until),
+          updated_at = NOW()
+      WHERE id = ${id}
+      RETURNING *
+    `;
+
+    if (items && Array.isArray(items)) {
+      await sql`DELETE FROM quotation_items WHERE quotation_id = ${id}`;
+      for (const item of items) {
+        await sql`
+          INSERT INTO quotation_items (quotation_id, description, quantity, unit_price, total_price)
+          VALUES (${id}, ${item.description}, ${item.quantity}, ${item.unit_price}, ${item.total_price})
+        `;
+      }
+    }
+
+    return Response.json(updated);
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to update quotation' }, { status: 500 });

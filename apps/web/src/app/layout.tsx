@@ -1,7 +1,14 @@
+import { Montserrat } from 'next/font/google';
 import localFont from 'next/font/local';
 import './global.css';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/sonner';
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
 
 const mtn = localFont({
   src: [
@@ -30,7 +37,7 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${mtn.variable}`}>
+    <html lang="en" className={`${mtn.variable} ${montserrat.variable}`}>
       <body className="font-sans antialiased bg-white text-slate-900">
         <Providers>
           {children}

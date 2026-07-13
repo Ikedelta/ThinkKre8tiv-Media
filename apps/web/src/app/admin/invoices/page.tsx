@@ -1,5 +1,7 @@
 'use client';
 
+import { useConfirm } from '@/components/providers/ConfirmProvider';
+
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -14,6 +16,7 @@ import {
   Clock,
   Phone,
   MessageSquare,
+  Edit2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -22,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
+import { DocumentViewer } from '@/components/DocumentViewer';
 
 interface Invoice {
   id: string;
@@ -48,6 +52,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 const PAGE_SIZE = 10;
 
 export default function InvoicesPage() {
+  const { confirm } = useConfirm();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
@@ -127,13 +132,13 @@ export default function InvoicesPage() {
     }
   });
 
-  const handleSendSMS = (doc: any) => {
+  const handleSendSMS = async (doc: any) => {
     if (!doc.customer_phone) {
       toast.error('Customer has no phone number on record.');
       return;
     }
     const msg = `Dear ${doc.customer_name}, your invoice (${doc.invoice_number}) from Think Kre8tiv Media for GHS ${doc.total_amount} is ready.`;
-    if (confirm(`Send SMS to ${doc.customer_phone}? \n\nMessage: "${msg}"`)) {
+    if (await confirm({ title: 'Confirmation', message: `Send SMS to ${doc.customer_phone}? \n\nMessage: "${msg}"`, variant: 'destructive' })) {
       smsMutation.mutate({
         recipients: [{ phone: doc.customer_phone, name: doc.customer_name }],
         message: msg
@@ -373,7 +378,7 @@ export default function InvoicesPage() {
                                     approval_status: 'approved',
                                   })
                                 }
-                                className="p-1.5 hover:bg-green-50 text-slate-300 hover:text-green-600 rounded-lg transition-colors"
+                                className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md transition-colors shadow-sm font-medium"
                                 title="Approve"
                               >
                                 <CheckCircle2 size={15} />
@@ -385,7 +390,7 @@ export default function InvoicesPage() {
                                     approval_status: 'rejected',
                                   })
                                 }
-                                className="p-1.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-lg transition-colors"
+                                className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition-colors shadow-sm font-medium"
                                 title="Reject"
                               >
                                 <XCircle size={15} />
@@ -394,22 +399,32 @@ export default function InvoicesPage() {
                           )}
                           <button
                             onClick={() => setSelectedInvoiceId(invoice.id)}
-                            className="p-1.5 hover:bg-slate-100 text-slate-300 hover:text-slate-600 rounded-lg transition-colors"
+                            className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md transition-colors shadow-sm font-medium"
                             title="Print/View"
                           >
                             <Printer size={14} />
                           </button>
                           {(session?.user as any)?.role === 'admin' && (
-                            <button
-                              onClick={() => {
-                                if (confirm('Delete this invoice?'))
-                                  deleteMutation.mutate(invoice.id);
-                              }}
-                              className="p-1.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-lg transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 size={14} />
-                            </button>
+                            <>
+                              <Link href={`/admin/invoices/${invoice.id}/edit`}>
+                                <button
+                                  className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors shadow-sm font-medium"
+                                  title="Edit"
+                                >
+                                  <Edit2 size={14} />
+                                </button>
+                              </Link>
+                              <button
+                                onClick={async () => {
+                                  if (await confirm({ title: 'Confirmation', message: `Delete this invoice?`, variant: 'destructive' }))
+                                    deleteMutation.mutate(invoice.id);
+                                }}
+                                className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition-colors shadow-sm font-medium"
+                                title="Delete"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
                           )}
                         </div>
                       </td>
@@ -562,8 +577,8 @@ export default function InvoicesPage() {
                       </button>
                       {(session?.user as any)?.role === 'admin' && (
                         <button
-                          onClick={() => {
-                            if (confirm('Delete?')) deleteMutation.mutate(invoice.id);
+                          onClick={async () => {
+                            if (await confirm({ title: 'Confirmation', message: `Delete?`, variant: 'destructive' })) deleteMutation.mutate(invoice.id);
                           }}
                           className="py-1.5 px-3 text-xs font-bold bg-red-50 text-red-500 rounded-lg border border-red-100"
                         >
@@ -603,253 +618,20 @@ export default function InvoicesPage() {
           </div>
         )}
       </div>
-
+      
       {selectedInvoiceId && invoiceDetails && (
-        <div className="fixed inset-0 bg-slate-900/80 z-50 flex flex-col items-center justify-start overflow-hidden print:bg-white print:block backdrop-blur-sm">
-          
-          {/* Action buttons (Sticky Top Bar) */}
-          <div className="w-full bg-[#0B0F19] border-b border-slate-800 p-4 flex justify-end gap-3 shrink-0 print:hidden shadow-md z-50">
-              {invoiceDetails?.approval_status === 'pending' && (session?.user as any)?.role === 'admin' && (
-                <>
-                  <Button 
-                    onClick={() => {
-                      approveMutation.mutate({ id: selectedInvoiceId!, approval_status: 'approved' });
-                      setSelectedInvoiceId(null);
-                    }} 
-                    className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20 font-bold px-6"
-                  >
-                    <CheckCircle2 size={16} className="mr-2" /> Approve
-                  </Button>
-                  <Button 
-                    onClick={() => {
-                      approveMutation.mutate({ id: selectedInvoiceId!, approval_status: 'rejected' });
-                      setSelectedInvoiceId(null);
-                    }} 
-                    className="bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/20 font-bold px-6"
-                  >
-                    <XCircle size={16} className="mr-2" /> Reject
-                  </Button>
-                  <div className="w-px h-8 bg-slate-200/20 mx-1"></div>
-                </>
-              )}
-              <Button variant="secondary" onClick={() => setSelectedInvoiceId(null)} className="font-semibold bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md">
-                Close Preview
-              </Button>
-              <Button 
-                onClick={() => handleSendSMS(invoiceDetails)} 
-                className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 shadow-lg shadow-amber-900/20"
-                disabled={smsMutation.isPending}
-              >
-                <MessageSquare size={16} className="mr-2" /> Send SMS
-              </Button>
-              <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 shadow-lg shadow-blue-900/20">
-                Print Invoice
-              </Button>
-            </div>
-
-            {/* Scrollable Document Area */}
-            <div className="flex-1 w-full overflow-auto p-4 sm:p-8 flex justify-center">
-              
-              {/* A4 Paper Container */}
-              <div className="bg-white shadow-2xl w-full max-w-[800px] relative flex flex-col shrink-0 print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 my-auto rounded-xl sm:rounded-none overflow-hidden sm:overflow-visible">
-                
-                {/* Print Area */}
-                <div className="flex-1 flex flex-col text-slate-800 relative bg-white">
-              {isLoadingDetails ? (
-                <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold">Loading invoice details...</div>
-              ) : !invoiceDetails ? (
-                <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold">Invoice not found</div>
-              ) : (
-                <>
-                  {/* Watermark */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none z-0">
-                    <img src="/logo.png" alt="Watermark" className="w-[600px] h-[600px] object-contain grayscale" />
-                  </div>
-
-                  {/* Header Section */}
-                  <div className="relative z-10">
-                    <div className="h-2 w-full bg-gradient-to-r from-[#001F3F] to-[#FF5722] print:bg-[#001F3F]"></div>
-                    <div className="p-6 sm:p-12 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0 print:flex-row print:p-12">
-                      <div className="flex items-center gap-4 sm:gap-5">
-                        <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain print:w-20 print:h-20" />
-                        <div>
-                          <h3 className="text-xl sm:text-3xl font-black tracking-tight text-[#001F3F] leading-none mb-3 sm:mb-4 print:text-3xl uppercase">THINK KRE8TIV MEDIA</h3>
-                          <div className="space-y-0.5 text-[9px] sm:text-[10px] text-slate-400 font-medium print:text-[10px]">
-                            <p>OSU haramani Sport complex</p>
-                            <p>+233 20 000 0000 | billing@thinkkre8tivmedia.com</p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-auto print:text-right print:items-end">
-                        <h1 className="text-3xl sm:text-4xl font-black text-[#FF5722] uppercase tracking-widest mb-4 sm:mb-6 print:text-[#FF5722] print:text-4xl" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>INVOICE</h1>
-                        <div className="space-y-2 sm:space-y-3 bg-slate-50 border border-slate-100 p-4 sm:p-5 rounded-xl w-full sm:w-64 text-left print:bg-slate-50 print:w-64" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                          <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Invoice No.</span>
-                            <span className="text-sm font-bold text-[#001F3F]">{invoiceDetails.invoice_number}</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
-                            <span className="text-xs font-bold text-slate-700">{invoiceDetails.created_at?.split('T')[0]}</span>
-                          </div>
-                          {invoiceDetails.due_date && (
-                            <div className="flex justify-between items-center pt-1 border-t border-slate-200 mt-1">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Due Date</span>
-                              <span className="text-xs font-bold text-[#FF5722]">{invoiceDetails.due_date.split('T')[0]}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="px-6 sm:px-12 pb-6 sm:pb-8 border-b border-slate-100 mb-6 sm:mb-8 mx-6 sm:mx-12 mt-2 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0 print:px-12 print:mx-12 print:flex-row">
-                    {/* Bill To */}
-                    <div className="space-y-2 w-full sm:w-auto">
-                      <p className="text-[10px] font-black text-[#FF5722] uppercase tracking-widest mb-2 sm:mb-3">Billed To</p>
-                      <p className="text-lg sm:text-xl font-extrabold text-[#001F3F] leading-tight mb-1 print:text-xl">{invoiceDetails.customer_name}</p>
-                      {invoiceDetails.customer_company && (
-                        <p className="text-xs sm:text-sm text-[#FF5722] font-black tracking-wide uppercase mb-1 sm:mb-2">{invoiceDetails.customer_company}</p>
-                      )}
-                      <div className="text-xs text-slate-500 font-medium space-y-1">
-                        {invoiceDetails.customer_phone && <p>{invoiceDetails.customer_phone}</p>}
-                        {invoiceDetails.customer_email && <p className="break-all sm:break-normal">{invoiceDetails.customer_email}</p>}
-                        {invoiceDetails.customer_address && <p className="max-w-full sm:max-w-[300px] leading-relaxed pt-1 print:max-w-[300px]">{invoiceDetails.customer_address}</p>}
-                      </div>
-                    </div>
-                    
-                    {/* Status Box */}
-                    <div className="flex flex-col items-start sm:items-end justify-start w-full sm:w-auto print:items-end">
-                      <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 sm:p-5 w-full sm:w-64 shadow-sm print:border-slate-200 print:w-64" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</span>
-                          <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-md shadow-none', statusConfig[invoiceDetails.status]?.color)} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                            {invoiceDetails.status}
-                          </Badge>
-                        </div>
-                        <div className="flex justify-between items-center pt-3 border-t border-slate-200">
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Amount Due</span>
-                          <span className={cn('text-lg font-black', Number(invoiceDetails.balance_due) > 0 ? 'text-[#FF5722]' : 'text-emerald-600')}>
-                            {fmt(invoiceDetails.balance_due)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Items list */}
-                  <div className="px-4 sm:px-12 flex-1 relative z-10 print:px-12 overflow-x-auto">
-                    <table className="w-full text-sm mb-6 sm:mb-8 min-w-[400px]">
-                      <thead className="border-b-2 border-slate-800">
-                        <tr className="text-xs font-black text-slate-800 uppercase tracking-widest">
-                          <th className="py-4 px-3 text-left">Description</th>
-                          <th className="py-4 px-3 text-center w-24">Qty</th>
-                          <th className="py-4 px-3 text-right w-36">Unit Price</th>
-                          <th className="py-4 px-3 text-right w-40">Total</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {invoiceDetails.items?.map((item: any, i: number) => (
-                          <tr key={i} className="group hover:bg-slate-50 transition-colors">
-                            <td className="py-4 px-3 font-bold text-slate-700">{item.description}</td>
-                            <td className="py-4 px-3 text-center font-bold text-slate-600">{item.quantity}</td>
-                            <td className="py-4 px-3 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
-                            <td className="py-4 px-3 text-right font-black text-[#001F3F]">{fmt(item.total_price)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-
-                    {/* Summary Totals */}
-                    <div className="flex justify-end pt-4">
-                      <div className="w-full sm:w-[350px] print:w-[350px]">
-                        <div className="space-y-3 sm:space-y-4 px-2 sm:px-3 pb-4 sm:pb-5 border-b border-slate-100">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">Subtotal</span>
-                            <span className="font-bold text-slate-800">{fmt(invoiceDetails.subtotal)}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">VAT ({invoiceDetails.vat_rate}%)</span>
-                            <span className="font-bold text-slate-800">{fmt(invoiceDetails.vat_amount)}</span>
-                          </div>
-                          {Number(invoiceDetails.discount_amount) > 0 && (
-                            <div className="flex justify-between items-center text-sm text-[#FF5722]">
-                              <span className="font-bold uppercase tracking-widest text-[11px]">Discount</span>
-                              <span className="font-bold">-{fmt(invoiceDetails.discount_amount)}</span>
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="bg-[#001F3F] rounded-xl p-6 mt-5 text-white shadow-lg print:bg-[#001F3F]" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                          <div className="flex justify-between items-center mb-4">
-                            <span className="text-sm font-black uppercase tracking-widest text-blue-200">Total Amount</span>
-                            <span className="text-2xl font-black">{fmt(invoiceDetails.total_amount)}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-sm font-bold mb-3 border-t border-white/10 pt-4">
-                            <span className="text-[11px] font-black uppercase tracking-widest text-blue-200">Amount Paid</span>
-                            <span className="text-emerald-400">{fmt(invoiceDetails.amount_paid)}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-[11px] font-black uppercase tracking-widest text-blue-200">Balance Due</span>
-                            <span className={cn('font-black text-lg', Number(invoiceDetails.balance_due) > 0 ? 'text-[#FF5722]' : 'text-emerald-400')}>
-                              {fmt(invoiceDetails.balance_due)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Receipts Payment History */}
-                    {invoiceDetails.receipts?.length > 0 && (
-                      <div className="mt-8 sm:mt-12">
-                        <h4 className="text-[11px] font-black text-[#001F3F] uppercase tracking-widest mb-4 border-b-2 border-slate-100 pb-2 inline-block">Payment History</h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {invoiceDetails.receipts.map((rec: any) => (
-                            <div key={rec.id} className="flex justify-between items-center text-sm bg-slate-50 p-4 rounded-xl border border-slate-100 shadow-sm print:bg-slate-50" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                              <div>
-                                <p className="font-black text-[#001F3F]">{rec.receipt_number}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                                  {rec.payment_method.replace('_', ' ')} · {rec.payment_date?.split('T')[0]}
-                                </p>
-                              </div>
-                              <span className="font-black text-emerald-600 text-lg">{fmt(rec.amount)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Footer */}
-                  <div className="px-6 sm:px-12 py-8 sm:py-10 mt-8 sm:mt-12 bg-slate-50 flex flex-col justify-between border-t border-slate-200 print:bg-slate-50 print:px-12 print:mt-12" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 sm:gap-0 print:flex-row">
-                      <div className="max-w-full sm:max-w-md space-y-6 print:max-w-md">
-                        {invoiceDetails.notes && (
-                          <div className="text-xs text-slate-500 bg-white p-4 rounded-lg border border-slate-200 print:border-slate-300">
-                            <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-1.5">Notes & Terms</p>
-                            <p className="font-medium leading-relaxed">{invoiceDetails.notes}</p>
-                          </div>
-                        )}
-                        <div className="text-xs text-slate-500">
-                          <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest mb-1.5">Payment Instructions</p>
-                          <p className="font-medium">Please include the Invoice Number when making payment.</p>
-                          <p className="font-medium mt-1">Mobile Money: <span className="font-bold text-slate-700">020 000 0000</span> (Think Kre8tiv Media)</p>
-                        </div>
-                      </div>
-                      <div className="text-left sm:text-right w-full sm:w-auto flex flex-col items-start sm:items-end print:items-end print:text-right">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
-                        <div className="relative mt-2 mb-1">
-                          <img src="/logo.png" alt="Signature Stamp" className="h-12 object-contain opacity-20" />
-                        </div>
-                        <p className="text-[10px] font-black text-[#001F3F] uppercase tracking-widest">Think Kre8tiv Media</p>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-        </div>
+        <DocumentViewer
+          type="invoice"
+          document={invoiceDetails}
+          onClose={() => setSelectedInvoiceId(null)}
+          onApprove={(id, status) => {
+            approveMutation.mutate({ id, approval_status: status });
+            setSelectedInvoiceId(null);
+          }}
+          onSendSMS={() => handleSendSMS(invoiceDetails)}
+          isAdmin={(session?.user as any)?.role === 'admin'}
+          isSMSPending={smsMutation.isPending}
+        />
       )}
     </div>
   );

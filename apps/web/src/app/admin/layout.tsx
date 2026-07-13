@@ -20,6 +20,11 @@ import {
   UserCog,
   Shield,
   LogOut,
+  Briefcase,
+  ListTodo,
+  Truck,
+  Package,
+  BarChart3,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,14 +35,44 @@ interface NavItem {
   requiresAdmin?: boolean;
 }
 
-const navItems: NavItem[] = [
-  { name: 'Customer Orders', href: '/admin', icon: LayoutDashboard },
-  { name: 'Billing & Receipts', href: '/admin/receipts', icon: Receipt },
-  { name: 'Submitted Files', href: '/admin/quotations', icon: FileText },
-  { name: 'Services List', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
-  { name: 'User Accounts', href: '/admin/users', icon: UserCog, requiresAdmin: true },
-  { name: 'CMS (Edit Website)', href: '/admin/cms', icon: Globe, requiresAdmin: true },
-  { name: 'My Profile', href: '/admin/profile', icon: Settings },
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
+  {
+    title: 'Home',
+    items: [
+      { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+    ]
+  },
+  {
+    title: 'Clients & Sales',
+    items: [
+      { name: 'Customers', href: '/admin/customers', icon: Users },
+      { name: 'Orders', href: '/admin/orders', icon: FileText },
+      { name: 'Estimates', href: '/admin/quotations', icon: FileText },
+      { name: 'Invoices', href: '/admin/invoices', icon: FileText },
+      { name: 'Payments', href: '/admin/payments', icon: Receipt },
+    ]
+  },
+  {
+    title: 'Accounting',
+    items: [
+      { name: 'Expenses', href: '/admin/expenses', icon: CreditCard },
+      { name: 'Reports', href: '/admin/reports', icon: BarChart3, requiresAdmin: true },
+      { name: 'Suppliers', href: '/admin/suppliers', icon: Truck },
+    ]
+  },
+  {
+    title: 'Settings',
+    items: [
+      { name: 'Services Catalog', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
+      { name: 'Website CMS', href: '/admin/cms', icon: Globe, requiresAdmin: true },
+      { name: 'Staff', href: '/admin/users', icon: UserCog, requiresAdmin: true },
+    ]
+  }
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -71,7 +106,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const currentPage =
-    navItems.find(
+    navSections.flatMap(s => s.items).find(
       (item) =>
         item.href === pathname || (item.href !== '/admin' && pathname.startsWith(item.href))
     )?.name || 'Admin';
@@ -128,40 +163,51 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         <nav className="flex-1 px-3.5 py-5 space-y-0.5 overflow-y-auto">
-          <div className="px-3 mb-3">
-            <h3 className={cn("text-xs font-bold tracking-wider uppercase", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
-              Manage Site
-            </h3>
-          </div>
-          {navItems.filter(item => !item.requiresAdmin || (session?.user as any)?.role === 'admin').map((item) => {
-            const isActive =
-              pathname === item.href ||
-              (item.href !== '/admin' && pathname.startsWith(item.href));
+          {navSections.map((section, idx) => {
+            const visibleItems = section.items.filter(item => !item.requiresAdmin || (session?.user as any)?.role === 'admin');
+            if (visibleItems.length === 0) return null;
+
             return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setIsSidebarOpen(false)}
-                className={cn(
-                  'flex items-center space-x-3 px-3 py-2 rounded-xl transition-all duration-200 group relative',
-                  isActive
-                    ? 'bg-[#E04D1B]/10 text-[#E04D1B] border border-[#E04D1B]/20 font-semibold'
-                    : theme === 'dark'
-                      ? 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-[#E04D1B]'
-                )}
-              >
-                <item.icon
-                  size={16}
-                  className={cn(
-                    isActive ? 'text-[#E04D1B]' : 'group-hover:text-[#E04D1B] transition-colors'
-                  )}
-                />
-                <span className="text-sm">{item.name}</span>
-                {isActive && (
-                  <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-[#E04D1B]" />
-                )}
-              </Link>
+              <div key={idx} className="mb-6">
+                <div className="px-3 mb-2">
+                  <h3 className={cn("text-[11px] font-bold tracking-widest uppercase", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
+                    {section.title}
+                  </h3>
+                </div>
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const isActive =
+                      pathname === item.href ||
+                      (item.href !== '/admin' && pathname.startsWith(item.href));
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={cn(
+                          'flex items-center space-x-3 px-3 py-2 rounded-xl transition-all duration-200 group relative',
+                          isActive
+                            ? 'bg-[#E04D1B]/10 text-[#E04D1B] border border-[#E04D1B]/20 font-semibold'
+                            : theme === 'dark'
+                              ? 'text-slate-400 hover:bg-slate-800/60 hover:text-white'
+                              : 'text-slate-600 hover:bg-slate-50 hover:text-[#E04D1B]'
+                        )}
+                      >
+                        <item.icon
+                          size={16}
+                          className={cn(
+                            isActive ? 'text-[#E04D1B]' : 'group-hover:text-[#E04D1B] transition-colors'
+                          )}
+                        />
+                        <span className="text-sm font-medium">{item.name}</span>
+                        {isActive && (
+                          <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-[#E04D1B]" />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
         </nav>
@@ -170,42 +216,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           "p-4 border-t flex-shrink-0 flex flex-col gap-3",
           theme === 'dark' ? 'border-slate-800' : 'border-slate-100'
         )}>
-          {/* User Profile */}
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-3 min-w-0 flex-1">
-              <div className="w-8 h-8 rounded-full bg-[#E04D1B] flex items-center justify-center text-white font-bold text-sm shrink-0">
-                {session.user?.name?.[0]?.toUpperCase() || 'A'}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold truncate text-slate-800 dark:text-white">{session.user?.name || 'Admin User'}</p>
-                <p className="text-[10px] text-slate-500 truncate">{session.user?.email || 'admin@thinkkre8tivmedia.com'}</p>
-              </div>
-            </div>
-            <button
-              onClick={async () => {
-                await authClient.signOut();
-                router.push('/account/signin');
-              }}
-              className={cn(
-                "p-1.5 ml-2 rounded-lg transition-colors shrink-0",
-                theme === 'dark' ? "text-slate-400 hover:bg-rose-500/10 hover:text-rose-500" : "text-slate-400 hover:bg-rose-50 hover:text-rose-600"
-              )}
-              title="Log out"
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-          
           {/* SMS Credits - Admin Only */}
           {(session?.user as any)?.role === 'admin' && (
             <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className={cn("text-[9px] font-bold tracking-wider uppercase", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
+                  <h3 className={cn("text-[10px] font-bold tracking-wider uppercase", theme === 'dark' ? 'text-slate-500' : 'text-slate-400')}>
                     SMS Credits
                   </h3>
                   <span className={cn("text-lg font-black leading-none", theme === 'dark' ? 'text-white' : 'text-slate-800')}>
-                    {smsData?.balance ?? '...'} <span className="text-[10px] font-medium text-slate-500">pts</span>
+                    {smsData?.balance ?? '...'} <span className="text-[11px] font-medium text-slate-500">pts</span>
                   </span>
                 </div>
                 <button 
@@ -278,6 +298,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             >
               ← View Website
             </Link>
+
+            {/* User Profile */}
+            <div className="flex items-center gap-3 border-l pl-4 ml-2 dark:border-slate-800 border-slate-200">
+              <Link href="/admin/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div className="w-8 h-8 rounded-full bg-[#E04D1B] flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  {session.user?.name?.[0]?.toUpperCase() || 'A'}
+                </div>
+                <div className="hidden md:block">
+                  <p className="text-sm font-bold leading-none text-slate-800 dark:text-white">{session.user?.name || 'Admin User'}</p>
+                  <p className="text-[11px] text-slate-500 mt-1">{session.user?.email || 'admin@thinkkre8tivmedia.com'}</p>
+                </div>
+              </Link>
+              <button
+                onClick={async () => {
+                  await authClient.signOut();
+                  router.push('/account/signin');
+                }}
+                className={cn(
+                  "p-1.5 rounded-lg transition-colors shrink-0",
+                  theme === 'dark' ? "text-slate-400 hover:bg-rose-500/10 hover:text-rose-500" : "text-slate-400 hover:bg-rose-50 hover:text-rose-600"
+                )}
+                title="Log out"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
           </div>
         </header>
 
