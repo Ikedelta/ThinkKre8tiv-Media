@@ -1,4 +1,7 @@
 import sql from '@/app/api/utils/sql';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { requireAdmin, requireStaffOrAdmin } from '@/lib/api-security';
 
 export async function GET(request: Request) {
   try {
@@ -8,6 +11,7 @@ export async function GET(request: Request) {
     if (id) {
       const [receipt] = await sql`
         SELECT r.*, 
+               COALESCE(r.receipt_number, 'TK-RCT-' || SUBSTRING(r.id::text, 1, 6)) as receipt_number,
                c.name as customer_name, 
                c.email as customer_email, 
                c.phone as customer_phone, 
@@ -26,7 +30,11 @@ export async function GET(request: Request) {
     }
 
     const receipts = await sql`
-      SELECT r.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone,
+      SELECT r.*, 
+             COALESCE(r.receipt_number, 'TK-RCT-' || SUBSTRING(r.id::text, 1, 6)) as receipt_number,
+             c.name as customer_name, 
+             c.email as customer_email, 
+             c.phone as customer_phone,
              i.invoice_number
       FROM receipts r
       JOIN customers c ON r.customer_id = c.id
@@ -47,38 +55,6 @@ export async function POST(request: Request) {
 
     let finalCustomerId = customer_id;
     let finalInvoiceId = invoice_id;
-
-    // Ensure tables exist before inserting
-    await sql`
-      CREATE TABLE IF NOT EXISTS payments (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        invoice_id UUID,
-        amount NUMERIC(10,2) NOT NULL,
-        payment_method VARCHAR(50) DEFAULT 'bank_transfer',
-        payment_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        notes TEXT,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS receipts (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        invoice_id UUID,
-        customer_id UUID,
-        payment_id UUID,
-        receipt_number VARCHAR(50) NOT NULL,
-        amount NUMERIC(10,2) NOT NULL,
-        payment_method VARCHAR(50),
-        payment_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        notes TEXT,
-        approval_status VARCHAR(50) DEFAULT 'pending',
-        approved_by VARCHAR(255),
-        approved_at TIMESTAMP WITH TIME ZONE,
-        created_by VARCHAR(255),
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      );
-    `;
 
     // Handle customer_name if provided
     if (!finalCustomerId && customer_name) {
@@ -125,10 +101,36 @@ export async function POST(request: Request) {
       RETURNING *
     `;
 
-    // Create receipt with pending approval
+    // Recalculate invoice balance accurately (Invoice Total - Total Approved Payments)
+    const [invoiceRecord] = await sql`SELECT total_amount FROM invoices WHERE id = ${finalInvoiceId}`;
+    if (invoiceRecord) {
+      const [sumRecord] = await sql`
+        SELECT COALESCE(SUM(amount), 0) as total_paid
+        FROM payments
+        WHERE invoice_id = ${finalInvoiceId}
+      `;
+      const totalPaid = parseFloat(sumRecord?.total_paid || 0);
+      const totalAmt = parseFloat(invoiceRecord.total_amount || 0);
+      const newBalance = Math.max(0, totalAmt - totalPaid);
+      const newStatus = newBalance <= 0 ? 'paid' : totalPaid > 0 ? 'partial' : 'unpaid';
+
+      await sql`
+        UPDATE invoices
+        SET balance_due = ${newBalance}, status = ${newStatus}, updated_at = NOW()
+        WHERE id = ${finalInvoiceId}
+      `;
+    }
+
+    // Check user session
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userRole = (session?.user as any)?.role;
+    const userName = session?.user?.name || created_by || 'Staff';
+    const initialStatus = userRole === 'admin' ? 'approved' : 'pending';
+
+    // Create receipt
     const [receipt] = await sql`
       INSERT INTO receipts (invoice_id, customer_id, payment_id, receipt_number, amount, payment_method, payment_date, notes, approval_status, created_by)
-      VALUES (${finalInvoiceId}, ${finalCustomerId}, ${payment.id}, ${receipt_number}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, 'pending', ${created_by ?? 'System User'})
+      VALUES (${finalInvoiceId}, ${finalCustomerId}, ${payment.id}, ${receipt_number}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, ${initialStatus}, ${userName})
       RETURNING *
     `;
 
@@ -141,6 +143,10 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authResult = await requireStaffOrAdmin();
+    if (authResult instanceof Response) return authResult;
+    const { user, isAdmin } = authResult;
+
     const body = await request.json();
     const { 
       id, 
@@ -164,12 +170,16 @@ export async function PUT(request: Request) {
     const [receipt] = await sql`SELECT * FROM receipts WHERE id = ${id}`;
     if (!receipt) return Response.json({ error: 'Receipt not found' }, { status: 404 });
 
-    // Legacy approval update
+    // Approval update
     if (approval_status && !amount) {
+      if (!isAdmin) {
+        return Response.json({ error: 'Unauthorized: Only administrators can approve or reject receipts' }, { status: 403 });
+      }
+
       const [updated] = await sql`
         UPDATE receipts
         SET approval_status = ${approval_status},
-            approved_by = ${approved_by ?? null},
+            approved_by = ${user?.id || approved_by || null},
             approved_at = ${approval_status === 'approved' ? new Date().toISOString() : null}
         WHERE id = ${id}
         RETURNING *
@@ -245,5 +255,53 @@ export async function PUT(request: Request) {
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to update receipt' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
+
+    const [receipt] = await sql`SELECT * FROM receipts WHERE id = ${id}`;
+    if (!receipt) return Response.json({ error: 'Receipt not found' }, { status: 404 });
+
+    // 1. Delete associated payment if present
+    if (receipt.payment_id) {
+      await sql`DELETE FROM payments WHERE id = ${receipt.payment_id}`;
+    }
+
+    // 2. Delete the receipt
+    await sql`DELETE FROM receipts WHERE id = ${id}`;
+
+    // 3. Recalculate invoice balance if linked
+    if (receipt.invoice_id) {
+      const [invoiceRecord] = await sql`SELECT total_amount FROM invoices WHERE id = ${receipt.invoice_id}`;
+      if (invoiceRecord) {
+        const [sumRecord] = await sql`
+          SELECT COALESCE(SUM(amount), 0) as total_paid
+          FROM payments
+          WHERE invoice_id = ${receipt.invoice_id}
+        `;
+        const totalPaid = parseFloat(sumRecord?.total_paid || 0);
+        const totalAmt = parseFloat(invoiceRecord.total_amount || 0);
+        const newBalance = Math.max(0, totalAmt - totalPaid);
+        const newStatus = newBalance <= 0 ? 'paid' : totalPaid > 0 ? 'partial' : 'unpaid';
+
+        await sql`
+          UPDATE invoices
+          SET balance_due = ${newBalance}, status = ${newStatus}, updated_at = NOW()
+          WHERE id = ${receipt.invoice_id}
+        `;
+      }
+    }
+
+    return Response.json({ success: true });
+  } catch (error: any) {
+    console.error(error);
+    return Response.json({ error: error.message || 'Failed to delete receipt' }, { status: 500 });
   }
 }

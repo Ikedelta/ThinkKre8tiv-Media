@@ -3,6 +3,7 @@
 import { useConfirm } from '@/components/providers/ConfirmProvider';
 
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, CheckCircle2, FileText, Download, Edit2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
@@ -18,7 +19,8 @@ const fmt = (n: number | string) => `GH₵${Number(n || 0).toLocaleString(undefi
 
 export default function PaymentsPage() {
   const { confirm } = useConfirm();
-  const [search, setSearch] = useState('');
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams?.get('search') || '');
   const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();

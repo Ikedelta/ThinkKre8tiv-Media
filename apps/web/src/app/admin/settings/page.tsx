@@ -20,6 +20,12 @@ interface Settings {
   receipt_prefix: string;
   sms_api_key: string;
   sms_sender_id: string;
+  smtp_host?: string;
+  smtp_port?: number;
+  smtp_user?: string;
+  smtp_password?: string;
+  smtp_from_name?: string;
+  smtp_from_email?: string;
   website_tagline: string;
   website_about: string;
   social_facebook: string;
@@ -32,7 +38,7 @@ const defaultSettings: Settings = {
   company_name: 'Think Kre8tiv Media',
   company_email: 'hello@thinkkre8tivmedia.com',
   company_phone: '+233 20 000 0000',
-  company_address: 'OSU haramani Sport complex',
+  company_address: 'OSU, Haramani Sport Complex',
   currency: 'GH₵',
   currency_code: 'GHS',
   vat_rate: 15.0,
@@ -41,6 +47,12 @@ const defaultSettings: Settings = {
   receipt_prefix: 'TK-RCT',
   sms_api_key: '',
   sms_sender_id: 'ThinkKr8',
+  smtp_host: '',
+  smtp_port: 587,
+  smtp_user: '',
+  smtp_password: '',
+  smtp_from_name: 'Think Kre8tiv Media',
+  smtp_from_email: '',
   website_tagline: 'Premium Printing & Branding Studio',
   website_about: "Think Kre8tiv Media is Ghana's premier printing and branding agency.",
   social_facebook: '',
@@ -265,6 +277,84 @@ export default function SettingsPage() {
                 onChange={(e) => update('sms_api_key', e.target.value)}
                 className={inputClass}
                 placeholder="Your SMS provider API key"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* SMTP Email Configuration */}
+      <Card className="border-none shadow-sm">
+        <CardHeader className="pb-0">
+          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+            <Globe size={16} className="text-emerald-600" /> Email &amp; SMTP Settings (User Invitation &amp; Alerts)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 space-y-4">
+          <p className="text-xs text-slate-500 font-normal leading-relaxed">
+            Configure your corporate SMTP credentials (e.g. Google Workspace, Webmail, or transactional mailer). When an admin adds a user, an official onboarding invitation will be sent automatically.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="sm:col-span-2">
+              <label className={labelClass}>SMTP Host</label>
+              <input
+                value={form.smtp_host || ''}
+                onChange={(e) => update('smtp_host', e.target.value)}
+                className={inputClass}
+                placeholder="e.g. smtp.gmail.com or mail.thinkkre8tivmedia.com"
+              />
+            </div>
+            <div>
+              <label className={labelClass}>SMTP Port</label>
+              <input
+                type="number"
+                value={form.smtp_port || 587}
+                onChange={(e) => update('smtp_port', parseInt(e.target.value) || 587)}
+                className={inputClass}
+                placeholder="587 or 465"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>SMTP Username / Email</label>
+              <input
+                value={form.smtp_user || ''}
+                onChange={(e) => update('smtp_user', e.target.value)}
+                className={inputClass}
+                placeholder="notifications@thinkkre8tivmedia.com"
+              />
+            </div>
+            <div>
+              <label className={labelClass}>SMTP Password / App Password</label>
+              <input
+                type="password"
+                value={form.smtp_password || ''}
+                onChange={(e) => update('smtp_password', e.target.value)}
+                className={inputClass}
+                placeholder="••••••••••••••••"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Sender Display Name</label>
+              <input
+                value={form.smtp_from_name || ''}
+                onChange={(e) => update('smtp_from_name', e.target.value)}
+                className={inputClass}
+                placeholder="Think Kre8tiv Media"
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Sender Email Address</label>
+              <input
+                value={form.smtp_from_email || ''}
+                onChange={(e) => update('smtp_from_email', e.target.value)}
+                className={inputClass}
+                placeholder="no-reply@thinkkre8tivmedia.com"
               />
             </div>
           </div>

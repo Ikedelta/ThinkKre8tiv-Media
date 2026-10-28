@@ -27,7 +27,7 @@ export const siteInfo = {
   contact: {
     email: 'info@thinkkre8tivmedia.com',
     phone: '+233 24 555 9000',
-    address: 'OSU haramani Sport complex',
+    address: 'OSU, Haramani Sport Complex',
     facebook: 'https://facebook.com/thinkkre8tive',
     instagram: 'https://instagram.com/thinkkre8tive',
     twitter: 'https://twitter.com/thinkkre8tive'
@@ -287,7 +287,7 @@ export const PROJECTS_LIST = [
     title: 'GCB Bank Campaign',
     category: 'Large Format Printing',
     image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80',
-    desc: 'City-wide flex billboard and route branch banners across Accra and Kumasi.',
+    desc: 'City-wide flex billboard and route branch banners across Accra Osu.',
     specs: { size: '12m x 4m Billboard', media: 'Heavy Flex Canvas', speed: '48 Hours delivery' },
     review: 'Think Kre8tiv Media delivered our route campaigns on exact schedule. Quality is flawless.',
     client: 'GCB Marketing Dept.'

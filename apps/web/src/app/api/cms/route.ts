@@ -1,11 +1,16 @@
 import sql from '@/app/api/utils/sql';
+import { requireAdmin } from '@/lib/api-security';
 
 export async function GET() {
   try {
     const content = await sql`
       SELECT * FROM cms_content ORDER BY section, sort_order
     `;
-    return Response.json(content);
+    return Response.json(content, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    });
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to fetch CMS content' }, { status: 500 });
@@ -14,6 +19,8 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { id, title, content, image_url, is_active } = body;
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
@@ -36,6 +43,8 @@ export async function PUT(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { id, section, title, content, image_url, sort_order } = body;
     if (!id || !section)

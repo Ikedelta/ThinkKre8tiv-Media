@@ -1,5 +1,23 @@
 import React from 'react';
-import { CheckCircle2, XCircle, Edit2, MessageSquare, Download, X, Printer } from 'lucide-react';
+import {
+  CheckCircle2,
+  XCircle,
+  Edit2,
+  MessageSquare,
+  Printer,
+  ShieldCheck,
+  Building2,
+  Phone,
+  Mail,
+  MapPin,
+  Calendar,
+  CreditCard,
+  Hash,
+  Sparkles,
+  FileText,
+  BadgeCheck,
+  Receipt as ReceiptIcon,
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -22,191 +40,398 @@ export function DocumentViewer({
   onClose, 
   onApprove, 
   onEdit, 
-  onSendSMS,
-  isAdmin = false,
-  isSMSPending = false,
-  inline = false
+  onSendSMS, 
+  isAdmin = false, 
+  isSMSPending = false, 
+  inline = false 
 }: DocumentViewerProps) {
+  React.useEffect(() => {
+    if (!inline) {
+      window.document.body.classList.add('document-modal-active');
+      return () => {
+        window.document.body.classList.remove('document-modal-active');
+      };
+    }
+  }, [inline]);
+
   if (!document) return null;
 
-  const fmt = (n: number | string) => `GH₵${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const fmt = (n: number | string) =>
+    `GH₵${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const statusConfig: Record<string, { color: string; label: string }> = {
-    unpaid: { color: 'bg-rose-100 text-rose-700', label: 'Unpaid' },
-    partial: { color: 'bg-amber-100 text-amber-700', label: 'Partial' },
-    paid: { color: 'bg-emerald-100 text-emerald-700', label: 'Paid' },
-    draft: { color: 'bg-slate-100 text-slate-700', label: 'Draft' },
-    pending: { color: 'bg-amber-100 text-amber-700', label: 'Pending' }
-  };
+  const isReceipt = type === 'receipt';
+  const isInvoice = type === 'invoice';
+  const isQuotation = type === 'quotation';
 
-  const statusObj = statusConfig[document.status] || { color: 'bg-slate-100 text-slate-700', label: document.status || 'Unknown' };
+  const docNumber = document.receipt_number || document.invoice_number || document.quotation_number || 'N/A';
+  const docDate = document.payment_date || document.created_at || new Date().toISOString();
+  const paymentMethod = document.payment_method || 'Bank Transfer';
 
-  const content = (
-    <div className={cn("bg-white shadow-2xl w-full max-w-[800px] relative flex flex-col shrink-0 print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 rounded-xl sm:rounded-none overflow-hidden sm:overflow-visible", inline ? "mx-auto border border-slate-200" : "my-auto")} style={{ fontFamily: 'var(--font-montserrat), sans-serif' }}>
+  const isApproved = document.approval_status === 'approved';
+  const isPaid = document.status === 'paid' || (document.balance_due !== undefined && Number(document.balance_due) <= 0);
 
-            
-            {/* Print Area */}
-            <div className="flex-1 flex flex-col text-slate-800 relative bg-white">
-              
-              {/* Watermark & PAID Stamp */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none z-0">
-                <img src="/logo.png" alt="Watermark" className="w-[600px] h-[600px] object-contain grayscale" />
+  // Dynamic Theme Palette: Emerald for Receipts, Classic Indigo/Navy for Invoices & Quotations
+  const themeStyles = isReceipt
+    ? {
+        headerGradient: 'from-emerald-800 via-emerald-700 to-teal-800',
+        badgeBg: 'bg-emerald-950/60 text-emerald-200 border-emerald-500/30',
+        badgeText: 'OFFICIAL RECEIPT',
+        voucherLabel: 'Receipt Voucher',
+        bannerBg: 'bg-emerald-50/90 border-emerald-200',
+        bannerIcon: 'text-emerald-600',
+        bannerTitle: 'text-emerald-800',
+        bannerTitleText: 'Payment Cleared & Confirmed',
+        bannerSubtext: 'text-emerald-700',
+        bannerTotalLabel: 'text-emerald-700',
+        bannerTotalValue: 'text-emerald-900',
+        accentBadge: 'text-emerald-700',
+        stampColor: 'text-emerald-600',
+        stampBorder: 'border-emerald-800',
+      }
+    : {
+        headerGradient: 'from-indigo-900 via-slate-800 to-indigo-950',
+        badgeBg: 'bg-indigo-950/70 text-indigo-200 border-indigo-400/30',
+        badgeText: isInvoice ? 'COMMERCIAL INVOICE' : 'OFFICIAL ESTIMATE',
+        voucherLabel: isInvoice ? 'Invoice Reference' : 'Estimate Reference',
+        bannerBg: 'bg-indigo-50/90 border-indigo-200',
+        bannerIcon: isPaid ? 'text-emerald-600' : 'text-indigo-600',
+        bannerTitle: isPaid ? 'text-emerald-800' : 'text-indigo-900',
+        bannerTitleText: isPaid ? 'Invoice Settled (Paid Full)' : 'Invoice Billing & Settlement Due',
+        bannerSubtext: isPaid ? 'text-emerald-700' : 'text-indigo-700',
+        bannerTotalLabel: isPaid ? 'text-emerald-700' : 'text-indigo-700',
+        bannerTotalValue: isPaid ? 'text-emerald-900' : 'text-indigo-950',
+        accentBadge: 'text-indigo-700',
+        stampColor: 'text-indigo-600',
+        stampBorder: 'border-indigo-800',
+      };
+
+  const renderSharedDocumentTemplate = () => (
+    <div
+      className={cn(
+        "document-viewer-a4 bg-white text-slate-900 shadow-2xl w-full max-w-[760px] relative flex flex-col shrink-0 print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 rounded-2xl print:rounded-none overflow-hidden border border-slate-200/90 print:border-none",
+        inline ? "mx-auto" : "my-auto"
+      )}
+      style={{ fontFamily: 'var(--font-montserrat), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+    >
+      {/* Top Voucher Stub Accent Header */}
+      <div className={cn("bg-gradient-to-r text-white p-5 sm:p-6 relative overflow-hidden print:p-6", themeStyles.headerGradient)}>
+        <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-xl pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-14 h-14 bg-white rounded-xl p-2 shrink-0 shadow-lg flex items-center justify-center">
+              <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-lg sm:text-xl font-black tracking-tight text-white uppercase">
+                  THINK <span className={isReceipt ? "text-emerald-300" : "text-amber-400"}>KRE8TIV</span>
+                </span>
+                <span className={cn("text-[8px] font-bold uppercase px-1.5 py-0.5 rounded tracking-wider border", themeStyles.badgeBg)}>
+                  {themeStyles.badgeText}
+                </span>
               </div>
-              {document.status === 'paid' && (
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 pointer-events-none z-0 opacity-10">
-                  <div className="text-[120px] font-black text-emerald-500 border-[8px] border-emerald-500 rounded-xl px-12 py-4 uppercase tracking-widest">PAID</div>
+              <p className="text-[10px] font-medium text-slate-200">
+                OSU, Haramani Sport Complex, Accra &bull; +233 24 468 1391
+              </p>
+            </div>
+          </div>
+
+          <div className="text-left sm:text-right bg-black/25 border border-white/20 rounded-xl p-2.5 sm:px-3.5 sm:py-2">
+            <p className="text-[9px] font-bold uppercase tracking-widest text-slate-300">{themeStyles.voucherLabel}</p>
+            <p className="text-base font-mono font-black text-white">{docNumber}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Decorative Perforated Ticket Divider Line */}
+      <div className="relative h-5 bg-slate-50 flex items-center justify-between px-4 border-y border-dashed border-slate-300 print:bg-white">
+        <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-slate-900 rounded-full print:hidden" />
+        <div className="w-full border-b border-dashed border-slate-300 mx-2" />
+        <span className="text-[8px] font-mono uppercase tracking-widest text-slate-400 px-3 bg-slate-50 font-bold shrink-0">
+          {isReceipt ? 'Official Payment Receipt Voucher' : 'Commercial Tax & Billing Document'}
+        </span>
+        <div className="w-full border-b border-dashed border-slate-300 mx-2" />
+        <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-slate-900 rounded-full print:hidden" />
+      </div>
+
+      {/* Main Body */}
+      <div className="p-5 sm:p-7 relative flex-1 flex flex-col justify-between bg-white space-y-4">
+        
+        {/* Verification Shield Watermark */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.025] pointer-events-none select-none z-0">
+          <BadgeCheck className="w-[300px] h-[300px] text-slate-900" />
+        </div>
+
+        {isPaid && isInvoice && (
+          <div className="absolute top-1/3 right-10 -rotate-12 pointer-events-none z-0 opacity-15">
+            <div className="text-5xl font-black text-emerald-600 border-4 border-emerald-600 rounded-2xl px-6 py-2 uppercase tracking-widest">
+              PAID FULL
+            </div>
+          </div>
+        )}
+
+        <div className="relative z-10 space-y-4">
+          
+          {/* Main Top Banner */}
+          <div className={cn("border rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs", themeStyles.bannerBg)}>
+            <div className="space-y-0.5">
+              <span className={cn("text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5", themeStyles.bannerTitle)}>
+                <CheckCircle2 size={15} className={themeStyles.bannerIcon} />
+                <span>{themeStyles.bannerTitleText}</span>
+              </span>
+              <p className={cn("text-xs", themeStyles.bannerSubtext)}>
+                Issued on{' '}
+                <strong>{docDate ? new Date(docDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</strong>
+                {document.due_date && isInvoice && (
+                  <span> &bull; Due: <strong className="text-[#D22630]">{new Date(document.due_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong></span>
+                )}
+              </p>
+            </div>
+            <div className="text-left sm:text-right">
+              <span className={cn("text-[9px] font-bold uppercase tracking-wider block", themeStyles.bannerTotalLabel)}>
+                {isReceipt ? 'Total Amount Paid' : 'Total Amount Due'}
+              </span>
+              <span className={cn("text-2xl sm:text-3xl font-black font-mono", themeStyles.bannerTotalValue)}>
+                {fmt(isReceipt ? document.amount : (document.total_amount || document.amount))}
+              </span>
+            </div>
+          </div>
+
+          {/* Transaction Metadata Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-200">
+            <div>
+              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-0.5">
+                {isReceipt ? 'Received From' : 'Billed To Customer'}
+              </span>
+              <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                {document.customer_name || 'Customer / Client'}
+              </h4>
+              {document.customer_company && (
+                <p className="text-xs text-slate-600 font-semibold mt-0.5 flex items-center gap-1">
+                  <Building2 size={12} className="text-slate-400" />
+                  <span>{document.customer_company}</span>
+                </p>
+              )}
+              <div className="text-[11px] text-slate-500 font-medium space-y-0.5 pt-1">
+                {document.customer_phone && <p>Tel: {document.customer_phone}</p>}
+                {document.customer_email && <p>Email: {document.customer_email}</p>}
+                {document.customer_address && <p>Address: {document.customer_address}</p>}
+              </div>
+            </div>
+
+            <div className="space-y-2 sm:border-l sm:border-slate-200 sm:pl-4">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-slate-500">{isReceipt ? 'Payment Method:' : 'Payment Channel:'}</span>
+                <span className="font-bold text-slate-900 capitalize px-2 py-0.5 bg-white border border-slate-200 rounded text-[11px]">
+                  {paymentMethod.replace('_', ' ')}
+                </span>
+              </div>
+              {document.invoice_number && isReceipt && (
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-slate-500">Applied To Invoice:</span>
+                  <span className="font-mono font-bold text-indigo-700">{document.invoice_number}</span>
                 </div>
               )}
-
-              {/* Header Section */}
-              <div className="relative z-10">
-                <div className="h-2 w-full bg-slate-800 print:bg-slate-800"></div>
-                <div className="p-6 sm:p-12 flex flex-col sm:flex-row justify-between items-start gap-6 sm:gap-0 print:flex-row print:p-12">
-                  <div className="flex items-center gap-4 sm:gap-5">
-                    <img src="/logo.png" alt="Think Kre8tiv Media Logo" className="w-16 h-16 sm:w-20 sm:h-20 object-contain print:w-20 print:h-20" />
-                    <div>
-                      <h3 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 leading-none mb-3 sm:mb-4 print:text-2xl uppercase">THINK KRE8TIV MEDIA</h3>
-                      <div className="space-y-0.5 text-[10px] text-slate-500 font-medium">
-                        <p>OSU haramani Sport complex</p>
-                        <p>+233 20 000 0000 | info@thinkkre8tivmedia.com</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-left sm:text-right flex flex-col items-start sm:items-end w-full sm:w-auto print:items-end print:text-right">
-                    <h1 className="text-2xl sm:text-3xl font-black text-slate-800 uppercase tracking-widest mb-4 sm:mb-6 print:text-slate-800 print:text-3xl" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      {type === 'invoice' ? 'INVOICE' : 'RECEIPT'}
-                    </h1>
-                    <div className="space-y-2 sm:space-y-3 bg-slate-50 border border-slate-200 p-4 sm:p-5 rounded-lg w-full sm:w-64 text-left print:bg-slate-50 print:w-64" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Doc No.</span>
-                        <span className="text-sm font-bold text-slate-900">{document.invoice_number || document.receipt_number}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Date</span>
-                        <span className="text-xs font-bold text-slate-700">{document.created_at ? new Date(document.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '-'}</span>
-                      </div>
-                      {document.due_date && type === 'invoice' && (
-                        <div className="flex justify-between items-center pt-1 border-t border-slate-200 mt-1">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
-                          <span className="text-xs font-bold text-slate-900">{new Date(document.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-slate-500">Settlement Status:</span>
+                <span className={cn("font-bold text-[11px]", isPaid || isReceipt ? "text-emerald-700" : "text-amber-700")}>
+                  {isReceipt ? 'Settled (Full Receipt)' : isPaid ? 'Paid in Full' : 'Pending Payment'}
+                </span>
               </div>
-
-              {/* Billed To Section */}
-              <div className="px-6 sm:px-12 pb-6 sm:pb-8 border-b border-slate-200 mb-6 sm:mb-8 mx-6 sm:mx-12 mt-2 print:px-12 print:mx-12 flex justify-between items-start">
-                <div className="space-y-2">
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 sm:mb-3">Billed To</p>
-                  <p className="text-lg sm:text-xl font-bold text-slate-900 leading-tight mb-1 sm:mb-2 print:text-xl">{document.customer_name}</p>
-                  <div className="text-xs text-slate-600 font-medium space-y-1">
-                    {document.customer_phone && <p>{document.customer_phone}</p>}
-                    {document.customer_email && <p className="break-all sm:break-normal">{document.customer_email}</p>}
-                    {document.customer_address && <p className="max-w-full sm:max-w-[300px] leading-relaxed pt-1 print:max-w-[300px]">{document.customer_address}</p>}
-                  </div>
-                </div>
-                {type === 'invoice' && (
-                  <div className="text-right flex flex-col items-end">
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Status</span>
-                    <Badge className={cn('border-none font-bold uppercase text-[10px] tracking-wider px-3 py-1 rounded-md shadow-none', statusObj.color)} style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      {statusObj.label}
-                    </Badge>
-                  </div>
-                )}
-              </div>
-
-              {/* Line Items */}
-              <div className="px-4 sm:px-12 flex-1 relative z-10 print:px-12 overflow-x-auto">
-                <table className="w-full text-sm mb-6 sm:mb-8 min-w-[400px]">
-                  <thead className="border-b-2 border-slate-800">
-                    <tr className="text-[11px] font-bold text-slate-800 uppercase tracking-widest">
-                      <th className="py-4 px-3 text-left">Description</th>
-                      <th className="py-4 px-3 text-center w-24">Qty</th>
-                      <th className="py-4 px-3 text-right w-40">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {document.items && document.items.length > 0 ? (
-                      document.items.map((item: any, i: number) => (
-                        <tr key={i} className="group hover:bg-slate-50 transition-colors">
-                          <td className="py-4 px-3 font-semibold text-slate-800">{item.description}</td>
-                          <td className="py-4 px-3 text-center font-medium text-slate-600">{item.quantity}</td>
-                          <td className="py-4 px-3 text-right font-bold text-slate-900">{fmt(item.total_price || (item.quantity * item.unit_price))}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={3} className="py-8 px-5 font-medium text-slate-400 italic text-center">Standard Document Total</td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-
-                {/* Totals */}
-                <div className="flex justify-end mt-4 sm:mt-0">
-                  <div className="w-full sm:w-[350px] print:w-[350px]">
-                    <div className="space-y-3 sm:space-y-4 px-2 sm:px-3 pb-4 sm:pb-5 border-b border-slate-200">
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">Subtotal</span>
-                        <span className="font-bold text-slate-800">{fmt(document.subtotal || document.amount)}</span>
-                      </div>
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="font-bold text-slate-500 uppercase tracking-widest text-[11px]">VAT ({document.vat_rate || 0}%)</span>
-                        <span className="font-bold text-slate-800">{fmt(document.vat_amount || 0)}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-slate-800 rounded-lg p-5 mt-4 text-white print:bg-slate-800" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-[11px] font-bold uppercase tracking-widest text-slate-300">Grand Total</span>
-                        <span className="text-xl font-bold text-white">{fmt(document.total_amount || document.amount)}</span>
-                      </div>
-                      {document.amount_paid !== undefined && (
-                        <div className="flex justify-between items-center text-xs font-medium mb-2 border-t border-white/20 pt-3">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Amount Paid</span>
-                          <span className="text-slate-100">{fmt(document.amount_paid || 0)}</span>
-                        </div>
-                      )}
-                      {document.balance_due !== undefined && (
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">Balance Due</span>
-                          <span className={cn('font-bold text-sm', Number(document.balance_due) > 0 ? 'text-white' : 'text-slate-200')}>
-                            {fmt(document.balance_due)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="px-6 sm:px-12 py-8 sm:py-10 mt-8 sm:mt-12 bg-white flex flex-col justify-between border-t-2 border-slate-100 print:bg-white print:px-12 print:mt-12" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-8 sm:gap-0 print:flex-row">
-                  <div className="max-w-full sm:max-w-sm print:max-w-sm">
-                    <p className="text-sm font-bold text-slate-800 mb-1.5 uppercase tracking-widest">Thank you for your business</p>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed">Payment is due upon receipt. Please make all checks payable to Think Kre8tiv Media. If you have any questions, please contact us.</p>
-                  </div>
-                  <div className="text-left sm:text-right print:text-right w-full sm:w-auto flex flex-col items-start sm:items-end print:items-end">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized By</p>
-                    <div className="relative mt-2 mb-1">
-                      <img src="/logo.png" alt="Signature Stamp" className="h-12 object-contain opacity-20" />
-                    </div>
-                    <p className="text-[10px] font-bold text-slate-800 uppercase tracking-widest">Think Kre8tiv Media</p>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-semibold text-slate-500">Currency:</span>
+                <span className="font-bold text-slate-800 text-[11px]">Ghanaian Cedi (GH₵)</span>
               </div>
             </div>
           </div>
+
+          {/* Particulars Table */}
+          <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="bg-slate-100 text-slate-900 text-[9px] font-black uppercase tracking-wider border-b border-slate-200">
+                  <th className="py-2.5 px-3">Description / Particulars</th>
+                  <th className="py-2.5 px-3 text-center w-20">Qty</th>
+                  <th className="py-2.5 px-3 text-right w-24">Rate (GH₵)</th>
+                  <th className="py-2.5 px-3 text-right w-28">Amount (GH₵)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {document.items && document.items.length > 0 ? (
+                  document.items.map((item: any, i: number) => (
+                    <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-2.5 px-3">
+                        <p className="font-bold text-slate-900 leading-snug">{item.description}</p>
+                        {item.notes && <p className="text-[10px] text-slate-500 mt-0.5">{item.notes}</p>}
+                      </td>
+                      <td className="py-2.5 px-3 text-center font-medium text-slate-700">{item.quantity}</td>
+                      <td className="py-2.5 px-3 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
+                      <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
+                        {fmt(item.total_price || (item.quantity * item.unit_price))}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="py-3 px-3">
+                      <p className="font-bold text-slate-900 text-xs">
+                        {isReceipt
+                          ? `Commercial Settlement ${document.invoice_number ? `for Invoice #${document.invoice_number}` : ''}`
+                          : 'Commercial Printing & Brand Fabrication Services'}
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                        {document.notes || (isReceipt ? `Funds credited to Think Kre8tiv Media accounts via ${paymentMethod.replace('_', ' ')}.` : 'As per contractual agreement')}
+                      </p>
+                    </td>
+                    <td className="py-3 px-3 text-center font-medium text-slate-700 text-xs">1</td>
+                    <td className="py-3 px-3 text-right font-medium text-slate-600 text-xs">{fmt(document.amount || document.total_amount)}</td>
+                    <td className="py-3 px-3 text-right font-black font-mono text-sm text-slate-900">
+                      {fmt(document.amount || document.total_amount)}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Account Balance & Calculations Summary */}
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-1">
+            {/* Banking Remittance Block */}
+            <div className="sm:col-span-7 bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-1.5 text-xs">
+              <div className="flex items-center gap-1.5 border-b border-slate-200 pb-1">
+                <CreditCard size={12} className={isReceipt ? "text-emerald-700" : "text-indigo-700"} />
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-900">
+                  Bank Settlement &amp; Remittance Details
+                </span>
+              </div>
+              <div className="text-[11px] space-y-0.5 text-slate-600 font-medium">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 text-[10px] uppercase font-bold">Bank Name:</span>
+                  <span className="font-bold text-slate-800">Stanbic Bank / GCB Bank</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 text-[10px] uppercase font-bold">Account Name:</span>
+                  <span className="font-bold text-slate-800">Think Kre8tiv Media</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-400 text-[10px] uppercase font-bold">Mobile Money (MOMO):</span>
+                  <span className="font-bold text-emerald-700">024 468 1391 (Merchant)</span>
+                </div>
+                <div className="pt-1 border-t border-slate-200 text-[10px] text-slate-500">
+                  * Quote reference <strong>{docNumber}</strong> on all remittances.
+                </div>
+              </div>
+            </div>
+
+            {/* Calculations Breakdown */}
+            <div className="sm:col-span-5 bg-slate-50/80 p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+              {isReceipt ? (
+                <>
+                  {document.invoice_total_amount && (
+                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                      <span className="font-medium">Total Billed:</span>
+                      <span className="font-mono font-bold text-slate-900">{fmt(document.invoice_total_amount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-emerald-700 text-[11px]">
+                    <span className="font-bold">This Payment:</span>
+                    <span className="font-mono font-bold">{fmt(document.amount)}</span>
+                  </div>
+                  {document.invoice_balance_due !== undefined && (
+                    <div className="flex justify-between items-center pt-1.5 border-t border-slate-200 text-[11px]">
+                      <span className="font-bold text-slate-900">Remaining Balance:</span>
+                      <span className={cn(
+                        "font-mono font-black",
+                        Number(document.invoice_balance_due) > 0 ? "text-[#D22630]" : "text-emerald-700"
+                      )}>
+                        {fmt(document.invoice_balance_due)}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                    <span className="font-medium text-slate-500">Subtotal</span>
+                    <span className="font-mono font-bold text-slate-900">{fmt(document.subtotal || document.amount || document.total_amount)}</span>
+                  </div>
+                  {Number(document.vat_amount || 0) > 0 && (
+                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                      <span className="font-medium text-slate-500">VAT ({document.vat_rate || 0}%)</span>
+                      <span className="font-mono font-bold text-slate-900">{fmt(document.vat_amount)}</span>
+                    </div>
+                  )}
+                  {Number(document.discount_amount || 0) > 0 && (
+                    <div className="flex justify-between items-center text-emerald-700 text-[11px]">
+                      <span className="font-medium">Discount</span>
+                      <span className="font-mono font-bold">-{fmt(document.discount_amount)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center py-1 border-y border-slate-900 text-slate-950">
+                    <span className="text-[11px] font-black uppercase tracking-wider">Total Invoiced</span>
+                    <span className="text-base font-black font-mono">{fmt(document.total_amount || document.amount)}</span>
+                  </div>
+                  {document.amount_paid !== undefined && Number(document.amount_paid) > 0 && (
+                    <div className="flex justify-between items-center text-slate-600 text-[11px]">
+                      <span className="font-medium text-slate-500">Amount Paid</span>
+                      <span className="font-mono font-bold text-emerald-700">{fmt(document.amount_paid)}</span>
+                    </div>
+                  )}
+                  {document.balance_due !== undefined && (
+                    <div className="flex justify-between items-center py-1 bg-white px-2 rounded-lg border border-slate-200">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-800">Balance Due</span>
+                      <span className={cn(
+                        "text-sm font-black font-mono",
+                        Number(document.balance_due) > 0 ? "text-[#D22630]" : "text-emerald-700"
+                      )}>
+                        {fmt(document.balance_due)}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+        </div>
+
+        {/* Footer Sign-off & Verification */}
+        <div className="relative z-10 pt-3 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 text-xs text-slate-500">
+          <div className="space-y-0.5 max-w-sm">
+            <div className={cn("flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider", isReceipt ? "text-emerald-800" : "text-indigo-900")}>
+              <ShieldCheck size={13} className={isReceipt ? "text-emerald-600" : "text-indigo-600"} />
+              <span>Official Verification Stamp</span>
+            </div>
+            <p className="text-[9px] text-slate-400 leading-relaxed">
+              Official transaction document generated by Think Kre8tiv Media Cloud ERP. Valid without alteration.
+            </p>
+          </div>
+
+          <div className="flex flex-col sm:items-end text-left sm:text-right space-y-0.5">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+              {isReceipt ? 'Cashier / Finance Desk' : 'Commercial Finance Desk'}
+            </span>
+            <div className="h-7 flex items-center">
+              <span className={cn("font-serif italic text-sm font-bold border-b pb-0.5", isReceipt ? "text-emerald-900 border-emerald-800" : "text-indigo-950 border-indigo-900")}>
+                Think Kre8tiv Accounts
+              </span>
+            </div>
+            <p className="text-[9px] font-bold uppercase tracking-wider text-slate-700">Commercial Finance Division</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
+
+  const content = renderSharedDocumentTemplate();
 
   if (inline) {
     return (
-      <div className="w-full overflow-hidden bg-slate-100 rounded-xl p-2 sm:p-4 md:p-8 flex justify-center border border-slate-200">
-        <div className="w-full max-w-full overflow-x-auto custom-scrollbar flex justify-center">
-          <div className="transform origin-top scale-[0.6] sm:scale-75 md:scale-90 lg:scale-100 transition-transform" style={{ marginBottom: '-30%' }}>
+      <div className="w-full bg-slate-100/80 dark:bg-slate-900/60 rounded-xl p-2 sm:p-4 border border-slate-200 dark:border-slate-800 overflow-x-auto shadow-inner">
+        <div className="w-full max-w-full flex justify-center mx-auto py-2">
+          <div className="document-preview-scaled origin-top scale-[0.75] sm:scale-[0.80] md:scale-[0.84] transition-transform duration-200 -mb-[22%] sm:-mb-[18%] md:-mb-[14%] print:scale-100 print:mb-0 print:m-0">
             {content}
           </div>
         </div>
@@ -215,41 +440,58 @@ export function DocumentViewer({
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-900/80 z-50 flex flex-col items-center justify-start overflow-hidden print:bg-white print:block backdrop-blur-sm">
-      <div className="w-full bg-[#0B0F19] border-b border-slate-800 p-4 flex justify-end gap-3 shrink-0 print:hidden shadow-md z-50">
-        {document.approval_status === 'pending' && isAdmin && onApprove && (
-          <>
-            <Button onClick={() => onApprove(document.id, 'approved')} className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20 font-bold px-6">
-              <CheckCircle2 size={16} className="mr-2" /> Approve
+    <div className="document-modal-overlay fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-start overflow-hidden print:bg-white print:block backdrop-blur-md">
+      <div className="w-full bg-[#0F172A] border-b border-slate-800 p-4 flex justify-between items-center shrink-0 print:hidden shadow-lg z-50 max-w-7xl mx-auto rounded-b-xl">
+        <div className="flex items-center gap-2 text-white">
+          {isReceipt ? <ReceiptIcon className="w-4 h-4 text-emerald-400" /> : <FileText className="w-4 h-4 text-amber-400" />}
+          <span className="text-xs font-bold uppercase tracking-wider">
+            {isReceipt ? 'Receipt Preview' : isInvoice ? 'Invoice Preview' : 'Estimate Preview'} &bull; {docNumber}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {document.approval_status === 'pending' && isAdmin && onApprove && (
+            <>
+              <Button onClick={() => onApprove(document.id, 'approved')} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold h-8">
+                <CheckCircle2 size={14} className="mr-1.5" /> Approve
+              </Button>
+              <Button onClick={() => onApprove(document.id, 'rejected')} className="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold h-8">
+                <XCircle size={14} className="mr-1.5" /> Reject
+              </Button>
+            </>
+          )}
+          {onEdit && (
+            <Button variant="secondary" onClick={onEdit} className="bg-white/10 text-white hover:bg-white/20 border-none text-xs h-8 font-semibold">
+              <Edit2 size={14} className="mr-1.5" /> Edit
             </Button>
-            <Button onClick={() => onApprove(document.id, 'rejected')} className="bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/20 font-bold px-6">
-              <XCircle size={16} className="mr-2" /> Reject
+          )}
+          {onSendSMS && (
+            <Button onClick={onSendSMS} className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs h-8" disabled={isSMSPending}>
+              <MessageSquare size={14} className="mr-1.5" /> Send SMS
             </Button>
-            <div className="w-px h-8 bg-slate-200/20 mx-1"></div>
-          </>
-        )}
-        {onEdit && (
-          <Button variant="secondary" onClick={onEdit} className="bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md shadow-lg font-semibold">
-            <Edit2 size={16} className="mr-2" /> Edit
-          </Button>
-        )}
-        {onClose && (
-          <Button variant="secondary" onClick={onClose} className="font-semibold bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-md">
-            Close Preview
-          </Button>
-        )}
-        {onSendSMS && (
-          <Button onClick={onSendSMS} className="bg-amber-600 hover:bg-amber-500 text-white font-bold px-4 shadow-lg shadow-amber-900/20" disabled={isSMSPending}>
-            <MessageSquare size={16} className="mr-2" /> Send SMS
-          </Button>
-        )}
-        <Button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 shadow-lg shadow-blue-900/20">
-          <Printer size={16} className="mr-2" /> Print PDF
-        </Button>
+          )}
+          {/* Prevent print / export download unless document is approved (or inline editor preview) */}
+          {(document.approval_status === 'approved' || inline) ? (
+            <Button onClick={() => window.print()} className="bg-gradient-to-r from-[#D22630] to-amber-500 text-white font-bold text-xs h-8 shadow-sm">
+              <Printer size={14} className="mr-1.5" /> Print / Export PDF
+            </Button>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md text-xs font-bold">
+              <span>Approval Required to Print/Download</span>
+            </div>
+          )}
+          {onClose && (
+            <Button variant="outline" onClick={onClose} className="text-xs h-8 font-semibold bg-white/10 text-white border-slate-700 hover:bg-white/20">
+              Close
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="flex-1 w-full overflow-auto p-4 sm:p-8 flex justify-center">
-        {content}
+      <div className="flex-1 w-full overflow-auto p-3 sm:p-5 flex justify-center items-start">
+        <div className="document-preview-scaled origin-top scale-[0.72] sm:scale-[0.78] md:scale-[0.80] transition-transform duration-200 py-1 print:scale-100 print:p-0 print:m-0">
+          {content}
+        </div>
       </div>
     </div>
   );

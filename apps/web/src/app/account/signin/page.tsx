@@ -15,14 +15,19 @@
 import { useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff, ShieldAlert } from "lucide-react";
 
 function SignInForm() {
 	const searchParams = useSearchParams();
 	const callbackUrl = searchParams.get("callbackUrl") || "/";
+	const urlError = searchParams.get("error");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const [error, setError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(
+		urlError === "deactivated"
+			? "Your account has been deactivated. Please contact the administrator for assistance."
+			: null
+	);
 	const [loading, setLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 
@@ -37,7 +42,12 @@ function SignInForm() {
 		});
 
 		if (signInError) {
-			setError(signInError.message ?? "Sign in failed");
+			const errMsg = signInError.message || "";
+			if (errMsg.toLowerCase().includes("deactivated")) {
+				setError("Your account has been deactivated. You cannot sign in at this time. Please contact your system administrator.");
+			} else {
+				setError(errMsg || "Sign in failed. Please check your credentials.");
+			}
 			setLoading(false);
 			return;
 		}
@@ -122,8 +132,16 @@ function SignInForm() {
 					</div>
 
 					{error && (
-						<div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-100">
-							{error}
+						<div className="rounded-xl bg-red-50 dark:bg-red-950/30 p-4 text-sm text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/40 flex items-start gap-3 animate-in fade-in duration-200">
+							<ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+							<div className="flex-1">
+								<p className="font-semibold text-xs tracking-wider uppercase text-red-800 dark:text-red-300 mb-0.5">
+									Access Restricted
+								</p>
+								<p className="text-xs leading-relaxed text-red-700 dark:text-red-400">
+									{error}
+								</p>
+							</div>
 						</div>
 					)}
 

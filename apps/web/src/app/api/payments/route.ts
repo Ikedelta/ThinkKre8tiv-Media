@@ -1,4 +1,7 @@
 import sql from '@/app/api/utils/sql';
+import { logActivity } from '@/app/api/utils/audit';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
 
 export async function GET(request: Request) {
   try {
@@ -63,14 +66,27 @@ export async function POST(request: Request) {
       WHERE id = ${invoice_id}
     `;
 
-    // 4. (Optional) Insert a receipt record for backward compatibility or pure view purposes
+    // 4. Insert receipt record with approval_status tied to user role
+    const session = await auth.api.getSession({ headers: await headers() });
+    const userRole = (session?.user as any)?.role;
+    const userName = session?.user?.name || 'Staff';
+    const initialStatus = userRole === 'admin' ? 'approved' : 'pending';
+
     const [{ count }] = await sql`SELECT COUNT(*) as count FROM receipts`;
     const receipt_number = `TK-RCT-${String(Number(count) + 1).padStart(4, '0')}`;
 
     await sql`
       INSERT INTO receipts (invoice_id, customer_id, payment_id, receipt_number, amount, payment_method, payment_date, notes, approval_status, created_by)
-      VALUES (${invoice_id}, ${invoice.customer_id}, ${payment.id}, ${receipt_number}, ${payAmount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, 'approved', 'System User')
+      VALUES (${invoice_id}, ${invoice.customer_id}, ${payment.id}, ${receipt_number}, ${payAmount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, ${initialStatus}, ${userName})
     `;
+
+    await logActivity({
+      user_name: userName,
+      action: 'Recorded Payment',
+      resource: 'payment',
+      resource_id: payment.id,
+      details: `Collected GH₵${payAmount} via ${payment_method ?? 'bank_transfer'} on invoice ${invoice.invoice_number} (Receipt: ${receipt_number}, Status: ${initialStatus})`
+    });
 
     return Response.json({ success: true, payment });
   } catch (error: any) {

@@ -209,7 +209,7 @@ export default function QuotationsPage() {
                               <Send size={12} /> Send Estimate
                             </button>
                           )}
-                          {job.status === 'sent' && (
+                          {(session?.user as any)?.role === 'admin' && job.status === 'sent' && (
                             <button
                               onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'accepted' })}
                               className="px-3 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-600 dark:hover:bg-emerald-500 hover:text-white text-emerald-600 dark:text-emerald-500 border border-emerald-200 dark:border-emerald-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
@@ -217,7 +217,7 @@ export default function QuotationsPage() {
                               <Check size={12} /> Mark Accepted
                             </button>
                           )}
-                          {job.status === 'sent' && (
+                          {(session?.user as any)?.role === 'admin' && job.status === 'sent' && (
                             <button
                               onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'rejected' })}
                               className="px-3 py-1.5 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white text-rose-600 dark:text-rose-500 border border-rose-200 dark:border-rose-500/20 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
@@ -231,13 +231,13 @@ export default function QuotationsPage() {
                             <DownloadCloud size={16} />
                           </button>
 
-                          <a
-                            href={`/admin/invoices/new?customer_id=${job.customer_id}&description=${encodeURIComponent(specs.product || 'Custom Job')}`}
-                            className="p-1.5 text-blue-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          <Link
+                            href={`/admin/invoices/new?quotation_id=${job.id}&customer_id=${job.customer_id}&description=${encodeURIComponent(specs.product || 'Custom Job')}`}
+                            className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-md transition-colors shadow-sm font-medium flex items-center gap-1 text-xs"
                             title="Convert to Invoice"
                           >
-                            <FileText size={16} />
-                          </a>
+                            <FileText size={14} /> Convert to Invoice
+                          </Link>
                           
                           {(session?.user as any)?.role === 'admin' && (
                             <>

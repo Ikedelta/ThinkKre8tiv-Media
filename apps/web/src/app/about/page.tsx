@@ -24,63 +24,52 @@ export default function AboutPage() {
 
   const aboutTitle = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_title')?.content || "From a Small Studio to Ghana’s Premier Print Partner";
   const aboutP1 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p1')?.content || "Established in 2012, Think Kre8tiv Media set out with a simple promise: make high-resolution branding stickers and premium signs accessible to growing Ghanaian businesses.";
-  const aboutP2 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p2')?.content || "Today, we run integrated workshops across Accra, Kumasi, and Takoradi. From digital linen cards to towering steel billboards, our fabrication engineers and layout artists build to the highest quality standards.";
+  const aboutP2 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p2')?.content || "Today, we run our integrated fabrication and print facilities located in Accra Osu. From digital linen cards to towering steel billboards, our fabrication engineers and layout artists build to the highest quality standards.";
   const aboutP3 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p3')?.content || "We combine heavy industrial equipment with detailed client portals to ensure your print estimates, approvals, and SMS alerts are processed seamlessly.";
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden pt-20">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden pt-16 sm:pt-20">
       <PublicNav />
 
       {/* Page Header */}
-      <section className="relative py-16 bg-slate-50/40 border-b border-border/40 overflow-hidden">
-        <div className="absolute top-4 left-4 text-muted-foreground/30 flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest select-none pointer-events-none">
-          <div className="registration-mark text-muted-foreground/30" />
-          <span>Fiducial Align A</span>
-        </div>
-
-        <div 
-          aria-hidden="true" 
-          className="pointer-events-none absolute inset-0 opacity-5" 
-          style={{ background: 'radial-gradient(40% 50% at 75% 15%, var(--color-muted-foreground), transparent 85%)' }}
-        />
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 print-guide-crop py-2">
-          <div className="inline-flex items-center gap-2 bg-[#FCD20F] text-black px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest border border-border/80">
-            <Award size={12} /> Established Press House
+      <section className="relative py-16 sm:py-20 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+          <div className="inline-flex items-center gap-2 bg-primary text-white px-3.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider shadow-sm">
+            <Award size={13} /> Corporate Profile
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-foreground tracking-tight">
-            About Our Printing Press
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            About Think Kre8tiv Media
           </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base font-medium">
-            Ghana’s premium high-volume commercial printing press, rigid box fabricator, and fleet graphics agency.
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-sm sm:text-base font-normal leading-relaxed">
+            Leading industrial commercial printing press, rigid packaging fabrication facility, and fleet branding partner in West Africa.
           </p>
         </div>
       </section>
 
       {/* Story & Collage Grid */}
-      <section className="py-20 bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+      <section className="py-20 bg-white dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 sm:gap-16 items-center">
             {/* Story */}
-            <div className="lg:col-span-6 space-y-6 print-guide-crop p-4">
-              <div className="inline-flex items-center gap-2 bg-secondary text-foreground px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-border">
-                Our Story
+            <div className="lg:col-span-6 space-y-6">
+              <div className="inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-3 py-1 rounded text-xs font-semibold uppercase tracking-wider">
+                Corporate Heritage
               </div>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
                 {aboutTitle}
               </h2>
-              <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
                 {aboutP1}
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
                 {aboutP2}
               </p>
-              <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
                 {aboutP3}
               </p>
               <div className="pt-2">
                 <Link href="/quote">
-                  <button className="flex items-center gap-2 bg-primary hover:opacity-90 text-primary-foreground font-bold px-6 py-3 rounded-lg text-xs shadow-sm transition-transform duration-300 hover:translate-y-[-1px]">
+                  <button className="inline-flex items-center gap-2 bg-primary hover:bg-primary/95 text-white font-semibold px-6 py-2.5 rounded-md text-xs uppercase tracking-wider shadow-sm transition-all hover:shadow hover:-translate-y-0.5">
                     Partner With Us <ArrowRight size={14} />
                   </button>
                 </Link>

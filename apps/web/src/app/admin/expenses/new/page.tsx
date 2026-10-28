@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -13,10 +13,11 @@ import { cn } from '@/lib/utils';
 
 export default function RecordExpensePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   
-  const [vendorInput, setVendorInput] = useState('');
-  const [vendorId, setVendorId] = useState('');
+  const [vendorInput, setVendorInput] = useState(searchParams.get('vendor_name') || '');
+  const [vendorId, setVendorId] = useState(searchParams.get('vendor_id') || '');
   
   const [accountInput, setAccountInput] = useState('');
   const [accountId, setAccountId] = useState('');

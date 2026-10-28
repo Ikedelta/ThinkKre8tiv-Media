@@ -2,11 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Globe, Image as ImageIcon, CheckCircle2 } from 'lucide-react';
+import {
+  Save,
+  Globe,
+  Image as ImageIcon,
+  CheckCircle2,
+  Phone,
+  Building2,
+  User,
+  Quote,
+  Sparkles,
+  Layers,
+  Award,
+  BellRing,
+  HelpCircle,
+  Plus,
+  RefreshCw,
+  ExternalLink,
+  Upload,
+  Loader2
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import Link from 'next/link';
 
 interface CmsItem {
   id: string;
@@ -14,69 +36,119 @@ interface CmsItem {
   title: string;
   content: string;
   image_url: string | null;
+  sort_order?: number;
   is_active: boolean;
 }
 
-const sectionLabels: Record<string, { title: string; desc: string }> = {
-  hero: { title: 'Welcome Banner', desc: 'The main introductory section at the very top of your homepage.' },
-  carousel: { title: 'Homepage Slideshow', desc: 'The sliding images and messages on your homepage.' },
-  expertise: { title: 'What We Do', desc: 'Highlight your core skills and areas of expertise.' },
-  about: { title: 'About Us', desc: 'Your company background and mission statement.' },
-  contact: { title: 'Contact Info', desc: 'Your public phone numbers, emails, and physical location.' },
-  services: { title: 'Services', desc: 'The detailed list of services you offer to clients.' },
-  testimonials: { title: 'Testimonials', desc: 'Customer reviews and feedback displayed on the site.' },
+const sectionConfig: Record<string, { label: string; desc: string; icon: any; color: string; badge: string }> = {
+  hero: {
+    label: 'Hero & Mission',
+    desc: 'The executive main headline and corporate value proposition at the top of your homepage.',
+    icon: Sparkles,
+    color: 'text-amber-500',
+    badge: 'Homepage Top'
+  },
+  ceo: {
+    label: 'CEO & Leadership',
+    desc: 'Executive statement, CEO full name, official title, quote, statement, and executive portrait photo.',
+    icon: User,
+    color: 'text-rose-500',
+    badge: 'Executive Statement'
+  },
+  about: {
+    label: 'Who We Are & Heritage',
+    desc: 'Company origin story, industrial lithography capacity, and structural fabrication pillars.',
+    icon: Award,
+    color: 'text-indigo-500',
+    badge: 'About Page & Section'
+  },
+  expertise: {
+    label: 'Core Capabilities',
+    desc: 'The commercial printing categories (Offset, Commercial Packaging, 3D Signage, Fleet Branding).',
+    icon: Layers,
+    color: 'text-emerald-500',
+    badge: 'Print Services'
+  },
+  carousel: {
+    label: 'Production Showcase',
+    desc: 'Factory floor highlights, high-volume presses, custom boxes, and bespoke brand merchandise.',
+    icon: ImageIcon,
+    color: 'text-blue-500',
+    badge: 'Media Assets'
+  },
+  contact: {
+    label: 'Contact & Press Facility',
+    desc: 'Official direct phone numbers (as in logo: 0244681391 / 0244766457), email, and factory address.',
+    icon: Phone,
+    color: 'text-purple-500',
+    badge: 'Contact Details'
+  },
+  announcement: {
+    label: 'Alerts & Banner',
+    desc: 'Top notification strip and announcement messages across website headers.',
+    icon: BellRing,
+    color: 'text-amber-600',
+    badge: 'Header Banner'
+  },
+  partners: {
+    label: 'Partners & Clients',
+    desc: 'Partner logo marquee section titles and corporate client descriptions.',
+    icon: Building2,
+    color: 'text-teal-500',
+    badge: 'Sliding Logos'
+  }
 };
 
-export default function CmsPage() {
+export default function ComprehensiveCmsPage() {
   const [activeSection, setActiveSection] = useState('hero');
   const [formData, setFormData] = useState<CmsItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: items = [], isLoading } = useQuery<CmsItem[]>({
+  const { data: items = [], isLoading, refetch } = useQuery<CmsItem[]>({
     queryKey: ['cms'],
     queryFn: async () => {
       const res = await fetch('/api/cms');
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) throw new Error('Failed to load CMS content');
       return res.json();
     },
   });
 
-  // Keep local form data synced with the selected section items
   useEffect(() => {
     const sectionItems = items.filter((i) => i.section === activeSection);
     setFormData(sectionItems);
   }, [items, activeSection]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { id: string; title: string; content: string; image_url: string }) => {
+    mutationFn: async (data: { id: string; title: string; content: string; image_url: string; section?: string }) => {
       const res = await fetch('/api/cms', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) throw new Error('Failed to update content');
       return res.json();
     },
   });
 
-  const handleSave = async () => {
+  const handleSaveAll = async () => {
     setIsSaving(true);
     try {
       await Promise.all(
-        formData.map(item => 
+        formData.map(item =>
           updateMutation.mutateAsync({
             id: item.id,
             title: item.title,
             content: item.content,
-            image_url: item.image_url || ''
+            image_url: item.image_url || '',
+            section: item.section
           })
         )
       );
       queryClient.invalidateQueries({ queryKey: ['cms'] });
-      toast.success('Website content updated successfully!');
-    } catch (err) {
-      toast.error('Failed to save some changes.');
+      toast.success(`${sectionConfig[activeSection]?.label || 'Section'} updated successfully!`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save changes.');
     } finally {
       setIsSaving(false);
     }
@@ -86,148 +158,306 @@ export default function CmsPage() {
     setFormData(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
-  const activeInfo = sectionLabels[activeSection] || { title: activeSection, desc: 'Manage this section.' };
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
+
+  const handleFileUpload = async (itemId: string, file: File) => {
+    if (!file) return;
+    try {
+      setUploadingId(itemId);
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+        method: 'POST',
+        body: file,
+      });
+      if (!res.ok) {
+        throw new Error('Image upload failed');
+      }
+      const data = await res.json();
+      if (data.url) {
+        updateField(itemId, 'image_url', data.url);
+        toast.success('Image uploaded successfully! Click Save to publish.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Error uploading image');
+    } finally {
+      setUploadingId(null);
+    }
+  };
+
+  const currentSection = sectionConfig[activeSection] || {
+    label: activeSection,
+    desc: 'Manage content for this section.',
+    icon: Globe,
+    color: 'text-slate-600',
+    badge: 'CMS'
+  };
+
+  const CurrentIcon = currentSection.icon;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 p-2">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-16 font-sans">
+      
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Website Content
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-emerald-500/10 text-slate-800 dark:text-slate-200 border border-amber-500/20 uppercase tracking-wider">
+              Think Kre8tiv Brand Master CMS
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
+            Website Content &amp; Media CMS
           </h1>
-          <p className="text-slate-500 mt-1 text-sm font-medium">Easily update the text and images on your public website.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Manage every section of the public website with live synchronization across all devices.
+          </p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded-xl">
-          <Globe size={16} className="text-emerald-600 dark:text-emerald-400" />
-          <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Changes are instantly live</span>
+
+        <div className="flex items-center gap-3">
+          <Link href="/" target="_blank">
+            <Button variant="outline" size="sm" className="text-xs h-9 font-semibold gap-1.5 border-slate-300 dark:border-slate-700">
+              <ExternalLink className="w-3.5 h-3.5" /> View Live Site
+            </Button>
+          </Link>
+          <Button
+            onClick={handleSaveAll}
+            disabled={isSaving || formData.length === 0}
+            className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs h-9 font-semibold gap-2 shadow-sm"
+          >
+            {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            {isSaving ? 'Publishing...' : 'Save & Publish Changes'}
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-        {/* Sidebar Navigation */}
-        <div className="md:col-span-4 lg:col-span-3 space-y-2">
-          <h3 className="text-xs font-black text-slate-400 uppercase tracking-wider mb-4 px-2">Page Sections</h3>
-          {Object.entries(sectionLabels).map(([key, info]) => {
-            const isActive = activeSection === key;
-            return (
-              <button
-                key={key}
-                onClick={() => setActiveSection(key)}
-                className={cn(
-                  'w-full text-left px-4 py-3 rounded-xl transition-all font-bold text-sm border',
-                  isActive
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20'
-                    : 'bg-white dark:bg-[#0B0F19] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                )}
-              >
-                {info.title}
-              </button>
-            );
-          })}
+      {/* Main CMS Layout (Sidebar Navigation + Form Editor) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        {/* Navigation Sidebar */}
+        <div className="lg:col-span-4 space-y-2">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-sm space-y-1">
+            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              Website Sections ({Object.keys(sectionConfig).length})
+            </div>
+
+            {Object.entries(sectionConfig).map(([key, config]) => {
+              const Icon = config.icon;
+              const isActive = activeSection === key;
+              const count = items.filter(i => i.section === key).length;
+
+              return (
+                <button
+                  key={key}
+                  onClick={() => setActiveSection(key)}
+                  className={cn(
+                    "w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group",
+                    isActive
+                      ? "bg-[#0F172A] text-white shadow-sm"
+                      : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                  )}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={cn(
+                      "p-2 rounded-lg transition-colors",
+                      isActive ? "bg-white/10 text-white" : "bg-slate-100 dark:bg-slate-800",
+                      !isActive && config.color
+                    )}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="truncate">
+                      <p className="text-xs font-bold truncate leading-tight">{config.label}</p>
+                      <p className={cn(
+                        "text-[10px] truncate mt-0.5",
+                        isActive ? "text-slate-300" : "text-slate-400"
+                      )}>
+                        {config.badge}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={cn(
+                    "text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0",
+                    isActive ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                  )}>
+                    {count} item{count === 1 ? '' : 's'}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Help Card */}
+          <div className="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 rounded-2xl p-4 text-xs space-y-2">
+            <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>Real-Time Brand Sync</span>
+            </div>
+            <p className="text-amber-700 dark:text-amber-400 text-[11px] leading-relaxed">
+              Updates saved here automatically synchronize across all visitor devices, quotes, and header banners with zero downtime.
+            </p>
+          </div>
         </div>
 
-        {/* Content Editor Form */}
-        <div className="md:col-span-8 lg:col-span-9">
-          <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-            <div className="bg-slate-50 dark:bg-[#0B0F19] p-6 border-b border-slate-200 dark:border-slate-800">
-              <h2 className="text-xl font-black text-slate-900 dark:text-white mb-1">{activeInfo.title}</h2>
-              <p className="text-slate-500 text-sm">{activeInfo.desc}</p>
-            </div>
-            
-            <CardContent className="p-6">
+        {/* Content Editor Panel */}
+        <div className="lg:col-span-8 space-y-6">
+          <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-6 flex flex-row items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <CurrentIcon className={cn("w-5 h-5", currentSection.color)} />
+                  <CardTitle className="text-lg font-bold text-slate-900 dark:text-white">
+                    {currentSection.label}
+                  </CardTitle>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">{currentSection.desc}</p>
+              </div>
+
+              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                {currentSection.badge}
+              </span>
+            </CardHeader>
+
+            <CardContent className="p-6 space-y-6">
               {isLoading ? (
-                <div className="space-y-4 animate-pulse">
-                  <div className="h-10 bg-slate-100 dark:bg-slate-800 rounded-xl w-1/3"></div>
-                  <div className="h-24 bg-slate-100 dark:bg-slate-800 rounded-xl w-full"></div>
+                <div className="py-16 text-center text-slate-400">
+                  <div className="w-7 h-7 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                  Loading section content...
                 </div>
               ) : formData.length === 0 ? (
-                <div className="text-center py-12">
-                  <Globe size={48} className="mx-auto text-slate-200 dark:text-slate-800 mb-4" />
-                  <p className="text-slate-500 font-medium">No customizable content found for this section.</p>
+                <div className="py-16 text-center text-slate-400 space-y-3">
+                  <Globe className="w-10 h-10 text-slate-300 mx-auto" />
+                  <p className="font-semibold text-slate-700 dark:text-slate-300">No active content records in this section</p>
+                  <p className="text-xs max-w-sm mx-auto">This section can be initialized or will use standard defaults.</p>
                 </div>
               ) : (
-                <div className="space-y-10">
-                  {formData.map((item, index) => (
-                    <div key={item.id} className="space-y-5 pb-8 border-b border-slate-100 dark:border-slate-800 last:border-0 last:pb-0">
-                      {formData.length > 1 && (
-                        <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 bg-slate-100 dark:bg-slate-800 inline-block px-3 py-1 rounded-lg">
-                          Item {index + 1}
-                        </h4>
-                      )}
-                      
-                      <div className="space-y-4">
-                        {/* Heading */}
-                        <div>
-                          <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                            Heading
-                          </label>
-                          <input
-                            value={item.title}
-                            onChange={(e) => updateField(item.id, 'title', e.target.value)}
-                            className="w-full bg-white dark:bg-[#06080D] border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-shadow"
-                            placeholder="e.g. Welcome to our website"
-                          />
-                        </div>
+                formData.map((item, index) => {
+                  const isLongText = (item.content && item.content.length > 90) || item.id.includes('bio') || item.id.includes('quote') || item.id.includes('p1') || item.id.includes('p2') || item.id.includes('subheadline');
+                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise';
 
-                        {/* Message */}
-                        <div>
-                          <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                            Message
-                          </label>
-                          <textarea
-                            value={item.content}
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-4 hover:border-slate-300 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono font-bold text-slate-400">#{index + 1}</span>
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                            {item.title || item.id}
+                          </h4>
+                        </div>
+                        <span className="text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                          ID: {item.id}
+                        </span>
+                      </div>
+
+                      {/* Title / Label Field */}
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                          Display Title / Heading
+                        </label>
+                        <Input
+                          value={item.title || ''}
+                          onChange={(e) => updateField(item.id, 'title', e.target.value)}
+                          placeholder="e.g., Section headline"
+                          className="h-9 text-xs bg-white dark:bg-slate-900"
+                        />
+                      </div>
+
+                      {/* Content Field (Single line or multi-line textarea) */}
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                          Body Content / Value
+                        </label>
+                        {isLongText ? (
+                          <Textarea
+                            rows={3}
+                            value={item.content || ''}
                             onChange={(e) => updateField(item.id, 'content', e.target.value)}
-                            rows={4}
-                            className="w-full bg-white dark:bg-[#06080D] border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-shadow"
-                            placeholder="Enter the descriptive text..."
+                            placeholder="Write compelling brand text..."
+                            className="text-xs bg-white dark:bg-slate-900 leading-relaxed"
                           />
-                        </div>
-
-                        {/* Image URL (Only show if relevant to section) */}
-                        {(activeSection === 'carousel' || activeSection === 'expertise' || item.image_url !== null) && (
-                          <div>
-                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                              Photo Link
-                            </label>
-                            <div className="flex gap-4 items-start">
-                              <div className="flex-1">
-                                <input
-                                  value={item.image_url || ''}
-                                  onChange={(e) => updateField(item.id, 'image_url', e.target.value)}
-                                  placeholder="e.g. https://example.com/image.jpg"
-                                  className="w-full bg-white dark:bg-[#06080D] border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-shadow"
-                                />
-                                <p className="text-xs text-slate-400 mt-1.5">Paste a link to an image. You can upload an image elsewhere and paste the link here.</p>
-                              </div>
-                              {item.image_url && (
-                                <div className="shrink-0 w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex items-center justify-center">
-                                  <img src={item.image_url} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                        ) : (
+                          <Input
+                            value={item.content || ''}
+                            onChange={(e) => updateField(item.id, 'content', e.target.value)}
+                            placeholder="Content string or phone number..."
+                            className="h-9 text-xs bg-white dark:bg-slate-900"
+                          />
                         )}
                       </div>
-                    </div>
-                  ))}
 
-                  <div className="pt-4 flex justify-end">
-                    <Button 
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-xl shadow-xl shadow-blue-600/20 text-base w-full sm:w-auto"
-                    >
-                      {isSaving ? 'Saving Changes...' : 'Save Changes'}
-                      {!isSaving && <CheckCircle2 size={18} className="ml-2" />}
-                    </Button>
-                  </div>
+                      {/* Image Field if applicable */}
+                      {hasImage && (
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                              Image Asset &bull; URL or Direct Upload
+                            </label>
+                            <label className="cursor-pointer inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#D22630] hover:text-[#b81d26] bg-[#D22630]/10 px-2.5 py-1 rounded-md transition-colors">
+                              {uploadingId === item.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Upload className="w-3.5 h-3.5" />
+                              )}
+                              <span>{uploadingId === item.id ? 'Uploading...' : 'Upload Image File'}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                disabled={uploadingId === item.id}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleFileUpload(item.id, file);
+                                }}
+                              />
+                            </label>
+                          </div>
+                          <div className="flex gap-3 items-center">
+                            <Input
+                              value={item.image_url || ''}
+                              onChange={(e) => updateField(item.id, 'image_url', e.target.value)}
+                              placeholder="https://... or upload a local file"
+                              className="h-9 text-xs bg-white dark:bg-slate-900 flex-1"
+                            />
+                            {item.image_url && (
+                              <div className="w-9 h-9 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 shrink-0">
+                                <img
+                                  src={item.image_url}
+                                  alt="Preview"
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLElement).style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+
+              {/* Bottom Save Action */}
+              {formData.length > 0 && (
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                  <Button
+                    onClick={handleSaveAll}
+                    disabled={isSaving}
+                    className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs h-10 px-6 font-semibold gap-2 shadow-sm"
+                  >
+                    {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                    {isSaving ? 'Saving Changes...' : `Save ${currentSection.label}`}
+                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
+
       </div>
+
     </div>
   );
 }

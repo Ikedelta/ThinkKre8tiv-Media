@@ -1,9 +1,14 @@
 import sql from '@/app/api/utils/sql';
+import { requireAdmin } from '@/lib/api-security';
 
 export async function GET() {
   try {
     const [settings] = await sql`SELECT * FROM app_settings WHERE id = 'default'`;
-    return Response.json(settings || {});
+    return Response.json(settings || {}, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
+      },
+    });
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to fetch settings' }, { status: 500 });
@@ -12,6 +17,8 @@ export async function GET() {
 
 export async function PUT(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const {
       company_name,
@@ -26,6 +33,12 @@ export async function PUT(request: Request) {
       receipt_prefix,
       sms_api_key,
       sms_sender_id,
+      smtp_host,
+      smtp_port,
+      smtp_user,
+      smtp_password,
+      smtp_from_name,
+      smtp_from_email,
       website_tagline,
       website_about,
       social_facebook,
@@ -48,6 +61,12 @@ export async function PUT(request: Request) {
         receipt_prefix = ${receipt_prefix ?? 'TK-RCT'},
         sms_api_key = ${sms_api_key ?? null},
         sms_sender_id = ${sms_sender_id ?? 'ThinkKr8'},
+        smtp_host = ${smtp_host ?? null},
+        smtp_port = ${smtp_port ? Number(smtp_port) : 587},
+        smtp_user = ${smtp_user ?? null},
+        smtp_password = ${smtp_password ?? null},
+        smtp_from_name = ${smtp_from_name ?? null},
+        smtp_from_email = ${smtp_from_email ?? null},
         website_tagline = ${website_tagline ?? null},
         website_about = ${website_about ?? null},
         social_facebook = ${social_facebook ?? null},

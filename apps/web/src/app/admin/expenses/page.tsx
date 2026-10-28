@@ -44,11 +44,29 @@ export default function ExpensesPage() {
     },
   });
 
-  const filtered = expenses.filter(e => 
-    e.vendor_name?.toLowerCase().includes(search.toLowerCase()) ||
-    e.account_name?.toLowerCase().includes(search.toLowerCase()) ||
-    e.notes?.toLowerCase().includes(search.toLowerCase())
-  );
+  const [categoryFilter, setCategoryFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('date-desc');
+
+  // Unique categories for the dropdown
+  const categories = Array.from(new Set(expenses.map(e => e.account_name).filter(Boolean)));
+
+  const filtered = expenses
+    .filter(e => {
+      const matchSearch =
+        e.vendor_name?.toLowerCase().includes(search.toLowerCase()) ||
+        e.account_name?.toLowerCase().includes(search.toLowerCase()) ||
+        e.notes?.toLowerCase().includes(search.toLowerCase());
+      const matchCategory = categoryFilter === 'all' || e.account_name === categoryFilter;
+      return matchSearch && matchCategory;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'date-desc') return new Date(b.expense_date || b.created_at || '').getTime() - new Date(a.expense_date || a.created_at || '').getTime();
+      if (sortBy === 'date-asc') return new Date(a.expense_date || a.created_at || '').getTime() - new Date(b.expense_date || b.created_at || '').getTime();
+      if (sortBy === 'amount-desc') return Number(b.amount || 0) - Number(a.amount || 0);
+      if (sortBy === 'amount-asc') return Number(a.amount || 0) - Number(b.amount || 0);
+      if (sortBy === 'vendor-asc') return (a.vendor_name || '').localeCompare(b.vendor_name || '');
+      return 0;
+    });
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto pb-12">
@@ -68,8 +86,8 @@ export default function ExpensesPage() {
 
       <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
         <CardContent className="p-0">
-          <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row items-center gap-4 justify-between">
-            <div className="relative w-full sm:w-80">
+          <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row items-stretch md:items-center gap-3 justify-between">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input 
                 type="text"
@@ -79,10 +97,30 @@ export default function ExpensesPage() {
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-rose-500 outline-none"
               />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="text-slate-600 border-slate-200">
-                <Filter size={14} className="mr-2" /> Filter
-              </Button>
+            
+            <div className="flex items-center gap-2">
+              <select
+                value={categoryFilter}
+                onChange={e => setCategoryFilter(e.target.value)}
+                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500"
+              >
+                <option value="all">All Expense Categories</option>
+                {categories.map((c: any) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500"
+              >
+                <option value="date-desc">Newest First</option>
+                <option value="date-asc">Oldest First</option>
+                <option value="amount-desc">Amount: High to Low</option>
+                <option value="amount-asc">Amount: Low to High</option>
+                <option value="vendor-asc">Vendor: A to Z</option>
+              </select>
             </div>
           </div>
 
@@ -135,15 +173,17 @@ export default function ExpensesPage() {
                                 <Edit2 size={16} />
                               </button>
                             </Link>
-                            <button
-                              onClick={async () => {
-                                if (await confirm({ title: 'Confirmation', message: `Delete this expense?`, variant: 'destructive' })) deleteMutation.mutate(expense.id);
-                              }}
-                              className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Delete"
-                            >
-                              <Trash2 size={16} />
-                            </button>
+                            {(session?.user as any)?.role === 'admin' && (
+                              <button
+                                onClick={async () => {
+                                  if (await confirm({ title: 'Confirmation', message: `Delete this expense?`, variant: 'destructive' })) deleteMutation.mutate(expense.id);
+                                }}
+                                className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         )}
                       </td>

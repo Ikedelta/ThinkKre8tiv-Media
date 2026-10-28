@@ -112,113 +112,113 @@ export default function SubmitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pt-24 pb-12">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pt-16 sm:pt-20 pb-12">
       <PublicNav />
 
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-2xl mx-auto px-4">
         
         {/* Header */}
-        <div className="text-center mb-10">
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 mb-4">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 mb-2">
             Request a Print Job
           </h1>
-          <p className="text-slate-500 font-medium max-w-lg mx-auto text-sm sm:text-base">
+          <p className="text-slate-500 font-normal max-w-md mx-auto text-xs sm:text-sm">
             Tell us what you need printed, attach your file, and we'll get right to work. It's that easy.
           </p>
         </div>
 
         {submitted ? (
           /* Success View */
-          <div className="bg-white rounded-3xl p-8 sm:p-12 text-center shadow-sm border border-slate-200">
-            <div className="w-20 h-20 bg-green-50 border border-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 size={40} />
+          <div className="bg-white rounded-xl p-6 sm:p-8 text-center shadow-xs border border-slate-200">
+            <div className="w-14 h-14 bg-emerald-50 border border-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 size={28} />
             </div>
-            <h2 className="text-2xl font-black mb-2 text-slate-900">We've got it!</h2>
-            <p className="text-slate-500 font-medium mb-8">
+            <h2 className="text-xl font-bold mb-1.5 text-slate-900">We've got it!</h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal mb-6">
               Thanks {name}, your request has been sent to our printing team. We will review your file and get back to you shortly.
             </p>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 max-w-sm mx-auto mb-8">
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Your Tracking Code</p>
-              <div className="flex items-center justify-center gap-3">
-                <span className="font-mono text-3xl font-black text-indigo-600 tracking-wider">{trackingCode}</span>
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 max-w-xs mx-auto mb-6">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Your Tracking Code</p>
+              <div className="flex items-center justify-center gap-2">
+                <span className="font-mono text-xl font-bold text-[#D22630] tracking-wider">{trackingCode}</span>
                 <button 
                   onClick={copyCode}
-                  className="p-2.5 bg-white hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-500 hover:text-slate-900 transition-colors"
+                  className="p-1.5 bg-white hover:bg-slate-100 rounded-md border border-slate-200 text-slate-500 hover:text-slate-900 transition-colors"
                 >
-                  {copied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+                  {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                 </button>
               </div>
-              <p className="text-xs text-slate-400 mt-4">Keep this code handy to track your order status anytime.</p>
+              <p className="text-[11px] text-slate-400 mt-2.5">Keep this code handy to track your order status anytime.</p>
             </div>
 
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-3">
               <button
                 onClick={() => router.push(`/track?code=${trackingCode}`)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl text-sm transition-colors flex items-center gap-2 shadow-sm shadow-indigo-200"
+                className="bg-[#D22630] hover:bg-[#b81d26] text-white font-semibold px-5 py-2.5 rounded-md text-xs transition-colors flex items-center gap-1.5 shadow-xs"
               >
-                Track Status Now <ChevronRight size={16} />
+                Track Status Now <ChevronRight size={14} />
               </button>
             </div>
           </div>
         ) : (
           /* Simple Form View */
-          <form onSubmit={handleSubmit} className="bg-white rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200">
+          <form onSubmit={handleSubmit} className="bg-white rounded-xl p-5 sm:p-7 shadow-xs border border-slate-200/80">
             
             {/* Contact Details */}
-            <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">1. Contact Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+            <h3 className="text-sm font-bold text-slate-900 mb-3.5 pb-2 border-b border-slate-100">1. Contact Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Full Name *</label>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Full Name *</label>
                 <input
                   required
                   type="text"
                   placeholder="e.g. John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-3 text-sm outline-none text-slate-900 font-medium transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Phone Number *</label>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Phone Number *</label>
                 <input
                   required
                   type="text"
                   placeholder="e.g. 024 123 4567"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-3 text-sm outline-none text-slate-900 font-medium transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email Address *</label>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Email Address *</label>
                 <input
                   required
                   type="email"
                   placeholder="you@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-3 text-sm outline-none text-slate-900 font-medium transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
             </div>
 
             {/* Order Details */}
-            <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">2. Order Details</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-8">
+            <h3 className="text-sm font-bold text-slate-900 mb-3.5 pb-2 border-b border-slate-100">2. Order Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">What do you need? *</label>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">What do you need? *</label>
                 <select
                   required
                   value={productType}
                   onChange={(e) => setProductType(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-3 text-sm outline-none text-slate-900 font-medium transition-all appearance-none cursor-pointer"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all appearance-none cursor-pointer"
                 >
                   {productOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Quantity *</label>
+                <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Quantity *</label>
                 <input
                   required
                   type="number"
@@ -226,31 +226,31 @@ export default function SubmitPage() {
                   placeholder="How many?"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-3 text-sm outline-none text-slate-900 font-medium transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
             </div>
 
             {/* File Upload */}
-            <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">3. Attach Design File</h3>
-            <div className="mb-8">
+            <h3 className="text-sm font-bold text-slate-900 mb-3.5 pb-2 border-b border-slate-100">3. Attach Design File</h3>
+            <div className="mb-6">
               {file ? (
-                <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
-                      <FileText size={20} />
+                <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-md bg-[#D22630]/10 text-[#D22630] flex items-center justify-center shrink-0">
+                      <FileText size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">{file.name}</p>
-                      <p className="text-xs font-medium text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>
+                      <p className="text-xs font-semibold text-slate-900">{file.name}</p>
+                      <p className="text-[11px] text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setFile(null)}
-                    className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors"
+                    className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-md transition-colors"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={15} />
                   </button>
                 </div>
               ) : (
@@ -261,8 +261,8 @@ export default function SubmitPage() {
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                   className={cn(
-                    "border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors",
-                    dragActive ? "border-indigo-500 bg-indigo-50" : "border-slate-200 hover:border-indigo-300 hover:bg-slate-50"
+                    "border border-dashed rounded-lg p-5 text-center cursor-pointer transition-colors",
+                    dragActive ? "border-[#D22630] bg-[#D22630]/5" : "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
                   )}
                 >
                   <input
@@ -271,24 +271,24 @@ export default function SubmitPage() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="w-14 h-14 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 mx-auto mb-4 shadow-sm">
-                    <UploadCloud size={24} />
+                  <div className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-400 mx-auto mb-2 shadow-xs">
+                    <UploadCloud size={18} />
                   </div>
-                  <p className="text-sm font-bold text-slate-900 mb-1">Click to upload or drag & drop</p>
-                  <p className="text-xs text-slate-500 font-medium">PDF, PNG, JPG, or ZIP (Max 100MB)</p>
+                  <p className="text-xs font-semibold text-slate-900 mb-0.5">Click to upload or drag &amp; drop</p>
+                  <p className="text-[11px] text-slate-500 font-normal">PDF, PNG, JPG, or ZIP (Max 100MB)</p>
                 </div>
               )}
             </div>
 
             {/* Additional Notes */}
-            <h3 className="text-lg font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">4. Additional Notes (Optional)</h3>
-            <div className="mb-8">
+            <h3 className="text-sm font-bold text-slate-900 mb-3.5 pb-2 border-b border-slate-100">4. Additional Notes (Optional)</h3>
+            <div className="mb-6">
               <textarea
                 rows={3}
                 placeholder="Any special instructions or questions? Type them here..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-3 text-sm outline-none text-slate-900 font-medium transition-all resize-none"
+                className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all resize-none"
               />
             </div>
 
@@ -296,7 +296,7 @@ export default function SubmitPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold py-4 rounded-xl text-base transition-colors shadow-md shadow-indigo-200 flex items-center justify-center gap-2"
+              className="w-full bg-[#D22630] hover:bg-[#b81d26] disabled:opacity-50 text-white font-semibold py-2.5 rounded-md text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? 'Submitting...' : 'Submit Request'}
             </button>

@@ -59,38 +59,27 @@ export default function ServicesPage() {
 
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden pt-20">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden pt-16 sm:pt-20">
       <PublicNav />
 
       {/* Header */}
-      <section className="relative py-16 bg-slate-50/40 border-b border-border/40 overflow-hidden">
-        <div className="absolute top-4 left-4 text-muted-foreground/30 flex items-center gap-1 font-mono text-[8px] uppercase tracking-widest select-none pointer-events-none">
-          <div className="registration-mark text-muted-foreground/30" />
-          <span>Fiducial Align A</span>
-        </div>
-
-        <div 
-          aria-hidden="true" 
-          className="pointer-events-none absolute inset-0 opacity-5" 
-          style={{ background: 'radial-gradient(40% 50% at 75% 15%, var(--color-muted-foreground), transparent 85%)' }}
-        />
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 print-guide-crop py-2">
-          <div className="inline-flex items-center gap-2 bg-[#FCD20F] text-black px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest border border-border/80">
-            <Sparkles size={12} /> Printing Press &amp; Production Workshop
+      <section className="relative py-16 sm:py-20 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+          <div className="inline-flex items-center gap-2 bg-primary text-white px-3.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider shadow-sm">
+            <Sparkles size={13} /> Industrial Print Infrastructure
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-foreground tracking-tight">
-            Printing Services &amp; Capabilities
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Commercial Printing Capabilities
           </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base font-medium">
-            Professional high-speed offset runs, rigid product packaging, illuminated 3D signage, and fleet branding wrap services.
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-sm sm:text-base font-normal leading-relaxed">
+            High-speed Heidelberg offset lithography, rigid corporate packaging, illuminated architectural signage, and nationwide fleet branding solutions.
           </p>
         </div>
       </section>
 
       {/* Services Grid */}
-      <section className="py-20 bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 bg-white dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {displayServices.map((service, i) => {
               const isDrawerOpen = !!expandedServices[service.title];
@@ -99,38 +88,38 @@ export default function ServicesPage() {
               return (
                 <div
                   key={i}
-                  className="group bg-background border border-border hover:border-foreground/30 hover:shadow-[0_10px_25px_rgba(0,0,0,0.06)] rounded-2xl overflow-hidden flex flex-col transition-all duration-300"
+                  className="group bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-lg rounded-xl overflow-hidden flex flex-col transition-all duration-300"
                 >
-                  <div className="relative h-56 overflow-hidden bg-slate-100">
+                  <div className="relative h-52 overflow-hidden bg-slate-100 dark:bg-slate-800">
                     <img
                       src={service.image}
                       alt={service.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                     {service.tag && (
                       <span
-                        className={`absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border ${service.tagColor}`}
+                        className="absolute top-3.5 right-3.5 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded bg-slate-950/80 text-white border border-white/20 backdrop-blur-md"
                       >
                         {service.tag}
                       </span>
                     )}
-                    <div className="absolute bottom-3 left-3 w-10 h-10 bg-white/95 backdrop-blur-md rounded-xl flex items-center justify-center border border-border shadow-sm">
-                      <service.icon size={18} className="text-foreground" />
+                    <div className="absolute bottom-3.5 left-3.5 w-9 h-9 bg-white dark:bg-slate-900 rounded-lg flex items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm text-primary">
+                      <service.icon size={18} />
                     </div>
                   </div>
                   <div className="p-6 flex-1 flex flex-col space-y-4">
-                    <h3 className="font-bold text-xl text-foreground tracking-tight">{service.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed flex-1 font-medium">
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white tracking-tight">{service.title}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed flex-1 font-normal">
                       {service.description}
                     </p>
-                    <ul className="space-y-2 pt-2">
+                    <ul className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
                       {service.features.map((f) => (
                         <li
                           key={f}
-                          className="flex items-center gap-2 text-[11px] text-muted-foreground font-semibold"
+                          className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 font-medium"
                         >
-                          <CheckCircle2 size={13} className="text-foreground flex-shrink-0" /> {f}
+                          <CheckCircle2 size={13} className="text-emerald-500 flex-shrink-0" /> {f}
                         </li>
                       ))}
                     </ul>

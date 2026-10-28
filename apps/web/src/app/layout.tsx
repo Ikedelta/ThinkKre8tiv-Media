@@ -37,8 +37,8 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${mtn.variable} ${montserrat.variable}`}>
-      <body className="font-sans antialiased bg-white text-slate-900">
+    <html lang="en" className={`${mtn.variable} ${montserrat.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased bg-background text-foreground min-h-screen selection:bg-[#E04D1B]/20 selection:text-[#E04D1B]">
         <Providers>
           {children}
           <Toaster />

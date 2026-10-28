@@ -74,7 +74,7 @@ const ROLES = [
 
 const roleMap = Object.fromEntries(ROLES.map((r) => [r.key, r]));
 
-const defaultForm = { name: '', email: '', password: '', role: 'staff', phone: '', position: '' };
+const defaultForm = { name: '', email: '', password: '', role: 'staff', phone: '', position: '', is_active: true };
 
 export default function UsersPage() {
   const { confirm } = useConfirm();
@@ -86,6 +86,7 @@ export default function UsersPage() {
   const queryClient = useQueryClient();
 
   const { data: session } = authClient.useSession();
+  const currentUserId = (session?.user as any)?.id;
   const isAdmin = (session?.user as any)?.role === 'admin';
 
   if (session && !isAdmin) {
@@ -118,9 +119,13 @@ export default function UsersPage() {
       if (!res.ok) throw new Error(json.error || 'Failed');
       return json;
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('User added successfully!');
+      if (data?.emailStatus?.sent) {
+        toast.success('User added and invitation email sent!');
+      } else {
+        toast.success('User added successfully! (SMTP not configured or email pending)');
+      }
       closeForm();
     },
     onError: (err: Error) => toast.error(err.message || 'Failed to create user'),
@@ -162,12 +167,40 @@ export default function UsersPage() {
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      toast.success('User status updated');
+      if (variables.is_active) {
+        toast.success(`${variables.name}'s account has been reactivated`);
+      } else {
+        toast.info(`${variables.name}'s account has been deactivated. Their active sessions were ended.`);
+      }
     },
-    onError: () => toast.error('Failed'),
+    onError: () => toast.error('Failed to update user status'),
   });
+
+  const handleToggleStatus = async (user: StaffUser) => {
+    if (user.id === currentUserId) {
+      toast.error('You cannot deactivate your own account.');
+      return;
+    }
+
+    const action = user.is_active ? 'deactivate' : 'reactivate';
+    const confirmed = await confirm({
+      title: `${user.is_active ? 'Deactivate' : 'Reactivate'} Account`,
+      message: user.is_active
+        ? `Are you sure you want to soft deactivate ${user.name}'s account? They will be signed out immediately and blocked from logging in until reactivated.`
+        : `Reactivate ${user.name}'s account? They will be allowed to log into the portal again.`,
+      variant: user.is_active ? 'destructive' : 'default',
+    });
+
+    if (confirmed) {
+      toggleMutation.mutate({
+        id: user.id,
+        is_active: !user.is_active,
+        name: user.name,
+      });
+    }
+  };
 
   const deleteMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -218,6 +251,7 @@ export default function UsersPage() {
       role: user.role,
       phone: user.phone || '',
       position: user.position || '',
+      is_active: user.is_active,
     });
     setShowForm(true);
   };
@@ -266,16 +300,16 @@ export default function UsersPage() {
 
 
       {/* Users Table */}
-      <Card className="border border-slate-100 shadow-none overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-sm font-bold text-[#001F3F]">All Staff Members</h2>
+      <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-none overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">All Staff Members</h2>
           <p className="text-xs font-medium text-slate-400">
             {activeCount} active · {users.length - activeCount} inactive
           </p>
         </div>
         <div className="overflow-hidden">
           <table className="w-full min-w-full hidden md:table">
-            <thead className="bg-slate-50">
+            <thead className="bg-slate-50 dark:bg-slate-800/60">
               <tr>
                 {['Name', 'Email / Phone', 'Role', 'Position', 'Status', 'Actions'].map((h) => (
                   <th
@@ -311,7 +345,7 @@ export default function UsersPage() {
                 users.map((user) => {
                   const roleCfg = roleMap[user.role];
                   return (
-                    <tr key={user.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <tr key={user.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
                           <div
@@ -322,7 +356,7 @@ export default function UsersPage() {
                           >
                             {user.name?.[0]?.toUpperCase()}
                           </div>
-                          <p className="font-bold text-[#001F3F] text-sm">{user.name}</p>
+                          <p className="font-bold text-slate-900 dark:text-white text-sm">{user.name}</p>
                         </div>
                       </td>
                       <td className="px-5 py-3.5">
@@ -354,55 +388,86 @@ export default function UsersPage() {
                       </td>
                       <td className="px-5 py-3.5">
                         <button
-                          onClick={() =>
-                            toggleMutation.mutate({
-                              id: user.id,
-                              is_active: !user.is_active,
-                              name: user.name,
-                            })
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleStatus(user);
+                          }}
+                          disabled={toggleMutation.isPending || user.id === currentUserId}
+                          title={user.id === currentUserId ? 'You cannot deactivate your own account' : user.is_active ? 'Click to deactivate account' : 'Click to reactivate account'}
                           className={cn(
-                            'px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border transition-colors',
+                            'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border transition-all',
                             user.is_active
-                              ? 'bg-emerald-50 text-emerald-600 border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300'
+                              : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 hover:border-rose-300',
+                            user.id === currentUserId && 'opacity-60 cursor-not-allowed'
                           )}
                         >
-                          {user.is_active ? 'Active' : 'Inactive'}
+                          <span
+                            className={cn(
+                              'w-1.5 h-1.5 rounded-full',
+                              user.is_active ? 'bg-emerald-500' : 'bg-rose-500'
+                            )}
+                          />
+                          {user.is_active ? 'Active' : 'Deactivated'}
                         </button>
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={async () => {
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleStatus(user);
+                            }}
+                            disabled={toggleMutation.isPending || user.id === currentUserId}
+                            title={user.id === currentUserId ? 'You cannot deactivate your own account' : user.is_active ? 'Soft Deactivate Account' : 'Reactivate Account'}
+                            className={cn(
+                              'p-2 rounded-md transition-colors shadow-sm font-medium',
+                              user.is_active
+                                ? 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                                : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+                              user.id === currentUserId && 'opacity-40 cursor-not-allowed'
+                            )}
+                          >
+                            {user.is_active ? <UserX size={14} /> : <UserCheck size={14} />}
+                          </button>
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
                               if (await confirm({ title: 'Confirmation', message: `Send a password reset SMS to ${user.name}?`, variant: 'destructive' })) {
                                 resetPasswordMutation.mutate(user.id);
                               }
                             }}
-                            className="p-2 bg-amber-50 text-amber-600 hover:bg-amber-100 rounded-md transition-colors shadow-sm font-medium"
+                            className="p-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-md transition-colors shadow-sm font-medium"
                             title="Reset Password via SMS"
                             disabled={resetPasswordMutation.isPending}
                           >
                             <Key size={14} />
                           </button>
                           <button
-                            onClick={() => openEdit(user)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openEdit(user);
+                            }}
                             className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors shadow-sm font-medium"
                             title="Edit User"
                           >
                             <Edit2 size={14} />
                           </button>
                           <button 
-                            onClick={async () => {
-                              if (await confirm({ title: 'Confirmation', message: `Are you sure you want to completely delete ${user.name}? This action cannot be undone.`, variant: 'destructive' })) {
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (await confirm({ title: 'Confirmation', message: `Are you sure you want to completely delete ${user.name}? This action cannot be undone. Consider deactivating instead if you want to keep their records intact.`, variant: 'destructive' })) {
                                 deleteMutation.mutate(user.id);
                               }
                             }}
-                            className="p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition-colors shadow-sm font-medium"
-                            title="Remove User"
-                            disabled={deleteMutation.isPending}
+                            disabled={deleteMutation.isPending || user.id === currentUserId}
+                            className={cn(
+                              "p-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-md transition-colors shadow-sm font-medium",
+                              user.id === currentUserId && "opacity-40 cursor-not-allowed"
+                            )}
+                            title={user.id === currentUserId ? "Cannot delete own account" : "Hard Delete User"}
                           >
-                            <UserX size={14} />
+                            <X size={14} />
                           </button>
                         </div>
                       </td>
@@ -424,7 +489,7 @@ export default function UsersPage() {
             users.map((user) => {
               const roleCfg = roleMap[user.role];
               return (
-                <div key={user.id} className="p-4 space-y-4 hover:bg-slate-50 transition-colors">
+                <div key={user.id} className="p-4 space-y-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-3">
                       <div
@@ -436,21 +501,25 @@ export default function UsersPage() {
                         {user.name?.[0]?.toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-bold text-[#001F3F]">{user.name}</p>
-                        <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-0.5">
+                        <p className="font-bold text-slate-900 dark:text-white">{user.name}</p>
+                        <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 mt-0.5">
                           {user.email}
                         </div>
                       </div>
                     </div>
                     <div className="flex gap-1">
                       <button
-                        onClick={() => openEdit(user)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEdit(user);
+                        }}
                         className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition-colors shadow-sm font-medium"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.stopPropagation();
                           if (await confirm({ title: 'Confirmation', message: `Are you sure you want to completely delete ${user.name}? This action cannot be undone.`, variant: 'destructive' })) {
                             deleteMutation.mutate(user.id);
                           }
@@ -482,21 +551,23 @@ export default function UsersPage() {
                     <div>
                       <p className="text-slate-400 font-medium uppercase tracking-wider text-[9px] mb-1">Status</p>
                       <button
-                        onClick={() =>
-                          toggleMutation.mutate({
-                            id: user.id,
-                            is_active: !user.is_active,
-                            name: user.name,
-                          })
-                        }
+                        onClick={() => handleToggleStatus(user)}
+                        disabled={toggleMutation.isPending || user.id === currentUserId}
                         className={cn(
-                          'px-2 py-1 rounded-full text-[9px] font-bold uppercase tracking-widest border transition-colors',
+                          'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border transition-colors',
                           user.is_active
-                            ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200',
+                          user.id === currentUserId && 'opacity-60 cursor-not-allowed'
                         )}
                       >
-                        {user.is_active ? 'Active' : 'Inactive'}
+                        <span
+                          className={cn(
+                            'w-1.5 h-1.5 rounded-full',
+                            user.is_active ? 'bg-emerald-500' : 'bg-rose-500'
+                          )}
+                        />
+                        {user.is_active ? 'Active' : 'Deactivated'}
                       </button>
                     </div>
                     <div className="col-span-2 mt-1">
@@ -602,6 +673,37 @@ export default function UsersPage() {
                   placeholder="+233 20 000 0000"
                 />
               </div>
+
+              {/* Account Status / Soft Deactivation Toggle */}
+              {editUser && (
+                <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/70 flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-slate-800">Account Status</p>
+                    <p className="text-[11px] text-slate-500">
+                      {form.is_active
+                        ? 'Account is active. Staff can log in.'
+                        : 'Soft deactivated. Staff cannot log in.'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={editUser.id === currentUserId}
+                    onClick={() => {
+                      if (editUser.id === currentUserId) return;
+                      setForm({ ...form, is_active: !form.is_active });
+                    }}
+                    className={cn(
+                      'px-3 py-1.5 rounded-lg text-xs font-bold transition-all border shadow-sm',
+                      form.is_active
+                        ? 'bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600'
+                        : 'bg-rose-500 text-white border-rose-600 hover:bg-rose-600',
+                      editUser.id === currentUserId && 'opacity-50 cursor-not-allowed'
+                    )}
+                  >
+                    {form.is_active ? 'Active' : 'Deactivated'}
+                  </button>
+                </div>
+              )}
 
               {/* Role info */}
               {form.role && roleMap[form.role] && (

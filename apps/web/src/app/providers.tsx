@@ -10,9 +10,12 @@ function makeQueryClient() {
   return new QueryClient({
     defaultOptions: {
       queries: {
-        // With SSR, we usually want to set some default staleTime
-        // above 0 to avoid refetching immediately on the client
-        staleTime: 60 * 1000,
+        // High-performance caching defaults
+        staleTime: 60 * 1000, // 1 minute fresh cache
+        gcTime: 5 * 60 * 1000, // 5 minutes garbage collection persistence
+        refetchOnWindowFocus: false, // Prevents wasteful background network waterfalls on tab switch
+        refetchOnReconnect: false,
+        retry: 1, // Fail fast rather than multiple slow blocking retries
       },
     },
   });
@@ -32,17 +35,20 @@ function getQueryClient() {
 }
 
 import { ConfirmProvider } from '@/components/providers/ConfirmProvider';
+import { ThemeProvider } from 'next-themes';
 
 export function Providers({ children }: { children: ReactNode }) {
   // Initialize query client once
   const [queryClient] = useState(() => getQueryClient());
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ConfirmProvider>
-        {children}
-        <Toaster position="bottom-right" />
-      </ConfirmProvider>
-    </QueryClientProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <QueryClientProvider client={queryClient}>
+        <ConfirmProvider>
+          {children}
+          <Toaster position="bottom-right" />
+        </ConfirmProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

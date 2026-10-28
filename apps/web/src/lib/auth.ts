@@ -18,7 +18,7 @@
 import { Pool, neonConfig } from '@neondatabase/serverless';
 import { argon2Verify } from 'argon2-wasm-edge';
 import { betterAuth } from 'better-auth';
-import { createAuthMiddleware } from 'better-auth/api';
+import { createAuthMiddleware, APIError } from 'better-auth/api';
 import { verifyPassword } from 'better-auth/crypto';
 import { bearer } from 'better-auth/plugins';
 import ws from 'ws';
@@ -109,6 +109,24 @@ export const auth = betterAuth({
     // often collect only email+password, so backfill a name from the email
     // local-part to keep signup working without a visible name field.
     before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === '/sign-in/email') {
+        const body = ctx.body as { email?: string } | undefined;
+        if (body?.email) {
+          const client = await pool.connect();
+          try {
+            const res = await client.query('SELECT is_active FROM "user" WHERE LOWER(email) = LOWER($1) LIMIT 1', [body.email.trim()]);
+            if (res.rows.length > 0 && res.rows[0].is_active === false) {
+              throw new APIError('FORBIDDEN', {
+                message: 'Your account has been deactivated. Please contact the system administrator for assistance.',
+              });
+            }
+          } finally {
+            client.release();
+          }
+        }
+        return;
+      }
+
       if (ctx.path !== '/sign-up/email') return;
       const body = ctx.body as { email?: unknown; name?: unknown } | undefined;
       if (!body || typeof body.email !== 'string') return;
@@ -120,16 +138,16 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: 'better-auth',
     defaultCookieAttributes: {
-      sameSite: 'none', // Required for iframes
-      secure: true,
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Required for iframes in prod
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
       path: '/',
     },
     cookies: {
       sessionToken: {
         attributes: {
-          sameSite: 'none', // Required for iframes
-          secure: true,
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+          secure: process.env.NODE_ENV === 'production',
         },
       },
     },
@@ -150,6 +168,11 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
         defaultValue: 'staff',
+      },
+      is_active: {
+        type: 'boolean',
+        required: false,
+        defaultValue: true,
       },
     },
   },

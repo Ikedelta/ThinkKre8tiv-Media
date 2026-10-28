@@ -121,8 +121,9 @@ export default function EditInvoicePage() {
   };
 
   const subtotal = items.reduce((s, i) => s + Number(i.total_price), 0);
-  const vatAmount = (subtotal * vatRate) / 100;
-  const total = subtotal + vatAmount - Number(discountAmount);
+  const subtotalAfterDiscount = Math.max(0, subtotal - Number(discountAmount));
+  const vatAmount = (subtotalAfterDiscount * vatRate) / 100;
+  const total = subtotalAfterDiscount + vatAmount;
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -222,79 +223,83 @@ export default function EditInvoicePage() {
               </button>
             </div>
 
-            {/* Table header */}
-            <div className="hidden sm:grid grid-cols-12 gap-3 mb-2 px-1">
-              <span className="col-span-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                Description
-              </span>
-              <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                Qty
-              </span>
-              <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                Price
-              </span>
-              <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                Total
-              </span>
-              <span className="col-span-1"></span>
-            </div>
-            
-            <div className="space-y-3">
-              {items.map((item, idx) => (
-                <div key={idx} className="grid grid-cols-12 gap-3 items-center bg-slate-50 p-3 rounded-lg border border-slate-200">
-                  <div className="col-span-12 sm:col-span-5 relative">
-                    <input
-                      type="text"
-                      placeholder="Description"
-                      value={item.description}
-                      onChange={(e) => updateItem(idx, 'description', e.target.value)}
-                      className={inputClass}
-                      required
-                    />
-                    {products.length > 0 && (
-                      <div className="absolute right-2 top-1.5 opacity-50 hover:opacity-100 transition-opacity">
-                        <select 
-                          className="text-xs bg-transparent outline-none cursor-pointer border-none py-1"
-                          onChange={(e) => selectProduct(idx, e.target.value)}
-                          title="Quick select standard service"
-                        >
-                          <option value="">+ Standard Service</option>
-                          {products.map((p: any) => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    min={1}
-                    onChange={(e) => updateItem(idx, 'quantity', parseFloat(e.target.value) || 1)}
-                    className="col-span-4 sm:col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Qty"
-                  />
-                  <input
-                    type="number"
-                    value={item.unit_price}
-                    min={0}
-                    onChange={(e) => updateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)}
-                    className="col-span-4 sm:col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="Price"
-                  />
-                  <div className="col-span-3 sm:col-span-2 font-bold text-[#001F3F] text-sm pl-1">
-                    {fmt(item.total_price)}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => items.length > 1 && setItems(items.filter((_, i) => i !== idx))}
-                    disabled={items.length === 1}
-                    className="col-span-1 p-1.5 text-slate-300 hover:text-red-400 disabled:opacity-30 transition-colors"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+            <div className="overflow-x-auto pb-4">
+              <div className="min-w-[700px]">
+                {/* Table header */}
+                <div className="grid grid-cols-12 gap-3 mb-2 px-1">
+                  <span className="col-span-5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Description
+                  </span>
+                  <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Qty
+                  </span>
+                  <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Price
+                  </span>
+                  <span className="col-span-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    Total
+                  </span>
+                  <span className="col-span-1"></span>
                 </div>
-              ))}
+                
+                <div className="space-y-3">
+                  {items.map((item, idx) => (
+                    <div key={idx} className="grid grid-cols-12 gap-3 items-center bg-slate-50 p-3 rounded-lg border border-slate-200">
+                      <div className="col-span-5 relative">
+                        <input
+                          type="text"
+                          placeholder="Description"
+                          value={item.description}
+                          onChange={(e) => updateItem(idx, 'description', e.target.value)}
+                          className={inputClass}
+                          required
+                        />
+                        {products.length > 0 && (
+                          <div className="absolute right-2 top-1.5 opacity-50 hover:opacity-100 transition-opacity">
+                            <select 
+                              className="text-xs bg-transparent outline-none cursor-pointer border-none py-1"
+                              onChange={(e) => selectProduct(idx, e.target.value)}
+                              title="Quick select standard service"
+                            >
+                              <option value="">+ Standard Service</option>
+                              {products.map((p: any) => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        type="number"
+                        value={item.quantity}
+                        min={1}
+                        onChange={(e) => updateItem(idx, 'quantity', parseFloat(e.target.value) || 1)}
+                        className="col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                        placeholder="Qty"
+                      />
+                      <input
+                        type="number"
+                        value={item.unit_price}
+                        min={0}
+                        onChange={(e) => updateItem(idx, 'unit_price', parseFloat(e.target.value) || 0)}
+                        className="col-span-2 border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                        placeholder="Price"
+                      />
+                      <div className="col-span-2 font-bold text-[#001F3F] text-sm pl-1">
+                        {fmt(item.total_price)}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => items.length > 1 && setItems(items.filter((_, i) => i !== idx))}
+                        disabled={items.length === 1}
+                        className="col-span-1 p-1.5 text-slate-300 hover:text-red-400 disabled:opacity-30 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -324,20 +329,6 @@ export default function EditInvoicePage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-500 font-medium">VAT (%)</span>
-                    <input
-                      type="number"
-                      value={vatRate}
-                      min={0}
-                      max={100}
-                      onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
-                      className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-sm bg-white focus:ring-1 focus:ring-blue-500 outline-none text-center font-semibold"
-                    />
-                  </div>
-                  <span className="font-bold text-[#001F3F]">{fmt(vatAmount)}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
                     <span className="text-slate-500 font-medium">Discount</span>
                     <input
                       type="number"
@@ -349,6 +340,20 @@ export default function EditInvoicePage() {
                     />
                   </div>
                   <span className="font-bold text-red-500">-{fmt(Number(discountAmount))}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 font-medium">VAT (%)</span>
+                    <input
+                      type="number"
+                      value={vatRate}
+                      min={0}
+                      max={100}
+                      onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
+                      className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-sm bg-white focus:ring-1 focus:ring-blue-500 outline-none text-center font-semibold"
+                    />
+                  </div>
+                  <span className="font-bold text-[#001F3F]">{fmt(vatAmount)}</span>
                 </div>
                 <div className="flex justify-between font-black text-[#001F3F] border-t border-slate-200 pt-3 mt-1">
                   <span>Total</span>

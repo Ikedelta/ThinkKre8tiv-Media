@@ -9,25 +9,11 @@ import { useQuery } from '@tanstack/react-query';
 
 const officesList = [
   {
-    city: 'Accra (HQ)',
-    address: 'OSU haramani Sport complex',
+    city: 'Accra Osu (HQ)',
+    address: 'OSU, Haramani Sport Complex, Accra',
     phone: '+233 24 555 9000',
     email: 'accra@thinkkre8tivmedia.com',
     hours: 'Mon–Fri: 8am–6pm, Sat: 9am–3pm',
-  },
-  {
-    city: 'Kumasi',
-    address: '7 Prempeh II Street, Kumasi',
-    phone: '+233 32 200 0000',
-    email: 'kumasi@thinkkre8tivmedia.com',
-    hours: 'Mon–Fri: 8am–5pm, Sat: 9am–2pm',
-  },
-  {
-    city: 'Takoradi',
-    address: '3 Market Circle, Takoradi',
-    phone: '+233 31 200 0000',
-    email: 'takoradi@thinkkre8tivmedia.com',
-    hours: 'Mon–Fri: 8am–5pm',
   },
 ];
 
@@ -61,108 +47,102 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans overflow-x-hidden pt-20">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans overflow-x-hidden pt-16 sm:pt-20">
       <PublicNav />
 
       {/* Page Header */}
-      <section className="relative py-16 bg-slate-50/40 border-b border-border/40 overflow-hidden">
-        <div 
-          aria-hidden="true" 
-          className="pointer-events-none absolute inset-0 opacity-5" 
-          style={{ background: 'radial-gradient(40% 50% at 75% 15%, var(--color-muted-foreground), transparent 85%)' }}
-        />
-        
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
-          <div className="inline-flex items-center gap-2 bg-[#FCD20F] text-black px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-widest border border-border/80">
-            <Phone size={12} /> Contact Printing Press Desk
+      <section className="relative py-12 sm:py-14 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200/80 dark:border-slate-800/80 overflow-hidden">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+          <div className="inline-flex items-center gap-1.5 bg-primary text-white px-2.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider shadow-xs">
+            <Phone size={11} /> Corporate Inquiries
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-foreground tracking-tight">
-            Connect With Our Press House
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Contact Commercial Press Division
           </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto text-sm sm:text-base font-medium">
-            Have questions about catalog papers, rigid packaging formats, or ready to place bulk press runs? Get in touch.
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto text-xs sm:text-sm font-normal leading-relaxed">
+            Have questions regarding contract pricing, substrates, or turnkey project execution? Connect directly with our enterprise team.
           </p>
         </div>
       </section>
 
       {/* Split Columns Section */}
-      <section className="py-20 bg-background">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <section className="py-14 sm:py-16 bg-white dark:bg-slate-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12">
             
             {/* Left Column: Form & Info */}
-            <div className="lg:col-span-7 space-y-8">
-              <div className="space-y-3">
-                <div className="inline-flex items-center gap-2 bg-secondary text-foreground px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-border">
-                  <Sparkles size={11} /> Send Message
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider">
+                  <Sparkles size={10} /> Direct Inquiry
                 </div>
-                <h2 className="text-3xl font-black text-foreground tracking-tight">Drop us a line</h2>
-                <p className="text-sm text-muted-foreground leading-relaxed font-medium">
-                  Fill out our direct contact form below, and our support team will reply within 2 business hours.
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Request an Executive Consultation</h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+                  Submit your brief or technical query below. Our account executives respond within 2 business hours.
                 </p>
               </div>
 
               {isSubmitted ? (
-                <div className="bg-slate-50 border border-border p-10 rounded-2xl text-center space-y-4 animate-fade-in shadow-sm">
-                  <div className="w-16 h-16 bg-emerald-50 border border-emerald-250 text-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-sm">
-                    <CheckCircle2 size={32} />
+                <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-lg text-center space-y-3 shadow-xs">
+                  <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle2 size={24} />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground">Message Dispatched!</h3>
-                  <p className="text-xs text-muted-foreground font-semibold">
-                    Thank you. Your message has been successfully logged. We will contact you shortly.
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">Inquiry Received</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 font-normal">
+                    Thank you. Your message has been routed to our corporate sales desk. An executive will contact you shortly.
                   </p>
-                  <div className="pt-2">
+                  <div className="pt-1">
                     <button
                       onClick={() => setIsSubmitted(false)}
-                      className="border border-border bg-background hover:bg-muted text-xs font-bold text-foreground px-5 py-2.5 rounded-lg transition-colors"
+                      className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200 px-4 py-2 rounded-md transition-colors"
                     >
                       Send Another Message
                     </button>
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSendMessage} className="bg-slate-50/60 dark:bg-slate-900/40 border border-border/80 p-6 sm:p-8 rounded-3xl space-y-5 shadow-lg backdrop-blur-md">
+                <form onSubmit={handleSendMessage} className="bg-slate-50/70 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 p-5 sm:p-7 rounded-xl space-y-4 shadow-xs">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Name *</label>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Full Name *</label>
                       <input
                         required
                         type="text"
-                        placeholder="Your full name"
+                        placeholder="John Doe"
                         value={msgForm.name}
                         onChange={(e) => setMsgForm({ ...msgForm, name: e.target.value })}
-                        className="w-full bg-background border border-border focus:border-[#D22630] rounded-xl px-4 py-3 text-xs outline-none transition-colors text-foreground font-semibold"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-primary rounded-md px-3 py-2 text-xs outline-none transition-colors text-slate-900 dark:text-white font-normal"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Email *</label>
+                      <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Corporate Email *</label>
                       <input
                         required
                         type="email"
                         placeholder="you@company.com"
                         value={msgForm.email}
                         onChange={(e) => setMsgForm({ ...msgForm, email: e.target.value })}
-                        className="w-full bg-background border border-border focus:border-[#D22630] rounded-xl px-4 py-3 text-xs outline-none transition-colors text-foreground font-semibold"
+                        className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-[#D22630] rounded-md px-3 py-2 text-xs outline-none transition-colors text-slate-900 dark:text-white font-normal"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">Message *</label>
+                    <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">Message *</label>
                     <textarea
                       required
-                      rows={5}
+                      rows={4}
                       placeholder="Your questions or custom print inquiry details..."
                       value={msgForm.message}
                       onChange={(e) => setMsgForm({ ...msgForm, message: e.target.value })}
-                      className="w-full bg-background border border-border focus:border-[#D22630] rounded-xl px-4 py-3 text-xs outline-none transition-colors text-foreground font-semibold resize-none"
+                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-[#D22630] rounded-md px-3 py-2 text-xs outline-none transition-colors text-slate-900 dark:text-white font-normal resize-none"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full flex items-center justify-center gap-1.5 bg-[#D22630] hover:bg-[#D22630]/95 text-white font-extrabold py-3.5 px-6 rounded-xl text-xs transition-colors shadow-md disabled:opacity-50 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-1.5 bg-[#D22630] hover:bg-[#b81d26] text-white font-semibold py-2.5 px-5 rounded-md text-xs uppercase tracking-wider transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
                   >
-                    {isSubmitting ? 'Sending...' : 'Send Message'} <Send size={13} />
+                    {isSubmitting ? 'Sending...' : 'Send Message'} <Send size={12} />
                   </button>
                 </form>
               )}

@@ -17,6 +17,9 @@ import {
   Phone,
   MessageSquare,
   Edit2,
+  Banknote,
+  Receipt,
+  Download,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -26,6 +29,8 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
 import { DocumentViewer } from '@/components/DocumentViewer';
+import { RecordPaymentModal } from '@/components/RecordPaymentModal';
+import { exportToCsv } from '@/lib/export-csv';
 
 interface Invoice {
   id: string;
@@ -54,9 +59,13 @@ const PAGE_SIZE = 10;
 export default function InvoicesPage() {
   const { confirm } = useConfirm();
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [approvalFilter, setApprovalFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('date-desc');
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [paymentInvoice, setPaymentInvoice] = useState<Invoice | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
 
@@ -100,16 +109,18 @@ export default function InvoicesPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, approval_status, approved_by: session?.user?.id || null }),
       });
-      if (!res.ok) throw new Error('Failed');
-      return res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to update approval');
+      return data;
     },
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success(
         vars.approval_status === 'approved' ? '✅ Invoice approved!' : 'Invoice rejected'
       );
     },
-    onError: () => toast.error('Failed to update approval'),
+    onError: (err: any) => toast.error(err.message || 'Failed to update approval'),
   });
 
   const smsMutation = useMutation({
@@ -147,13 +158,27 @@ export default function InvoicesPage() {
   };
 
   const pendingInvoices = invoices.filter((i) => i.approval_status === 'pending');
-  const displayInvoices = activeTab === 'pending' ? pendingInvoices : invoices;
+  let displayInvoices = activeTab === 'pending' ? pendingInvoices : invoices;
 
-  const filtered = displayInvoices.filter(
-    (inv) =>
-      inv.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
-      inv.customer_name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Filter
+  const filtered = displayInvoices
+    .filter((inv) => {
+      const matchSearch =
+        inv.invoice_number.toLowerCase().includes(search.toLowerCase()) ||
+        inv.customer_name.toLowerCase().includes(search.toLowerCase());
+      const matchStatus = statusFilter === 'all' || inv.status === statusFilter;
+      const matchApproval = approvalFilter === 'all' || inv.approval_status === approvalFilter;
+      return matchSearch && matchStatus && matchApproval;
+    })
+    .sort((a, b) => {
+      if (sortBy === 'date-desc') return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime();
+      if (sortBy === 'date-asc') return new Date(a.created_at || '').getTime() - new Date(b.created_at || '').getTime();
+      if (sortBy === 'amount-desc') return Number(b.total_amount || 0) - Number(a.total_amount || 0);
+      if (sortBy === 'amount-asc') return Number(a.total_amount || 0) - Number(b.total_amount || 0);
+      if (sortBy === 'balance-desc') return Number(b.balance_due || 0) - Number(a.balance_due || 0);
+      if (sortBy === 'customer-asc') return (a.customer_name || '').localeCompare(b.customer_name || '');
+      return 0;
+    });
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -228,43 +253,134 @@ export default function InvoicesPage() {
             .filter((i) => i.status === status)
             .reduce((s, i) => s + Number(i.total_amount), 0);
           return (
-            <Card key={status} className="border border-slate-100 dark:border-slate-800 shadow-none dark:bg-slate-900">
-              <CardContent className="p-4">
-                <Badge
-                  className={cn(
-                    'border-none font-bold uppercase text-[10px] tracking-wider mb-2',
-                    cfg.color
-                  )}
-                >
-                  {cfg.label}
-                </Badge>
-                <p className="text-xl font-black text-slate-800 dark:text-white">{count}</p>
-                <p className="text-xs text-slate-500 mt-0.5 font-medium">{fmt(total)}</p>
+            <Card key={status} className="border border-slate-200/80 dark:border-slate-800 shadow-xs dark:bg-slate-900 rounded-2xl">
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <Badge
+                    className={cn(
+                      'border-none font-bold uppercase text-[10px] tracking-wider',
+                      cfg.color
+                    )}
+                  >
+                    {cfg.label}
+                  </Badge>
+                  <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2 py-0.5 rounded-full">
+                    {count} {count === 1 ? 'doc' : 'docs'}
+                  </span>
+                </div>
+                <p className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                  {fmt(total)}
+                </p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-medium">
+                  Total volume in {cfg.label.toLowerCase()}
+                </p>
               </CardContent>
             </Card>
           );
         })}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
-        <input
-          type="text"
-          placeholder="Search by invoice # or customer..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium dark:bg-slate-900 dark:border-slate-800"
-        />
+      {/* Search and Filters Bar */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+          <input
+            type="text"
+            placeholder="Search by invoice # or customer..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none font-medium dark:bg-slate-900 dark:border-slate-800"
+          />
+        </div>
+
+        {/* Status Filter */}
+        <div className="flex items-center gap-2">
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Payment Statuses</option>
+            <option value="paid">Paid</option>
+            <option value="partial">Partial</option>
+            <option value="unpaid">Unpaid</option>
+            <option value="overdue">Overdue</option>
+          </select>
+
+          {/* Approval Filter */}
+          <select
+            value={approvalFilter}
+            onChange={(e) => {
+              setApprovalFilter(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="all">All Approvals</option>
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="rejected">Rejected</option>
+          </select>
+
+          {/* Sort By */}
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setPage(1);
+            }}
+            className="px-3 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="date-desc">Newest First</option>
+            <option value="date-asc">Oldest First</option>
+            <option value="amount-desc">Amount: High to Low</option>
+            <option value="amount-asc">Amount: Low to High</option>
+            <option value="balance-desc">Balance Due: High to Low</option>
+            <option value="customer-asc">Customer: A to Z</option>
+          </select>
+
+          {/* Export CSV Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              try {
+                exportToCsv(filtered, 'Invoices_Export', [
+                  { key: 'invoice_number', label: 'Invoice Number' },
+                  { key: 'customer_name', label: 'Customer' },
+                  { key: 'customer_email', label: 'Email' },
+                  { key: 'total_amount', label: 'Total Amount (GHS)', format: (v) => Number(v || 0).toFixed(2) },
+                  { key: 'amount_paid', label: 'Amount Paid (GHS)', format: (v) => Number(v || 0).toFixed(2) },
+                  { key: 'balance_due', label: 'Balance Due (GHS)', format: (v) => Number(v || 0).toFixed(2) },
+                  { key: 'status', label: 'Payment Status' },
+                  { key: 'approval_status', label: 'Approval Status' },
+                  { key: 'due_date', label: 'Due Date' },
+                  { key: 'created_at', label: 'Created At' },
+                ]);
+                toast.success('Invoices exported successfully!');
+              } catch (err: any) {
+                toast.error(err.message || 'Export failed');
+              }
+            }}
+            className="h-10 px-3 border-slate-200 dark:border-slate-800 font-bold text-xs gap-1.5"
+          >
+            <Download size={14} />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Desktop Table */}
       <Card className="border border-slate-100 shadow-none overflow-hidden hidden md:block">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[780px]">
+        <div className="w-full">
+          <table className="w-full text-left table-auto">
             <thead className="bg-slate-50">
               <tr>
                 {[
@@ -397,13 +513,39 @@ export default function InvoicesPage() {
                               </button>
                             </>
                           )}
-                          <button
-                            onClick={() => setSelectedInvoiceId(invoice.id)}
-                            className="p-2 bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-md transition-colors shadow-sm font-medium"
-                            title="Print/View"
-                          >
-                            <Printer size={14} />
-                          </button>
+                          {invoice.approval_status === 'approved' ? (
+                            <button
+                              onClick={() => setSelectedInvoiceId(invoice.id)}
+                              className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition-colors shadow-sm font-medium"
+                              title="Print/View"
+                            >
+                              <Printer size={14} />
+                            </button>
+                          ) : (
+                            <span 
+                              className="p-2 text-slate-300 dark:text-slate-600 cursor-not-allowed" 
+                              title="Pending Admin Approval - Printing & Download Locked"
+                            >
+                              <Printer size={14} />
+                            </span>
+                          )}
+                          {invoice.status !== 'paid' && (
+                            <button
+                              onClick={() => setPaymentInvoice(invoice)}
+                              className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-md transition-colors shadow-sm font-medium"
+                              title="Record Payment"
+                            >
+                              <Banknote size={14} />
+                            </button>
+                          )}
+                          <Link href={`/admin/payments?search=${encodeURIComponent(invoice.invoice_number)}`}>
+                            <button
+                              className="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md transition-colors shadow-sm font-medium"
+                              title="View Receipts for this Invoice"
+                            >
+                              <Receipt size={14} />
+                            </button>
+                          </Link>
                           {(session?.user as any)?.role === 'admin' && (
                             <>
                               <Link href={`/admin/invoices/${invoice.id}/edit`}>
@@ -569,12 +711,18 @@ export default function InvoicesPage() {
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      <button 
-                        onClick={() => setSelectedInvoiceId(invoice.id)}
-                        className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold bg-slate-50 text-slate-600 rounded-lg border border-slate-200"
-                      >
-                        <Printer size={12} /> Print/View
-                      </button>
+                      {invoice.approval_status === 'approved' ? (
+                        <button 
+                          onClick={() => setSelectedInvoiceId(invoice.id)}
+                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700"
+                        >
+                          <Printer size={12} /> Print/View
+                        </button>
+                      ) : (
+                        <div className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 cursor-not-allowed">
+                          <Printer size={12} /> Approval Required
+                        </div>
+                      )}
                       {(session?.user as any)?.role === 'admin' && (
                         <button
                           onClick={async () => {
@@ -631,6 +779,16 @@ export default function InvoicesPage() {
           onSendSMS={() => handleSendSMS(invoiceDetails)}
           isAdmin={(session?.user as any)?.role === 'admin'}
           isSMSPending={smsMutation.isPending}
+        />
+      )}
+
+      {paymentInvoice && (
+        <RecordPaymentModal
+          invoiceId={paymentInvoice.id}
+          invoiceNumber={paymentInvoice.invoice_number}
+          customerName={paymentInvoice.customer_name}
+          balanceDue={paymentInvoice.balance_due}
+          onClose={() => setPaymentInvoice(null)}
         />
       )}
     </div>

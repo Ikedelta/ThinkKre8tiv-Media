@@ -15,10 +15,11 @@ import {
   Building2,
   FileText,
   TrendingUp,
-  DollarSign,
+  Coins,
   AlertCircle,
   MessageSquare,
   Edit2,
+  Download,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
+import { CustomerDrawer } from '@/components/CustomerDrawer';
+import { DocumentViewer } from '@/components/DocumentViewer';
+import { exportToCsv } from '@/lib/export-csv';
 
 interface Customer {
   id: string;
@@ -48,6 +52,8 @@ interface Customer {
 export default function CustomersPage() {
   const { confirm } = useConfirm();
   const [search, setSearch] = useState('');
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedDoc, setSelectedDoc] = useState<{ doc: any; type: 'invoice' | 'receipt' | 'quotation' } | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
 
@@ -145,7 +151,7 @@ export default function CustomersPage() {
             label: 'Total Billed',
             value: customers.reduce((a, c) => a + Number(c.total_billed), 0),
             display: fmt(customers.reduce((a, c) => a + Number(c.total_billed), 0)),
-            icon: DollarSign,
+            icon: Coins,
             color: 'text-green-600 bg-green-50 dark:bg-green-950/20',
           },
           {
@@ -179,16 +185,46 @@ export default function CustomersPage() {
         ))}
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-        <input
-          type="text"
-          placeholder="Search by name, email, or company..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-        />
+      {/* Search & Actions Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <input
+            type="text"
+            placeholder="Search by name, email, or company..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white rounded-xl text-sm focus:ring-2 focus:ring-[#E04D1B] outline-none shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
+          />
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            try {
+              exportToCsv(filtered, 'Customers_Export', [
+                { key: 'name', label: 'Customer Name' },
+                { key: 'company', label: 'Company' },
+                { key: 'email', label: 'Email' },
+                { key: 'phone', label: 'Phone' },
+                { key: 'address', label: 'Address' },
+                { key: 'industry', label: 'Industry' },
+                { key: 'invoice_count', label: 'Total Invoices' },
+                { key: 'total_billed', label: 'Total Billed (GHS)', format: (v) => Number(v || 0).toFixed(2) },
+                { key: 'total_paid', label: 'Total Paid (GHS)', format: (v) => Number(v || 0).toFixed(2) },
+                { key: 'total_outstanding', label: 'Outstanding (GHS)', format: (v) => Number(v || 0).toFixed(2) },
+                { key: 'created_at', label: 'Added Date' },
+              ]);
+              toast.success('Customers exported successfully!');
+            } catch (err: any) {
+              toast.error(err.message || 'Export failed');
+            }
+          }}
+          className="h-10 px-4 border-slate-200 dark:border-slate-800 font-bold text-xs gap-1.5 shadow-sm"
+        >
+          <Download size={15} />
+          Export CSV
+        </Button>
       </div>
 
       {/* Customer Cards */}
@@ -216,7 +252,8 @@ export default function CustomersPage() {
           {filtered.map((customer) => (
             <Card
               key={customer.id}
-              className="border-none shadow-sm hover:shadow-md transition-all group overflow-hidden dark:bg-slate-900"
+              onClick={() => setSelectedCustomerId(customer.id)}
+              className="border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-[#E04D1B]/40 dark:hover:border-[#E04D1B]/40 transition-all group overflow-hidden bg-white dark:bg-slate-900 cursor-pointer"
             >
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-4">
@@ -237,7 +274,7 @@ export default function CustomersPage() {
                       {customer.name[0].toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-850 dark:text-slate-200 text-sm leading-tight">
+                      <h3 className="font-bold text-slate-850 dark:text-slate-200 text-sm leading-tight group-hover:text-[#E04D1B] transition-colors">
                         {customer.name}
                       </h3>
                       {customer.company && (
@@ -250,7 +287,10 @@ export default function CustomersPage() {
                   </div>
                   <div className="flex gap-1 transition-opacity">
                     <button
-                      onClick={() => handleSendSMS(customer)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSendSMS(customer);
+                      }}
                       className="p-2 bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 rounded-md transition-colors shadow-sm font-medium"
                       title="Send SMS"
                       disabled={smsMutation.isPending}
@@ -259,7 +299,7 @@ export default function CustomersPage() {
                     </button>
                     {(session?.user as any)?.role === 'admin' && (
                       <>
-                        <Link href={`/admin/customers/${customer.id}/edit`}>
+                        <Link href={`/admin/customers/${customer.id}/edit`} onClick={(e) => e.stopPropagation()}>
                           <button
                             className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-md transition-colors shadow-sm font-medium"
                             title="Edit"
@@ -268,13 +308,14 @@ export default function CustomersPage() {
                           </button>
                         </Link>
                         <button
-                          onClick={async () => {
-                          if (await confirm({ title: 'Confirmation', message: `Delete this customer?`, variant: 'destructive' })) deleteMutation.mutate(customer.id);
-                        }}
-                        className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-md transition-colors shadow-sm font-medium"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (await confirm({ title: 'Confirmation', message: `Delete this customer?`, variant: 'destructive' })) deleteMutation.mutate(customer.id);
+                          }}
+                          className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-md transition-colors shadow-sm font-medium"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </>
                     )}
                   </div>
@@ -313,14 +354,6 @@ export default function CustomersPage() {
                       <span className="truncate">{customer.industry}</span>
                     </div>
                   )}
-                  {customer.social_handle && (
-                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                      <div className="w-5 h-5 bg-pink-50 dark:bg-pink-950/20 rounded flex items-center justify-center flex-shrink-0">
-                        <span className="text-pink-500 font-bold text-[10px]">@</span>
-                      </div>
-                      <span className="truncate">{customer.social_handle}</span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
@@ -346,10 +379,34 @@ export default function CustomersPage() {
                     </p>
                   </div>
                 </div>
+                <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                  <span className="text-[11px] font-bold text-[#E04D1B] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
+                    View Engagements & Receipts &rarr;
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">Click to inspect</span>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Customer Full Engagement Drawer */}
+      {selectedCustomerId && (
+        <CustomerDrawer
+          customerId={selectedCustomerId}
+          onClose={() => setSelectedCustomerId(null)}
+          onViewDocument={(doc, type) => setSelectedDoc({ doc, type })}
+        />
+      )}
+
+      {/* Document Print & Preview Modal */}
+      {selectedDoc && (
+        <DocumentViewer
+          document={selectedDoc.doc}
+          type={selectedDoc.type}
+          onClose={() => setSelectedDoc(null)}
+        />
       )}
     </div>
   );

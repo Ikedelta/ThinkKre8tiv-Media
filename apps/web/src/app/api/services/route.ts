@@ -1,26 +1,14 @@
 import sql from '@/app/api/utils/sql';
-
-// Helper to ensure the table exists
-async function initTable() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS services (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      name VARCHAR(255) NOT NULL,
-      category VARCHAR(100) NOT NULL,
-      description TEXT,
-      base_price NUMERIC(10,2) NOT NULL DEFAULT 0,
-      unit VARCHAR(50) DEFAULT 'unit',
-      is_active BOOLEAN DEFAULT true,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-      updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-    );
-  `;
-}
+import { requireAdmin } from '@/lib/api-security';
 
 export async function GET() {
   try {
     const services = await sql`SELECT * FROM services ORDER BY category ASC, name ASC`;
-    return Response.json(services);
+    return Response.json(services, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+      },
+    });
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to fetch services' }, { status: 500 });
@@ -29,6 +17,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { name, category, description, base_price, unit, is_active } = body;
     
@@ -51,6 +41,8 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { id, name, category, description, base_price, unit, is_active } = body;
     
@@ -78,6 +70,8 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     

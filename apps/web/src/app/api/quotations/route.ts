@@ -1,4 +1,7 @@
 import sql from '@/app/api/utils/sql';
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { requireAdmin, requireStaffOrAdmin } from '@/lib/api-security';
 
 export async function GET(request: Request) {
   try {
@@ -34,6 +37,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireStaffOrAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const {
       customer_id,
@@ -79,6 +84,13 @@ export async function PATCH(request: Request) {
     const { id, status } = body;
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
 
+    if (['accepted', 'rejected'].includes(status)) {
+      const session = await auth.api.getSession({ headers: await headers() });
+      if (!session || (session.user as any)?.role !== 'admin') {
+        return Response.json({ error: 'Unauthorized: Only administrators can approve or reject estimates' }, { status: 403 });
+      }
+    }
+
     const [quotation] = await sql`
       UPDATE quotations SET status = ${status}, updated_at = NOW()
       WHERE id = ${id} RETURNING *
@@ -92,6 +104,8 @@ export async function PATCH(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const authResult = await requireStaffOrAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { id, customer_id, subtotal, vat_rate, vat_amount, discount_amount, total_amount, notes, valid_until, items } = body;
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
@@ -130,6 +144,8 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });

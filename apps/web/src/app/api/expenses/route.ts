@@ -1,4 +1,5 @@
 import sql from '@/app/api/utils/sql';
+import { requireAdmin, requireStaffOrAdmin } from '@/lib/api-security';
 
 export async function GET(request: Request) {
   try {
@@ -33,6 +34,8 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const authResult = await requireStaffOrAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { 
       vendor_id, 
@@ -110,6 +113,8 @@ export async function POST(request: Request) {
 }
 export async function PUT(request: Request) {
   try {
+    const authResult = await requireStaffOrAdmin();
+    if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { id, vendor_id, vendor_name, account_id, account_name, amount, payment_method, date, notes } = body;
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
@@ -157,6 +162,8 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });

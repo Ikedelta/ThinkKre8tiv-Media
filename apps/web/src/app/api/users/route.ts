@@ -10,69 +10,6 @@ export async function GET() {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Ensure tables exist for user, account, and activity_logs
-    await sql`
-      CREATE TABLE IF NOT EXISTS "user" (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        email TEXT UNIQUE,
-        "emailVerified" BOOLEAN,
-        role TEXT,
-        phone TEXT,
-        position TEXT,
-        is_active BOOLEAN DEFAULT TRUE,
-        "createdAt" TIMESTAMP DEFAULT NOW(),
-        "updatedAt" TIMESTAMP DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS "account" (
-        id TEXT PRIMARY KEY,
-        "userId" TEXT,
-        "accountId" TEXT,
-        "providerId" TEXT,
-        password TEXT,
-        "createdAt" TIMESTAMP DEFAULT NOW(),
-        "updatedAt" TIMESTAMP DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS activity_logs (
-        id SERIAL PRIMARY KEY,
-        user_name TEXT,
-        action TEXT,
-        resource TEXT,
-        resource_id TEXT,
-        details TEXT,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS "session" (
-          id TEXT PRIMARY KEY,
-          "userId" TEXT NOT NULL,
-          token TEXT NOT NULL UNIQUE,
-          "expiresAt" TIMESTAMP NOT NULL,
-          "ipAddress" TEXT,
-          "userAgent" TEXT,
-          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS "verification" (
-          id TEXT PRIMARY KEY,
-          identifier TEXT NOT NULL,
-          value TEXT NOT NULL,
-          "expiresAt" TIMESTAMP NOT NULL,
-          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
-      );
-    `;
     const users = await sql`
       SELECT id, name, email, phone, role, position, is_active, "createdAt" as created_at
       FROM "user"
@@ -91,70 +28,6 @@ export async function POST(request: Request) {
     if (!session || (session.user as any)?.role !== 'admin') {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    // Ensure tables exist for user, account, and activity_logs
-    await sql`
-      CREATE TABLE IF NOT EXISTS "user" (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        email TEXT UNIQUE,
-        "emailVerified" BOOLEAN,
-        role TEXT,
-        phone TEXT,
-        position TEXT,
-        is_active BOOLEAN DEFAULT TRUE,
-        "createdAt" TIMESTAMP DEFAULT NOW(),
-        "updatedAt" TIMESTAMP DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS "account" (
-        id TEXT PRIMARY KEY,
-        "userId" TEXT,
-        "accountId" TEXT,
-        "providerId" TEXT,
-        password TEXT,
-        "createdAt" TIMESTAMP DEFAULT NOW(),
-        "updatedAt" TIMESTAMP DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS activity_logs (
-        id SERIAL PRIMARY KEY,
-        user_name TEXT,
-        action TEXT,
-        resource TEXT,
-        resource_id TEXT,
-        details TEXT,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS "session" (
-          id TEXT PRIMARY KEY,
-          "userId" TEXT NOT NULL,
-          token TEXT NOT NULL UNIQUE,
-          "expiresAt" TIMESTAMP NOT NULL,
-          "ipAddress" TEXT,
-          "userAgent" TEXT,
-          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
-      );
-    `;
-
-    await sql`
-      CREATE TABLE IF NOT EXISTS "verification" (
-          id TEXT PRIMARY KEY,
-          identifier TEXT NOT NULL,
-          value TEXT NOT NULL,
-          "expiresAt" TIMESTAMP NOT NULL,
-          "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
-          "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
-      );
-    `;
 
     const body = await request.json();
     const { name, email, password, role, phone, position } = body;
@@ -184,16 +57,48 @@ export async function POST(request: Request) {
     // Insert into account table (credential provider)
     const [{ acc_id }] = await sql`SELECT gen_random_uuid()::text as acc_id`;
     await sql`
-      INSERT INTO "account" (id, "userId", "accountId", "providerId", password, "createdAt", "updatedAt")
-      VALUES (${acc_id}, ${gen_id}, ${gen_id}, 'credential', ${hashedPassword}, NOW(), NOW())
+      INSERT INTO "account" (id, "userId", "accountId", "providerId", password, issuer, "createdAt", "updatedAt")
+      VALUES (${acc_id}, ${gen_id}, ${gen_id}, 'credential', ${hashedPassword}, 'local:credential', NOW(), NOW())
     `;
 
+    // Insert into activity logs
     await sql`
       INSERT INTO activity_logs (user_name, action, resource, details)
       VALUES (${session?.user?.name || 'Admin'}, 'Created user', 'user', ${`Added ${name} as ${role ?? 'staff'}`})
     `;
 
-    return Response.json({ success: true });
+    // Attempt to notify user via email asynchronously
+    let emailStatus: { sent: boolean; message?: string } = { sent: false };
+    try {
+      const { sendEmail, generateUserWelcomeEmail } = await import('@/app/api/utils/email');
+      const origin = request.headers.get('origin') || request.headers.get('host') || 'http://localhost:4000';
+      const loginUrl = origin.startsWith('http') ? `${origin}/account/signin` : `https://${origin}/account/signin`;
+
+      const emailHtml = generateUserWelcomeEmail({
+        name,
+        email,
+        password,
+        role: role ?? 'staff',
+        loginUrl,
+      });
+
+      const emailResult = await sendEmail({
+        to: email,
+        subject: 'Welcome to Think Kre8tiv Media - Your Access Credentials',
+        html: emailHtml,
+      });
+
+      if (emailResult.success) {
+        emailStatus = { sent: true };
+      } else {
+        emailStatus = { sent: false, message: emailResult.error };
+      }
+    } catch (err: any) {
+      console.error('Email notification error:', err);
+      emailStatus = { sent: false, message: err.message };
+    }
+
+    return Response.json({ success: true, emailStatus });
   } catch (error: any) {
     console.error(error);
     return Response.json({ error: error?.message || 'Failed to create user' }, { status: 500 });
@@ -222,9 +127,16 @@ export async function PUT(request: Request) {
       WHERE id = ${id}
     `;
 
+    if (is_active !== undefined && is_active === false) {
+      // Invalidate all active sessions for this deactivated user
+      await sql`DELETE FROM "session" WHERE "userId" = ${id}`;
+    }
+
+    const actionText = is_active === false ? `Deactivated user account: ${name}` : is_active === true ? `Activated user account: ${name}` : `Updated ${name}`;
+
     await sql`
       INSERT INTO activity_logs (user_name, action, resource, resource_id, details)
-      VALUES (${session?.user?.name || 'Admin'}, 'Updated user', 'user', ${id}, ${`Updated ${name}`})
+      VALUES (${session?.user?.name || 'Admin'}, ${is_active === false ? 'Deactivated user' : is_active === true ? 'Activated user' : 'Updated user'}, 'user', ${id}, ${actionText})
     `;
 
     return Response.json({ success: true });
