@@ -486,9 +486,9 @@ export default function HomePage() {
                 No middlemen and no unnecessary delays. From reviewing your artwork to printing, cutting, finishing, and doorstep delivery — our team handles every step.
               </p>
             </div>
-            <div className="md:col-span-4 flex justify-start md:justify-end">
-              <Link href="/about">
-                <button className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 h-11 px-6 rounded-md shadow-sm transition-all cursor-pointer">
+            <div className="md:col-span-4 flex justify-start md:justify-end w-full">
+              <Link href="/about" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 h-12 px-6 rounded-xl shadow-sm transition-all cursor-pointer">
                   Learn More About Us <ArrowRight size={14} />
                 </button>
               </Link>
@@ -553,12 +553,12 @@ export default function HomePage() {
               {/* CEO Signature Block */}
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">{ceoName}</h4>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{ceoTitle}</p>
+                  <h4 className="text-base font-bold text-slate-900 dark:text-white">{ceoName}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{ceoTitle}</p>
                 </div>
-                <Link href="/contact">
-                  <button className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-9 px-4 rounded-md shadow-xs transition-all cursor-pointer">
-                    Schedule Executive Consultation <ArrowRight size={12} />
+                <Link href="/contact" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-wider border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-11 px-5 rounded-xl shadow-xs transition-all cursor-pointer">
+                    Schedule Executive Consultation <ArrowRight size={13} />
                   </button>
                 </Link>
               </div>
@@ -739,14 +739,14 @@ export default function HomePage() {
             Receive a detailed estimate sheet within 24 hours. Start your offset press runs, bespoke rigid boxes, or backlit signage projects with Ghana's premier printers.
           </p>
           
-          <div className="flex flex-wrap justify-center gap-3 pt-2">
-            <Link href="/submit">
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-bold uppercase tracking-wider bg-[#FCD20F] hover:bg-[#FCD20F]/90 text-black h-10 px-6 rounded-md shadow-xs transition-all hover:translate-y-[-1px] cursor-pointer">
+          <div className="flex flex-wrap justify-center gap-3 pt-2 w-full">
+            <Link href="/submit" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold uppercase tracking-wider bg-[#FCD20F] hover:bg-[#FCD20F]/90 text-black h-12 px-7 rounded-xl shadow-xs transition-all hover:translate-y-[-1px] cursor-pointer">
                 Start Your Project <ArrowRight size={14} />
               </button>
             </Link>
-            <Link href="/services">
-              <button className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs font-bold uppercase tracking-wider border border-white/20 bg-white/5 hover:bg-white/10 text-white h-10 px-5 rounded-md transition-all backdrop-blur-sm hover:border-white/40">
+            <Link href="/services" className="w-full sm:w-auto">
+              <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold uppercase tracking-wider border border-white/20 bg-white/5 hover:bg-white/10 text-white h-12 px-6 rounded-xl transition-all backdrop-blur-sm hover:border-white/40">
                 View Estimates
               </button>
             </Link>
