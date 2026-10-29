@@ -70,8 +70,8 @@ export default function AboutPage() {
                 {aboutP3}
               </p>
               <div className="pt-2">
-                <Link href="/quote">
-                  <button className="inline-flex items-center gap-2 bg-primary hover:bg-primary/95 text-white font-semibold px-6 py-2.5 rounded-md text-xs uppercase tracking-wider shadow-sm transition-all hover:shadow hover:-translate-y-0.5">
+                <Link href="/contact">
+                  <button className="inline-flex items-center gap-2 bg-[#D22630] hover:bg-[#b81d26] text-white font-semibold px-6 py-2.5 rounded-md text-xs uppercase tracking-wider shadow-sm transition-all hover:shadow hover:-translate-y-0.5 cursor-pointer">
                     Partner With Us <ArrowRight size={14} />
                   </button>
                 </Link>

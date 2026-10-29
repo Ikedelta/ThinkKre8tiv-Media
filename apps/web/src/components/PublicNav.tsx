@@ -9,7 +9,6 @@ import { cn } from '@/lib/utils';
 const navLinks = [
   { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
-  { label: 'Track Order', href: '/track' },
   { label: 'About Us', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ];
@@ -87,10 +86,10 @@ export default function PublicNav() {
 
             <div className="flex items-center gap-3">
               <Link
-                href="/submit"
+                href="/contact"
                 className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white px-4 py-2 rounded-lg shadow-xs hover:shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0"
               >
-                Submit Print Job
+                Contact Us
               </Link>
             </div>
           </div>
@@ -136,9 +135,9 @@ export default function PublicNav() {
               );
             })}
             <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 mt-4">
-              <Link href="/submit" onClick={() => setIsMenuOpen(false)}>
+              <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
                 <button className="w-full h-11 bg-[#D22630] hover:bg-[#b81d26] text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-sm transition-all active:scale-[0.99]">
-                  Submit Print Job
+                  Contact Us
                 </button>
               </Link>
             </div>

@@ -177,9 +177,9 @@ export default function HomePage() {
 
               {/* Call to Actions with Brand Vibrant Colors */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link href="/submit" className="w-full sm:w-auto">
+                <Link href="/contact" className="w-full sm:w-auto">
                   <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white h-11 sm:h-12 px-6 rounded-xl shadow-md hover:shadow-red-900/20 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
-                    Request a Quote <ArrowRight size={14} />
+                    Contact Us <ArrowRight size={14} />
                   </button>
                 </Link>
                 <Link href="/services" className="w-full sm:w-auto">
@@ -303,31 +303,23 @@ export default function HomePage() {
           <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
 
           <div className="animate-marquee flex items-center gap-8 sm:gap-14">
-            {/* Duplicated list to create infinite seamless loop */}
+            {/* Duplicated list to create infinite seamless loop of client logos */}
             {[...partnersList, ...partnersList].map((partner: any, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center gap-3.5 px-6 py-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-xs shrink-0 group cursor-default"
+                className="flex items-center justify-center h-16 sm:h-20 px-6 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-xs shrink-0 group cursor-default min-w-[120px]"
               >
                 {partner.image_url ? (
-                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1.5 overflow-hidden shrink-0">
-                    <img 
-                      src={partner.image_url} 
-                      alt={partner.name} 
-                      className="max-h-full max-w-full object-contain filter group-hover:scale-105 transition-transform" 
-                    />
-                  </div>
+                  <img 
+                    src={partner.image_url} 
+                    alt={partner.name || 'Client Logo'} 
+                    className="max-h-10 sm:max-h-12 max-w-[130px] object-contain filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-200" 
+                  />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-black text-sm text-slate-700 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
-                    {partner.name.charAt(0)}
-                  </div>
+                  <span className="text-xs sm:text-sm font-extrabold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                    {partner.name || partner.logo || 'Client'}
+                  </span>
                 )}
-                <div>
-                  <h4 className="text-xs sm:text-sm font-extrabold tracking-wider text-slate-900 dark:text-slate-100 uppercase group-hover:text-primary transition-colors">
-                    {partner.logo}
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-slate-500 uppercase tracking-wider mt-0.5">{partner.category}</p>
-                </div>
               </div>
             ))}
           </div>
@@ -740,14 +732,14 @@ export default function HomePage() {
           </p>
           
           <div className="flex flex-wrap justify-center gap-3 pt-2 w-full">
-            <Link href="/submit" className="w-full sm:w-auto">
+            <Link href="/contact" className="w-full sm:w-auto">
               <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold uppercase tracking-wider bg-[#FCD20F] hover:bg-[#FCD20F]/90 text-black h-12 px-7 rounded-xl shadow-xs transition-all hover:translate-y-[-1px] cursor-pointer">
-                Start Your Project <ArrowRight size={14} />
+                Contact Us <ArrowRight size={14} />
               </button>
             </Link>
             <Link href="/services" className="w-full sm:w-auto">
               <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm font-bold uppercase tracking-wider border border-white/20 bg-white/5 hover:bg-white/10 text-white h-12 px-6 rounded-xl transition-all backdrop-blur-sm hover:border-white/40">
-                View Estimates
+                Explore Services
               </button>
             </Link>
           </div>

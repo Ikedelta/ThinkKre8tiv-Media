@@ -11,9 +11,9 @@ export async function GET(request: Request) {
     if (id) {
       const [[quotation], items] = await Promise.all([
         sql`
-          SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone
+          SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone, c.company as customer_company, c.address as customer_address
           FROM quotations q
-          JOIN customers c ON q.customer_id = c.id
+          LEFT JOIN customers c ON q.customer_id = c.id
           WHERE q.id = ${id}
         `,
         sql`SELECT * FROM quotation_items WHERE quotation_id = ${id}`
@@ -23,9 +23,9 @@ export async function GET(request: Request) {
     }
 
     const quotations = await sql`
-      SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone
+      SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone, c.company as customer_company
       FROM quotations q
-      JOIN customers c ON q.customer_id = c.id
+      LEFT JOIN customers c ON q.customer_id = c.id
       ORDER BY q.created_at DESC
     `;
     return Response.json(quotations);

@@ -467,8 +467,8 @@ export function DocumentViewer({
               <MessageSquare size={14} className="mr-1.5" /> Send SMS
             </Button>
           )}
-          {/* Prevent print / export download unless document is approved (or inline editor preview) */}
-          {(document.approval_status === 'approved' || inline) ? (
+          {/* Allow printing / export for estimates, approved invoices/receipts, or inline editor preview */}
+          {(isQuotation || document.approval_status === 'approved' || inline) ? (
             <Button onClick={() => window.print()} className="bg-gradient-to-r from-[#D22630] to-amber-500 text-white font-bold text-xs h-8 shadow-sm flex-1 sm:flex-none">
               <Printer size={14} className="mr-1.5" /> Print / Export PDF
             </Button>

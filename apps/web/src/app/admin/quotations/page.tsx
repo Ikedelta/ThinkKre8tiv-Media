@@ -424,13 +424,28 @@ function QuotationsPageContent() {
       </div>
 
       {/* Document Viewer Modal for Quotation / Estimate */}
-      {selectedQuotationId && quotationDetails && (
-        <DocumentViewer
-          type="quotation"
-          document={quotationDetails}
-          onClose={() => setSelectedQuotationId(null)}
-          isAdmin={(session?.user as any)?.role === 'admin'}
-        />
+      {selectedQuotationId && (
+        quotationDetails ? (
+          <DocumentViewer
+            type="quotation"
+            document={quotationDetails}
+            onClose={() => setSelectedQuotationId(null)}
+            isAdmin={(session?.user as any)?.role === 'admin'}
+          />
+        ) : (
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col items-center gap-3 max-w-sm w-full text-center">
+              <div className="w-9 h-9 border-3 border-[#D22630] border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">Loading estimate document preview...</p>
+              <button
+                onClick={() => setSelectedQuotationId(null)}
+                className="text-xs font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mt-2"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )
       )}
     </div>
   );

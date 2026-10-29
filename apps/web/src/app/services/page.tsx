@@ -186,9 +186,9 @@ export default function ServicesPage() {
 
                   {/* Card Button */}
                   <div className="p-6 pt-0">
-                    <Link href={`/submit?product=${encodeURIComponent(service.title)}`}>
+                    <Link href={`/contact?subject=${encodeURIComponent(service.title)}`}>
                       <button className="w-full h-11 rounded-xl bg-slate-900 hover:bg-[#D22630] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99]">
-                        Request an Estimate <ArrowRight size={14} />
+                        Inquire About This Service <ArrowRight size={14} />
                       </button>
                     </Link>
                   </div>
@@ -246,14 +246,9 @@ export default function ServicesPage() {
             Send us your job specifications or contact our Accra facility directly for a prompt quote.
           </p>
           <div className="pt-2 flex flex-wrap justify-center gap-3">
-            <Link href="/submit">
-              <button className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold uppercase tracking-wider h-10 px-6 rounded-lg transition-colors cursor-pointer">
-                Submit Your Job
-              </button>
-            </Link>
             <Link href="/contact">
-              <button className="border border-white/20 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-wider h-10 px-6 rounded-lg transition-colors cursor-pointer">
-                Contact Us
+              <button className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold uppercase tracking-wider h-10 px-6 rounded-lg transition-colors cursor-pointer">
+                Contact Our Team
               </button>
             </Link>
           </div>

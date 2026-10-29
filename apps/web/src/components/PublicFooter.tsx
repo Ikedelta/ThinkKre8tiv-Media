@@ -29,8 +29,6 @@ export default function PublicFooter() {
           <nav className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs sm:text-sm font-medium">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
             <Link href="/services" className="hover:text-white transition-colors">Services</Link>
-            <Link href="/submit" className="hover:text-white transition-colors">Get an Estimate</Link>
-            <Link href="/track" className="hover:text-white transition-colors">Track Job</Link>
             <Link href="/about" className="hover:text-white transition-colors">About</Link>
             <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
           </nav>
