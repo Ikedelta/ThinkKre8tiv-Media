@@ -1,16 +1,36 @@
 import sql from '@/app/api/utils/sql';
 import { requireAdmin } from '@/lib/api-security';
 
+// In-memory cache for ultra-fast instant catalog responses
+let cachedServices: any[] | null = null;
+let lastServicesFetch = 0;
+const SERVICES_CACHE_TTL = 60 * 1000;
+
 export async function GET() {
   try {
+    const now = Date.now();
+    if (cachedServices && (now - lastServicesFetch) < SERVICES_CACHE_TTL) {
+      return Response.json(cachedServices, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
+        },
+      });
+    }
+
     const services = await sql`SELECT * FROM services ORDER BY category ASC, name ASC`;
+    cachedServices = services;
+    lastServicesFetch = now;
+
     return Response.json(services, {
       headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
       },
     });
   } catch (error) {
     console.error(error);
+    if (cachedServices) {
+      return Response.json(cachedServices);
+    }
     return Response.json({ error: 'Failed to fetch services' }, { status: 500 });
   }
 }
@@ -32,6 +52,9 @@ export async function POST(request: Request) {
       RETURNING *
     `;
     
+    cachedServices = null;
+    lastServicesFetch = 0;
+
     return Response.json(service);
   } catch (error) {
     console.error(error);
@@ -50,17 +73,20 @@ export async function PUT(request: Request) {
 
     const [service] = await sql`
       UPDATE services
-      SET name = ${name}, 
-          category = ${category}, 
-          description = ${description}, 
-          base_price = ${base_price}, 
-          unit = ${unit}, 
-          is_active = ${is_active},
+      SET name = ${name},
+          category = ${category},
+          description = ${description || null},
+          base_price = ${base_price || 0},
+          unit = ${unit || 'unit'},
+          is_active = ${is_active ?? true},
           updated_at = NOW()
       WHERE id = ${id}
       RETURNING *
     `;
-    
+
+    cachedServices = null;
+    lastServicesFetch = 0;
+
     return Response.json(service);
   } catch (error) {
     console.error(error);
