@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     if (!existing) {
       // Use the actual better-auth instance to create the user properly
       // We pass fake headers so it doesn't try to read/set cookies on this API call
-      const res = await auth.api.signUpEmail({
+      const res = await (auth.api.signUpEmail as any)({
         body: {
           email,
           password,

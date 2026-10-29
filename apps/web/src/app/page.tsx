@@ -70,7 +70,9 @@ export default function HomePage() {
     queryFn: async () => {
       const res = await fetch('/api/cms');
       return res.json();
-    }
+    },
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const heroHeadline = cmsContent?.find((c: any) => c.id === 'hero_headline')?.content || DEFAULT_SITEINFO.heroHeadline;

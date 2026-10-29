@@ -19,7 +19,9 @@ export default function AboutPage() {
     queryFn: async () => {
       const res = await fetch('/api/cms');
       return res.json();
-    }
+    },
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const aboutTitle = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_title')?.content || "From a Small Studio to Ghana’s Premier Print Partner";

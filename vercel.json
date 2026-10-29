@@ -1,6 +1,6 @@
 {
   "buildCommand": "cd ../.. && corepack enable && corepack yarn workspace web build",
-  "installCommand": "cd ../.. && corepack enable && corepack yarn install --immutable",
+  "installCommand": "cd ../.. && corepack enable && corepack yarn install",
   "outputDirectory": ".next",
   "framework": "nextjs"
 }
