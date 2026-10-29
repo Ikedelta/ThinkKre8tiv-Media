@@ -4,8 +4,20 @@ import { ensureDatabaseIndexes } from '@/lib/db-indexes';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+// In-memory cache for ultra-fast instant dashboard rendering
+let cachedStats: any = null;
+let lastCacheTime = 0;
+const CACHE_TTL_MS = 15000; // 15 seconds
+
 export async function GET() {
   try {
+    const now = Date.now();
+    if (cachedStats && (now - lastCacheTime) < CACHE_TTL_MS) {
+      return Response.json(cachedStats, {
+        headers: { 'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=30' }
+      });
+    }
+
     // Ensure database indexes asynchronously in the background
     ensureDatabaseIndexes().catch(() => {});
 
@@ -70,7 +82,7 @@ export async function GET() {
       `
     ]);
 
-    return Response.json({
+    const payload = {
       metrics: {
         totalPrintJobs: Number(metrics.total_print_jobs),
         pendingJobs: Number(metrics.pending_jobs),
@@ -91,9 +103,14 @@ export async function GET() {
         customers: recentCustomers,
         expenses: recentExpenses
       }
-    }, {
+    };
+
+    cachedStats = payload;
+    lastCacheTime = now;
+
+    return Response.json(payload, {
       headers: {
-        'Cache-Control': 'no-store'
+        'Cache-Control': 'public, s-maxage=15, stale-while-revalidate=30'
       }
     });
 

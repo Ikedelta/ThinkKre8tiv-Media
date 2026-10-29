@@ -16,13 +16,18 @@ export async function GET(request: Request) {
     // Fetch live, real-time balance directly from Arkesel Portal API
     if (arkeselApiKey) {
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second max timeout to prevent dashboard lag
+
         const arkeselRes = await fetch('https://sms.arkesel.com/api/v2/clients/balance-details', {
           headers: {
             'api-key': arkeselApiKey,
             'Accept': 'application/json',
           },
-          next: { revalidate: 30 }, // cache for 30s to stay fast and avoid rate limits
+          signal: controller.signal,
+          next: { revalidate: 60 }, // cache for 60s
         });
+        clearTimeout(timeoutId);
 
         if (arkeselRes.ok) {
           const resData = await arkeselRes.json();

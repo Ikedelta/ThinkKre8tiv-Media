@@ -1,4 +1,3 @@
-import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
