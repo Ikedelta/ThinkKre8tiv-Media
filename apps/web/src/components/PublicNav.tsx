@@ -31,33 +31,33 @@ export default function PublicNav() {
     <nav className={cn(
       "fixed w-full top-0 left-0 z-50 transition-all duration-200",
       isScrolled 
-        ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xs border-b border-slate-200 dark:border-slate-800 py-1.5" 
-        : "bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm border-b border-slate-200/60 dark:border-slate-800/60 py-2"
+        ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xs border-b border-slate-200 dark:border-slate-800 py-2 sm:py-2.5" 
+        : "bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm border-b border-slate-200/60 dark:border-slate-800/60 py-2.5 sm:py-3"
     )}>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-10 sm:h-11">
+        <div className="flex justify-between items-center h-12 sm:h-13">
           
           {/* Brand Logo & Name */}
-          <Link href="/" className="flex items-center gap-2.5 group py-0.5">
-            <div className="relative p-0.5 rounded-md bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs transition-transform group-hover:scale-105">
+          <Link href="/" className="flex items-center gap-3 group py-0.5">
+            <div className="relative p-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xs transition-transform group-hover:scale-105">
               <img 
                 src="/logo.png" 
                 alt="Think Kre8tiv Logo" 
                 className={cn(
                   "w-auto object-contain transition-all duration-200",
-                  isScrolled ? "h-6 sm:h-7" : "h-7 sm:h-8"
+                  isScrolled ? "h-8 sm:h-9" : "h-9 sm:h-10"
                 )} 
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-extrabold text-xs sm:text-sm tracking-tight text-slate-950 dark:text-white uppercase flex items-center gap-1">
+              <span className="font-extrabold text-sm sm:text-base tracking-tight text-slate-950 dark:text-white uppercase flex items-center gap-1 leading-tight">
                 <span>THINK</span>
                 <span className="text-[#D22630]">
                   KRE8TIV
                 </span>
               </span>
-              <span className="text-[8px] uppercase tracking-wider font-medium text-slate-500 dark:text-slate-400 -mt-0.5">
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-semibold text-slate-500 dark:text-slate-400">
                 Media &bull; Commercial Printing
               </span>
             </div>
@@ -99,10 +99,10 @@ export default function PublicNav() {
           <div className="flex items-center gap-1.5 md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-2.5 rounded-xl text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-slate-200/80"
               aria-label="Toggle menu"
             >
-              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </div>
         </div>

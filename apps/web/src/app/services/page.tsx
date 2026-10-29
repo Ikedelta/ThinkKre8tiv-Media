@@ -99,13 +99,13 @@ export default function ServicesPage() {
       <PublicNav />
 
       {/* Simple, Professional Page Header */}
-      <section className="bg-white border-b border-slate-200 py-12 sm:py-16">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200/60 text-[#D22630] text-[11px] font-bold uppercase tracking-wider">
+      <section className="bg-white border-b border-slate-200 py-14 sm:py-18">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-50 border border-red-200/60 text-[#D22630] text-xs font-bold uppercase tracking-wider">
             <span>Our Capabilities</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
             Commercial Printing &amp; Fabrication Services
           </h1>
 
@@ -114,13 +114,13 @@ export default function ServicesPage() {
           </p>
 
           {/* Category Filter Pills */}
-          <div className="pt-6 flex flex-wrap justify-center gap-2">
+          <div className="pt-6 flex flex-wrap justify-center gap-2.5">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={cn(
-                  "px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer",
+                  "px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer",
                   selectedCategory === cat.id
                     ? "bg-[#D22630] text-white shadow-xs"
                     : "bg-slate-100 hover:bg-slate-200/80 text-slate-700"
@@ -158,25 +158,25 @@ export default function ServicesPage() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-5 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-red-50 text-[#D22630] flex items-center justify-center shrink-0">
-                          <Icon size={15} />
+                    <div className="p-6 space-y-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-red-50 text-[#D22630] flex items-center justify-center shrink-0">
+                          <Icon size={17} />
                         </div>
-                        <h3 className="text-base font-bold text-slate-900 leading-snug">
+                        <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
                           {service.title}
                         </h3>
                       </div>
 
-                      <p className="text-xs text-slate-600 leading-relaxed">
+                      <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                         {service.description}
                       </p>
 
                       {/* Bullet Highlights */}
-                      <div className="pt-2 border-t border-slate-100 space-y-1.5">
+                      <div className="pt-3 border-t border-slate-100 space-y-2">
                         {service.highlights.map((h, i) => (
-                          <div key={i} className="flex items-center gap-2 text-xs text-slate-700">
-                            <CheckCircle2 size={13} className="text-emerald-600 shrink-0" />
+                          <div key={i} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+                            <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
                             <span>{h}</span>
                           </div>
                         ))}
@@ -185,10 +185,10 @@ export default function ServicesPage() {
                   </div>
 
                   {/* Card Button */}
-                  <div className="p-5 pt-0">
+                  <div className="p-6 pt-0">
                     <Link href={`/submit?product=${encodeURIComponent(service.title)}`}>
-                      <button className="w-full h-9 rounded-lg bg-slate-900 hover:bg-[#D22630] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
-                        Request an Estimate <ArrowRight size={13} />
+                      <button className="w-full h-11 rounded-xl bg-slate-900 hover:bg-[#D22630] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99]">
+                        Request an Estimate <ArrowRight size={14} />
                       </button>
                     </Link>
                   </div>

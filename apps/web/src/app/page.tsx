@@ -135,7 +135,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden pt-14 sm:pt-16 font-sans">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden pt-16 sm:pt-20 font-sans">
       <PublicNav />
 
       {/* =========================================================================
@@ -159,53 +159,53 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             
             {/* Left Column: Mission & Strategic Action */}
-            <div className="lg:col-span-7 space-y-4 text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/90 text-slate-700 text-[11px] font-semibold shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-[#D22630] animate-pulse" />
-                <span className="font-semibold tracking-wider text-[10px] uppercase text-slate-800">
+            <div className="lg:col-span-7 space-y-5 text-left">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200/90 text-slate-700 text-xs font-semibold shadow-xs">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#D22630] animate-pulse" />
+                <span className="font-bold tracking-wider text-[11px] sm:text-xs uppercase text-slate-800">
                   Quality Printing &amp; Business Branding
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.18]">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.18]">
                 {heroHeadline}
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed max-w-xl">
+              <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-xl">
                 {heroSubheadline}
               </p>
 
               {/* Call to Actions with Brand Vibrant Colors */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link href="/submit">
-                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white h-10 px-5 rounded-lg shadow-md hover:shadow-red-900/20 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
-                    Request a Quote <ArrowRight size={13} />
+                <Link href="/submit" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white h-11 sm:h-12 px-6 rounded-xl shadow-md hover:shadow-red-900/20 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                    Request a Quote <ArrowRight size={14} />
                   </button>
                 </Link>
-                <Link href="/services">
-                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 h-10 px-5 rounded-lg transition-all shadow-xs cursor-pointer">
+                <Link href="/services" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-bold uppercase tracking-wider border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 h-11 sm:h-12 px-6 rounded-xl transition-all shadow-xs cursor-pointer">
                     Our Services
                   </button>
                 </Link>
               </div>
 
               {/* Business Highlights Strip with Clean Elevated Cards */}
-              <div className="pt-5 border-t border-slate-200/80 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
-                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">14+</div>
-                  <div className="text-[10px] font-medium text-slate-500">Years of Experience</div>
+              <div className="pt-6 border-t border-slate-200/80 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">14+</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Years of Experience</div>
                 </div>
-                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
-                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">1,200+</div>
-                  <div className="text-[10px] font-medium text-slate-500">Happy Clients</div>
+                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">1,200+</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Happy Clients</div>
                 </div>
-                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
-                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">&lt; 24h</div>
-                  <div className="text-[10px] font-medium text-slate-500">Fast Sample Reviews</div>
+                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">&lt; 24h</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Fast Sample Reviews</div>
                 </div>
-                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
-                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">100%</div>
-                  <div className="text-[10px] font-medium text-slate-500">Satisfaction Guaranteed</div>
+                <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">100%</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Satisfaction Guaranteed</div>
                 </div>
               </div>
             </div>
@@ -283,21 +283,21 @@ export default function HomePage() {
       {/* =========================================================================
           SECTION 2: TRUSTED PARTNERS & CLIENTS (INFINITE SLIDING MARQUEE)
           ========================================================================= */}
-      <section className="py-12 bg-white dark:bg-slate-950 border-b border-slate-200/70 dark:border-slate-800/80 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+      <section className="py-14 sm:py-16 bg-white dark:bg-slate-950 border-b border-slate-200/70 dark:border-slate-800/80 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary" />
+              <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">
                 Trusted by Industry Leaders Across West Africa
               </p>
             </div>
-            <p className="text-xs text-slate-400 font-medium">Over 1,200+ Corporate Brands &amp; Multinationals</p>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">Over 1,200+ Corporate Brands &amp; Multinationals</p>
           </div>
         </div>
 
         {/* Continuous Logo Marquee Track */}
-        <div className="relative w-full overflow-hidden py-3">
+        <div className="relative w-full overflow-hidden py-4">
           {/* Gradient fade edge masks */}
           <div className="absolute left-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
           <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
@@ -307,10 +307,10 @@ export default function HomePage() {
             {[...partnersList, ...partnersList].map((partner: any, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center gap-3 px-5 py-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-sm shrink-0 group cursor-default"
+                className="flex items-center gap-3.5 px-6 py-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-xs shrink-0 group cursor-default"
               >
                 {partner.image_url ? (
-                  <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 overflow-hidden shrink-0">
+                  <div className="w-12 h-12 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1.5 overflow-hidden shrink-0">
                     <img 
                       src={partner.image_url} 
                       alt={partner.name} 
@@ -318,15 +318,15 @@ export default function HomePage() {
                     />
                   </div>
                 ) : (
-                  <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-slate-700 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-black text-sm text-slate-700 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
                     {partner.name.charAt(0)}
                   </div>
                 )}
                 <div>
-                  <h4 className="text-xs font-extrabold tracking-wider text-slate-800 dark:text-slate-200 uppercase group-hover:text-primary transition-colors">
+                  <h4 className="text-xs sm:text-sm font-extrabold tracking-wider text-slate-900 dark:text-slate-100 uppercase group-hover:text-primary transition-colors">
                     {partner.logo}
                   </h4>
-                  <p className="text-[10px] text-slate-400 uppercase tracking-widest">{partner.category}</p>
+                  <p className="text-[11px] sm:text-xs text-slate-500 uppercase tracking-wider mt-0.5">{partner.category}</p>
                 </div>
               </div>
             ))}
