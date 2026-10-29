@@ -118,43 +118,43 @@ export const EXPERTISE = [
 export const GALLERY_ITEMS = [
   {
     image: '/images/1.jpg',
-    category: 'Offset Press',
-    title: 'High-Volume Commercial Printing',
+    category: 'Commercial Printing',
+    title: 'Custom Tote Bags, Notebooks & Corporate Sets',
   },
   {
     image: '/images/2.jpg',
-    category: 'Large Format',
-    title: 'Outdoor & 3D Architectural Signs',
+    category: 'Merchandise & Apparel',
+    title: 'Brand Identity Kits, Hoodies, Tees & Drinkware',
   },
   {
     image: '/images/3.jpg',
-    category: 'Packaging',
-    title: 'Luxury Gift & Rigid Product Boxes',
+    category: 'Packaging & Bottles',
+    title: 'Branded Thermal Tumblers, Bags & Diary Gifts',
   },
   {
     image: '/images/IMG-20260617-WA0060.jpg',
-    category: 'Branding',
-    title: 'Corporate Swag & Executive Merchandise',
-  },
-  {
-    image: '/images/IMG-20260617-WA0059.jpg',
-    category: 'Stationery',
-    title: 'Corporate Books, Folders & Envelopes',
-  },
-  {
-    image: '/images/IMG-20260617-WA0063.jpg',
-    category: 'Apparel',
-    title: 'Precision Embroidery & Screen Prints',
+    category: 'Fabrication',
+    title: 'Precision Cotton Bedding & Textile Printing',
   },
   {
     image: '/images/IMG-20260617-WA0064.jpg',
-    category: 'Signage',
-    title: 'Custom Fabricated Acrylic Displays',
+    category: 'Laser Engraving',
+    title: 'Custom Acrylic & Frosted Keyrings',
+  },
+  {
+    image: '/images/IMG-20260617-WA0059.jpg',
+    category: 'Corporate Stationery',
+    title: 'Executive Agendas, Notebooks & Pens',
+  },
+  {
+    image: '/images/IMG-20260617-WA0063.jpg',
+    category: 'Uniforms & Apparel',
+    title: 'Precision Embroidery & Screen-Printed Polos',
   },
   {
     image: '/images/IMG-20260617-WA0056.jpg',
-    category: 'Fabrication',
-    title: 'Modern Finishing & Die-Cutting',
+    category: 'Finishing & Folding',
+    title: 'Automated Folding & Packaging Line',
   },
 ];
 

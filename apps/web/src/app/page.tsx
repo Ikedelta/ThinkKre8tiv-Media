@@ -641,31 +641,31 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 auto-rows-[170px]">
             {/* Feature Image: High-Volume Production Facility */}
-            <div className="md:col-span-8 md:row-span-2 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900">
+            <div className="md:col-span-8 md:row-span-2 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-md">
               <img 
                 src="/images/1.jpg" 
-                alt="Think Kre8tiv Industrial Production Facility" 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                alt="Think Kre8tiv Brand Printing & Packaging Suite" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 space-y-1">
-                <span className="inline-block bg-[#D22630] text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm">
-                  Facility Spotlight
+                <span className="inline-block bg-[#D22630] text-white text-[9px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-xs">
+                  Production Showcase
                 </span>
-                <h3 className="text-lg sm:text-xl font-extrabold text-white">High-Speed Commercial Printing Presses</h3>
+                <h3 className="text-lg sm:text-xl font-extrabold text-white">Custom Brand Printing &amp; Packaging Suite</h3>
                 <p className="text-xs text-slate-300 font-normal max-w-lg hidden sm:block">
-                  High-volume automated printing for enterprise marketing collateral, annual reports, and packaging boxes.
+                  High-volume automated printing for corporate gift bags, custom notebooks, stationery, and enterprise merchandise.
                 </p>
               </div>
             </div>
 
             {/* Gallery Items with verified real photography */}
             {GALLERY_ITEMS.slice(1, 5).map((item, idx) => (
-              <div key={idx} className={`relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 ${idx === 0 || idx === 3 ? 'md:col-span-4 md:row-span-2' : 'md:col-span-4 md:row-span-1'}`}>
+              <div key={idx} className={`relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm ${idx === 0 || idx === 3 ? 'md:col-span-4 md:row-span-2' : 'md:col-span-4 md:row-span-1'}`}>
                 <img 
                   src={item.image} 
                   alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
                 <div className="absolute bottom-3.5 left-3.5 right-3.5">
