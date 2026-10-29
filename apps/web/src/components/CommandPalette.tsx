@@ -474,7 +474,6 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
               <kbd className="px-1 py-0.5 bg-white dark:bg-slate-800 border rounded text-[9px]">↵</kbd> to select
             </span>
           </div>
-          <span className="font-semibold text-slate-500">Think Kre8tiv Enterprise OS</span>
         </div>
       </div>
     </div>

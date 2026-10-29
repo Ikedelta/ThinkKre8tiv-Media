@@ -263,17 +263,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
           )}
-          
-          {/* Enterprise Security Badge */}
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-semibold tracking-wide">
-            <Shield size={11} className="text-emerald-500" />
-            <span>Enterprise RBAC Active</span>
-          </div>
-
-          {/* Footer Branding */}
-          <div className="text-center -mt-1">
-            <p className="text-[9px] text-slate-400/80 font-medium">Think Kre8tiv Enterprise OS</p>
-          </div>
         </div>
       </aside>
 
