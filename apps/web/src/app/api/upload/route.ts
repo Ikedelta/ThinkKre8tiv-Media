@@ -72,23 +72,27 @@ export async function POST(request: Request): Promise<NextResponse> {
       VALUES (${id}, ${filename}, ${content_type}, ${size_bytes}, ${data_base64}, ${public_url})
     `;
 
-    // Also mirror directly into Neon S3 Object Storage bucket if configured
-    try {
-      const s3 = getS3Client();
-      const bucket = process.env.NEON_STORAGE_BUCKET || 'cms-uploads';
-      if (s3 && bucket) {
-        await s3.send(
-          new PutObjectCommand({
-            Bucket: bucket,
-            Key: `uploads/${id}_${filename}`,
-            Body: buffer,
-            ContentType: content_type,
-          })
-        );
-        console.log(`[Neon S3 Bucket] Uploaded to bucket ${bucket} as uploads/${id}_${filename}`);
-      }
-    } catch (s3Err: any) {
-      console.warn('[Neon S3 Bucket] S3 upload skipped or warning:', s3Err?.message);
+    // Also mirror directly into Neon S3 Object Storage bucket asynchronously without blocking the client
+    if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+      (async () => {
+        try {
+          const s3 = getS3Client();
+          const bucket = process.env.NEON_STORAGE_BUCKET || 'cms-uploads';
+          if (s3 && bucket) {
+            await s3.send(
+              new PutObjectCommand({
+                Bucket: bucket,
+                Key: `uploads/${id}_${filename}`,
+                Body: buffer,
+                ContentType: content_type,
+              })
+            );
+            console.log(`[Neon S3 Bucket] Uploaded to bucket ${bucket} as uploads/${id}_${filename}`);
+          }
+        } catch (s3Err: any) {
+          console.warn('[Neon S3 Bucket] Async S3 upload skipped or warning:', s3Err?.message);
+        }
+      })().catch(() => {});
     }
 
     console.log(`[Storage Bucket] Stored ${filename} (${(size_bytes / 1024).toFixed(1)} KB) -> ${public_url}`);

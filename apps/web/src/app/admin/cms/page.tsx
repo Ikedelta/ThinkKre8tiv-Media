@@ -20,7 +20,9 @@ import {
   RefreshCw,
   ExternalLink,
   Upload,
-  Loader2
+  Loader2,
+  Trash2,
+  Check
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -49,32 +51,39 @@ const sectionConfig: Record<string, { label: string; desc: string; icon: any; co
     badge: 'Homepage Top'
   },
   hero_slides: {
-    label: 'Hero Image Slider',
-    desc: 'Interactive sliding photo carousel displayed on the right side of the homepage hero banner.',
-    icon: ImageIcon,
-    color: 'text-red-500',
+    label: 'Hero Carousel Slides',
+    desc: 'Sliding photography banner on the hero section with category badges, titles, and descriptions.',
+    icon: Layers,
+    color: 'text-[#D22630]',
     badge: 'Hero Slider'
   },
+  partners: {
+    label: 'Partners & Clients',
+    desc: 'Upload client company logos, set brand names and industries to slide seamlessly across the marquee.',
+    icon: Building2,
+    color: 'text-teal-500',
+    badge: 'Sliding Logos'
+  },
   ceo: {
-    label: 'CEO & Leadership',
-    desc: 'Executive statement, CEO full name, official title, quote, statement, and executive portrait photo.',
+    label: 'Executive Statement',
+    desc: 'Managing Director / CEO profile photograph, quotation, and corporate philosophy message.',
     icon: User,
-    color: 'text-rose-500',
-    badge: 'Executive Statement'
+    color: 'text-indigo-500',
+    badge: 'Leadership'
   },
   about: {
-    label: 'Who We Are & Heritage',
-    desc: 'Company origin story, industrial lithography capacity, and structural fabrication pillars.',
+    label: 'Corporate Heritage',
+    desc: 'Company backstory, founding narrative, and factory establishment paragraphs on the About page.',
     icon: Award,
-    color: 'text-indigo-500',
-    badge: 'About Page & Section'
+    color: 'text-emerald-500',
+    badge: 'About Page'
   },
   expertise: {
     label: 'Core Capabilities',
-    desc: 'The commercial printing categories (Offset, Commercial Packaging, 3D Signage, Fleet Branding).',
-    icon: Layers,
-    color: 'text-emerald-500',
-    badge: 'Print Services'
+    desc: 'Primary business pillars displayed on the homepage with high-res photos and service descriptions.',
+    icon: CheckCircle2,
+    color: 'text-violet-500',
+    badge: 'Services Grid'
   },
   carousel: {
     label: 'Production Showcase',
@@ -85,7 +94,7 @@ const sectionConfig: Record<string, { label: string; desc: string; icon: any; co
   },
   contact: {
     label: 'Contact & Press Facility',
-    desc: 'Official direct phone numbers (as in logo: 0244681391 / 0244766457), email, and factory address.',
+    desc: 'Official direct phone numbers, email addresses, and factory location in Accra.',
     icon: Phone,
     color: 'text-purple-500',
     badge: 'Contact Details'
@@ -96,13 +105,6 @@ const sectionConfig: Record<string, { label: string; desc: string; icon: any; co
     icon: BellRing,
     color: 'text-amber-600',
     badge: 'Header Banner'
-  },
-  partners: {
-    label: 'Partners & Clients',
-    desc: 'Partner logo marquee section titles and corporate client descriptions.',
-    icon: Building2,
-    color: 'text-teal-500',
-    badge: 'Sliding Logos'
   }
 };
 
@@ -110,6 +112,7 @@ export default function ComprehensiveCmsPage() {
   const [activeSection, setActiveSection] = useState('hero');
   const [formData, setFormData] = useState<CmsItem[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { data: items = [], isLoading, refetch } = useQuery<CmsItem[]>({
@@ -136,7 +139,7 @@ export default function ComprehensiveCmsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cms'] });
-      toast.success('Slide removed successfully');
+      toast.success('Item removed successfully');
     },
   });
 
@@ -163,28 +166,32 @@ export default function ComprehensiveCmsPage() {
       });
       if (!res.ok) throw new Error('Failed to create new item');
       queryClient.invalidateQueries({ queryKey: ['cms'] });
-      toast.success('New slide added! You can now customize and save it.');
+      toast.success('New item created! You can now customize and save it.');
     } catch (err: any) {
-      toast.error(err.message || 'Failed to add item');
+      toast.error(err.message || 'Error creating item');
     }
   };
+
   const updateMutation = useMutation({
-    mutationFn: async (data: { id: string; title: string; content: string; image_url: string; section?: string }) => {
+    mutationFn: async (item: Partial<CmsItem>) => {
       const res = await fetch('/api/cms', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(item),
       });
-      if (!res.ok) throw new Error('Failed to update content');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to update content');
+      }
       return res.json();
     },
   });
 
   const handleSaveAll = async () => {
-    setIsSaving(true);
     try {
+      setIsSaving(true);
       await Promise.all(
-        formData.map(item =>
+        formData.map((item) =>
           updateMutation.mutateAsync({
             id: item.id,
             title: item.title,
@@ -207,8 +214,6 @@ export default function ComprehensiveCmsPage() {
     setFormData(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
   };
 
-  const [uploadingId, setUploadingId] = useState<string | null>(null);
-
   const handleFileUpload = async (itemId: string, file: File) => {
     if (!file) return;
     try {
@@ -223,7 +228,7 @@ export default function ComprehensiveCmsPage() {
       const data = await res.json();
       if (data.url) {
         updateField(itemId, 'image_url', data.url);
-        toast.success('Image uploaded successfully! Click Save to publish.');
+        toast.success('Image uploaded to storage bucket! Click "Save Changes" to publish.');
       }
     } catch (err: any) {
       console.error(err);
@@ -244,120 +249,120 @@ export default function ComprehensiveCmsPage() {
   const CurrentIcon = currentSection.icon;
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8 pb-16 font-sans">
+    <div className="space-y-8 max-w-[1440px] mx-auto pb-16 font-sans">
       
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+      {/* Top Banner Header: Matching Dashboard Typography Exactly */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-emerald-500/10 text-slate-800 dark:text-slate-200 border border-amber-500/20 uppercase tracking-wider">
-              Think Kre8tiv Brand Master CMS
+            <span className="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300 uppercase tracking-wider">
+              Live Website Sync Active
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1">
-            Website Content &amp; Media CMS
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
+            Website Content &amp; Media Management
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Manage every section of the public website with live synchronization across all devices.
+            Real-time control over homepage banners, sliding client logos, executive bios, and photography.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link href="/" target="_blank">
-            <Button variant="outline" size="sm" className="text-xs h-9 font-semibold gap-1.5 border-slate-300 dark:border-slate-700">
-              <ExternalLink className="w-3.5 h-3.5" /> View Live Site
+            <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs font-semibold">
+              <ExternalLink className="w-3.5 h-3.5" /> View Public Site
             </Button>
           </Link>
           <Button
             onClick={handleSaveAll}
             disabled={isSaving || formData.length === 0}
-            className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs h-9 font-semibold gap-2 shadow-sm"
+            className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs h-9 px-5 font-bold gap-2 shadow-xs cursor-pointer"
           >
             {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            {isSaving ? 'Publishing...' : 'Save & Publish Changes'}
+            {isSaving ? 'Saving...' : 'Save All Changes'}
           </Button>
         </div>
       </div>
 
-      {/* Main CMS Layout (Sidebar Navigation + Form Editor) */}
+      {/* Main Grid: Ultra-Modern Clean Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* Navigation Sidebar */}
-        <div className="lg:col-span-4 space-y-2">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-sm space-y-1">
-            <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Website Sections ({Object.keys(sectionConfig).length})
-            </div>
+        {/* Left Navigation Sidebar */}
+        <div className="lg:col-span-4 space-y-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 px-3 py-2">
+              Website Sections
+            </p>
+            <div className="space-y-1">
+              {Object.entries(sectionConfig).map(([key, config]) => {
+                const Icon = config.icon;
+                const isActive = activeSection === key;
+                const count = items.filter(i => i.section === key).length;
 
-            {Object.entries(sectionConfig).map(([key, config]) => {
-              const Icon = config.icon;
-              const isActive = activeSection === key;
-              const count = items.filter(i => i.section === key).length;
-
-              return (
-                <button
-                  key={key}
-                  onClick={() => setActiveSection(key)}
-                  className={cn(
-                    "w-full flex items-center justify-between p-3 rounded-xl text-left transition-all group",
-                    isActive
-                      ? "bg-[#0F172A] text-white shadow-sm"
-                      : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
-                  )}
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className={cn(
-                      "p-2 rounded-lg transition-colors",
-                      isActive ? "bg-white/10 text-white" : "bg-slate-100 dark:bg-slate-800",
-                      !isActive && config.color
-                    )}>
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="truncate">
-                      <p className="text-xs font-bold truncate leading-tight">{config.label}</p>
-                      <p className={cn(
-                        "text-[10px] truncate mt-0.5",
-                        isActive ? "text-slate-300" : "text-slate-400"
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActiveSection(key)}
+                    className={cn(
+                      "w-full flex items-center justify-between p-3 rounded-xl text-left transition-all cursor-pointer group",
+                      isActive
+                        ? "bg-[#0F172A] text-white shadow-xs"
+                        : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={cn(
+                        "p-2 rounded-lg transition-colors",
+                        isActive ? "bg-white/10 text-white" : "bg-slate-100 dark:bg-slate-800",
+                        !isActive && config.color
                       )}>
-                        {config.badge}
-                      </p>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="truncate">
+                        <p className="text-sm font-bold truncate leading-tight">{config.label}</p>
+                        <p className={cn(
+                          "text-xs truncate mt-0.5",
+                          isActive ? "text-slate-300" : "text-slate-400"
+                        )}>
+                          {config.badge}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <span className={cn(
-                    "text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0",
-                    isActive ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
-                  )}>
-                    {count} item{count === 1 ? '' : 's'}
-                  </span>
-                </button>
-              );
-            })}
+
+                    <span className={cn(
+                      "text-xs font-mono font-bold px-2 py-0.5 rounded-full ml-2 shrink-0",
+                      isActive
+                        ? "bg-white/20 text-white"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                    )}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Quick Help Card */}
-          <div className="bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/70 dark:border-amber-900/40 rounded-2xl p-4 text-xs space-y-2">
-            <div className="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
-              <Sparkles className="w-4 h-4 text-amber-500" />
-              <span>Real-Time Brand Sync</span>
-            </div>
-            <p className="text-amber-700 dark:text-amber-400 text-[11px] leading-relaxed">
-              Updates saved here automatically synchronize across all visitor devices, quotes, and header banners with zero downtime.
+          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 space-y-1">
+            <p className="font-bold text-slate-700 dark:text-slate-300">💡 Instant Cloud Sync</p>
+            <p className="leading-relaxed">
+              Images uploaded here save directly into your Neon cloud storage bucket and refresh live on visitor browsers.
             </p>
           </div>
         </div>
 
-        {/* Content Editor Panel */}
+        {/* Right Content Editor Panel */}
         <div className="lg:col-span-8 space-y-6">
-          <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden">
+          <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs rounded-2xl overflow-hidden">
             <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <CurrentIcon className={cn("w-5 h-5", currentSection.color)} />
-                  <CardTitle className="text-lg font-bold text-slate-900 dark:text-white">
+                  <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
                     {currentSection.label}
                   </CardTitle>
                 </div>
-                <p className="text-xs text-slate-500 mt-1">{currentSection.desc}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">{currentSection.desc}</p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -365,12 +370,12 @@ export default function ComprehensiveCmsPage() {
                   <Button
                     size="sm"
                     onClick={handleAddNewSlide}
-                    className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold gap-1.5 h-8 shadow-xs"
+                    className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold gap-1.5 h-9 px-4 shadow-xs cursor-pointer"
                   >
-                    <Plus size={14} /> {activeSection === 'partners' ? 'Add Client Logo' : 'Add Slide'}
+                    <Plus size={14} /> {activeSection === 'partners' ? 'Add Client Logo' : 'Add Item'}
                   </Button>
                 )}
-                <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
                   {currentSection.badge}
                 </span>
               </div>
@@ -378,20 +383,20 @@ export default function ComprehensiveCmsPage() {
 
             <CardContent className="p-6 space-y-6">
               {isLoading ? (
-                <div className="py-16 text-center text-slate-400">
-                  <div className="w-7 h-7 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-                  Loading section content...
+                <div className="py-16 text-center space-y-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-[#D22630] mx-auto" />
+                  <p className="text-sm font-medium text-slate-500">Loading section content...</p>
                 </div>
               ) : formData.length === 0 ? (
                 <div className="py-16 text-center text-slate-400 space-y-3">
                   <Globe className="w-10 h-10 text-slate-300 mx-auto" />
                   <p className="font-semibold text-slate-700 dark:text-slate-300">No active content records in this section</p>
-                  <p className="text-xs max-w-sm mx-auto">Click &quot;Add Slide&quot; or &quot;Add Client Logo&quot; above to initialize custom items.</p>
+                  <p className="text-xs max-w-sm mx-auto">Click &quot;Add Client Logo&quot; or &quot;Add Item&quot; above to initialize custom items.</p>
                   {['hero_slides', 'carousel', 'expertise', 'partners'].includes(activeSection) && (
                     <Button
                       size="sm"
                       onClick={handleAddNewSlide}
-                      className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold gap-1.5 h-8 mt-2"
+                      className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold gap-1.5 h-9 mt-2"
                     >
                       <Plus size={14} /> {activeSection === 'partners' ? 'Add First Client Logo' : 'Add First Slide'}
                     </Button>
@@ -405,26 +410,26 @@ export default function ComprehensiveCmsPage() {
                   return (
                     <div
                       key={item.id}
-                      className="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 space-y-4 hover:border-slate-300 transition-all"
+                      className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs space-y-4 hover:border-slate-300 transition-all"
                     >
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-mono font-bold text-slate-400">#{index + 1}</span>
-                          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                             {item.title || item.id}
                           </h4>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                            ID: {item.id}
+                          <span className="text-[11px] font-mono text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            {item.id}
                           </span>
                           {['hero_slides', 'carousel', 'expertise', 'partners'].includes(item.section) && (
                             <button
                               onClick={() => deleteMutation.mutate(item.id)}
-                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded transition-colors"
+                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer"
                               title="Delete this item"
                             >
-                              <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
+                              <span className="text-xs font-bold uppercase px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
                             </button>
                           )}
                         </div>
@@ -432,21 +437,21 @@ export default function ComprehensiveCmsPage() {
 
                       {/* Title / Label Field */}
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-                          {item.section === 'hero_slides' ? 'Slide Tag & Title (Format: Tag ::: Title)' : 'Display Title / Heading'}
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                          {item.section === 'hero_slides' ? 'Slide Tag & Title (Format: Tag ::: Title)' : item.section === 'partners' ? 'Client / Company Name' : 'Display Title / Heading'}
                         </label>
                         <Input
                           value={item.title || ''}
                           onChange={(e) => updateField(item.id, 'title', e.target.value)}
-                          placeholder={item.section === 'hero_slides' ? 'e.g. Printing & Packaging ::: High-Quality Printing & Boxes' : 'e.g. Section headline'}
-                          className="h-9 text-xs bg-white dark:bg-slate-900"
+                          placeholder={item.section === 'hero_slides' ? 'e.g. Printing & Packaging ::: High-Quality Printing & Boxes' : item.section === 'partners' ? 'e.g. MTN Ghana' : 'e.g. Section headline'}
+                          className="h-10 text-sm bg-slate-50/50 dark:bg-slate-900"
                         />
                       </div>
 
-                      {/* Content Field (Single line or multi-line textarea) */}
+                      {/* Content Field */}
                       <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-                          Body Content / Value
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
+                          {item.section === 'partners' ? 'Industry / Sector Category' : 'Body Content / Value'}
                         </label>
                         {isLongText ? (
                           <Textarea
@@ -454,32 +459,32 @@ export default function ComprehensiveCmsPage() {
                             value={item.content || ''}
                             onChange={(e) => updateField(item.id, 'content', e.target.value)}
                             placeholder="Write compelling brand text..."
-                            className="text-xs bg-white dark:bg-slate-900 leading-relaxed"
+                            className="text-sm bg-slate-50/50 dark:bg-slate-900 leading-relaxed"
                           />
                         ) : (
                           <Input
                             value={item.content || ''}
                             onChange={(e) => updateField(item.id, 'content', e.target.value)}
-                            placeholder="Content string or phone number..."
-                            className="h-9 text-xs bg-white dark:bg-slate-900"
+                            placeholder={item.section === 'partners' ? 'e.g. Telecom & Corporate' : 'Content string or phone number...'}
+                            className="h-10 text-sm bg-slate-50/50 dark:bg-slate-900"
                           />
                         )}
                       </div>
 
-                      {/* Image Field if applicable */}
+                      {/* Image Upload & Preview Field */}
                       {hasImage && (
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
-                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                              Image Asset &bull; URL or Direct Upload
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                              {item.section === 'partners' ? 'Client Logo Image' : 'Image Asset • URL or Direct Upload'}
                             </label>
-                            <label className="cursor-pointer inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#D22630] hover:text-[#b81d26] bg-[#D22630]/10 px-2.5 py-1 rounded-md transition-colors">
+                            <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-[#D22630] hover:text-[#b81d26] bg-red-50 hover:bg-red-100/70 px-3 py-1.5 rounded-lg transition-colors border border-red-200">
                               {uploadingId === item.id ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                               ) : (
                                 <Upload className="w-3.5 h-3.5" />
                               )}
-                              <span>{uploadingId === item.id ? 'Uploading...' : 'Upload Image File'}</span>
+                              <span>{uploadingId === item.id ? 'Uploading to Bucket...' : 'Upload Image File'}</span>
                               <input
                                 type="file"
                                 accept="image/*"
@@ -492,25 +497,26 @@ export default function ComprehensiveCmsPage() {
                               />
                             </label>
                           </div>
+                          
                           <div className="flex gap-3 items-center">
                             <Input
                               value={item.image_url || ''}
                               onChange={(e) => updateField(item.id, 'image_url', e.target.value)}
-                              placeholder="https://... or upload a local file"
-                              className="h-9 text-xs bg-white dark:bg-slate-900 flex-1"
+                              placeholder="https://... or upload image above"
+                              className="h-10 text-sm bg-slate-50/50 dark:bg-slate-900 flex-1 font-mono text-xs"
                             />
-                            {item.image_url && (
-                              <div className="w-9 h-9 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 shrink-0">
+                            {item.image_url ? (
+                              <div className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1 shrink-0 flex items-center justify-center shadow-xs">
                                 <img
                                   src={item.image_url}
                                   alt="Preview"
-                                  className="w-full h-full object-cover"
+                                  className="max-w-full max-h-full object-contain"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = 'none';
                                   }}
                                 />
                               </div>
-                            )}
+                            ) : null}
                           </div>
                         </div>
                       )}
@@ -525,7 +531,7 @@ export default function ComprehensiveCmsPage() {
                   <Button
                     onClick={handleSaveAll}
                     disabled={isSaving}
-                    className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs h-10 px-6 font-semibold gap-2 shadow-sm"
+                    className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs h-10 px-6 font-bold gap-2 shadow-xs cursor-pointer"
                   >
                     {isSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                     {isSaving ? 'Saving Changes...' : `Save ${currentSection.label}`}
