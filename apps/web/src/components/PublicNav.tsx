@@ -87,21 +87,12 @@ export default function PublicNav() {
               })}
             </div>
 
-            <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
-
             <div className="flex items-center gap-3">
               <Link
-                href="/admin"
-                className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-[#D22630] transition-colors"
-              >
-                Portal Login
-              </Link>
-
-              <Link
                 href="/submit"
-                className="inline-flex items-center justify-center gap-1.5 text-xs font-semibold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white px-3.5 py-1.5 rounded-md shadow-xs hover:shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0"
+                className="inline-flex items-center justify-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white px-4 py-2 rounded-lg shadow-xs hover:shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0"
               >
-                Submit Job
+                Submit Print Job
               </Link>
             </div>
           </div>
@@ -147,11 +138,6 @@ export default function PublicNav() {
               );
             })}
             <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 mt-4">
-              <Link href="/admin" onClick={() => setIsMenuOpen(false)}>
-                <button className="w-full h-11 border border-slate-300 text-slate-800 font-bold rounded-xl text-xs uppercase tracking-wider transition-all active:bg-slate-100">
-                  Staff &bull; Portal Login
-                </button>
-              </Link>
               <Link href="/submit" onClick={() => setIsMenuOpen(false)}>
                 <button className="w-full h-11 bg-[#D22630] hover:bg-[#b81d26] text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-sm transition-all active:scale-[0.99]">
                   Submit Print Job

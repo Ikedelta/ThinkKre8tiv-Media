@@ -2,7 +2,8 @@
 
 import { useConfirm } from '@/components/providers/ConfirmProvider';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Search,
@@ -56,7 +57,7 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 
 const PAGE_SIZE = 10;
 
-export default function InvoicesPage() {
+function InvoicesPageContent() {
   const { confirm } = useConfirm();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -68,6 +69,14 @@ export default function InvoicesPage() {
   const [paymentInvoice, setPaymentInvoice] = useState<Invoice | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const viewId = searchParams?.get('view');
+    if (viewId) {
+      setSelectedInvoiceId(viewId);
+    }
+  }, [searchParams]);
 
   const { data: invoices = [], isLoading } = useQuery<Invoice[]>({
     queryKey: ['invoices'],
@@ -468,11 +477,17 @@ export default function InvoicesPage() {
                         isPending && 'bg-amber-50/20'
                       )}
                     >
-                      <td className="px-4 py-3 font-bold text-blue-600 text-sm">
+                      <td 
+                        className="px-4 py-3 font-bold text-blue-600 text-sm cursor-pointer hover:underline"
+                        onClick={() => setSelectedInvoiceId(invoice.id)}
+                      >
                         {invoice.invoice_number}
                       </td>
-                      <td className="px-4 py-3">
-                        <p className="font-bold text-[#001F3F] text-sm">{invoice.customer_name}</p>
+                      <td 
+                        className="px-4 py-3 cursor-pointer"
+                        onClick={() => setSelectedInvoiceId(invoice.id)}
+                      >
+                        <p className="font-bold text-[#001F3F] text-sm group-hover:text-blue-600 transition-colors">{invoice.customer_name}</p>
                         <p className="text-xs text-slate-400 font-medium">
                           {invoice.customer_email}
                         </p>
@@ -677,9 +692,9 @@ export default function InvoicesPage() {
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
-                    <div>
+                    <div className="cursor-pointer" onClick={() => setSelectedInvoiceId(invoice.id)}>
                       <div className="flex items-center gap-2">
-                        <p className="font-black text-blue-600 text-sm">{invoice.invoice_number}</p>
+                        <p className="font-black text-blue-600 text-sm hover:underline">{invoice.invoice_number}</p>
                         {isPending && (
                           <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded uppercase">
                             Pending
@@ -855,5 +870,13 @@ export default function InvoicesPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function InvoicesPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-400">Loading invoices...</div>}>
+      <InvoicesPageContent />
+    </Suspense>
   );
 }

@@ -112,9 +112,13 @@ export default function NewInvoicePage() {
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast.success('Invoice created successfully!');
-      router.push('/admin/invoices');
+      if (data?.id) {
+        router.push(`/admin/invoices?view=${data.id}`);
+      } else {
+        router.push('/admin/invoices');
+      }
     },
     onError: () => toast.error('Failed to create invoice'),
   });

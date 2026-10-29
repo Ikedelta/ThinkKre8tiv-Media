@@ -48,6 +48,13 @@ const sectionConfig: Record<string, { label: string; desc: string; icon: any; co
     color: 'text-amber-500',
     badge: 'Homepage Top'
   },
+  hero_slides: {
+    label: 'Hero Image Slider',
+    desc: 'Interactive sliding photo carousel displayed on the right side of the homepage hero banner.',
+    icon: ImageIcon,
+    color: 'text-red-500',
+    badge: 'Hero Slider'
+  },
   ceo: {
     label: 'CEO & Leadership',
     desc: 'Executive statement, CEO full name, official title, quote, statement, and executive portrait photo.',
@@ -119,6 +126,44 @@ export default function ComprehensiveCmsPage() {
     setFormData(sectionItems);
   }, [items, activeSection]);
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/cms?id=${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Failed to delete content');
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cms'] });
+      toast.success('Slide removed successfully');
+    },
+  });
+
+  const handleAddNewSlide = async () => {
+    const newId = `${activeSection}_${Date.now()}`;
+    const newItem: CmsItem = {
+      id: newId,
+      section: activeSection,
+      title: activeSection === 'hero_slides' ? 'Featured ::: New Slide Heading' : 'New Item Title',
+      content: 'Description or details for this item...',
+      image_url: '/images/1.jpg',
+      sort_order: formData.length,
+      is_active: true
+    };
+    try {
+      const res = await fetch('/api/cms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newItem),
+      });
+      if (!res.ok) throw new Error('Failed to create new item');
+      queryClient.invalidateQueries({ queryKey: ['cms'] });
+      toast.success('New slide added! You can now customize and save it.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to add item');
+    }
+  };
   const updateMutation = useMutation({
     mutationFn: async (data: { id: string; title: string; content: string; image_url: string; section?: string }) => {
       const res = await fetch('/api/cms', {
@@ -300,7 +345,7 @@ export default function ComprehensiveCmsPage() {
         {/* Content Editor Panel */}
         <div className="lg:col-span-8 space-y-6">
           <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-2xl overflow-hidden">
-            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-6 flex flex-row items-center justify-between">
+            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <CurrentIcon className={cn("w-5 h-5", currentSection.color)} />
@@ -311,9 +356,20 @@ export default function ComprehensiveCmsPage() {
                 <p className="text-xs text-slate-500 mt-1">{currentSection.desc}</p>
               </div>
 
-              <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                {currentSection.badge}
-              </span>
+              <div className="flex items-center gap-2">
+                {['hero_slides', 'carousel', 'expertise'].includes(activeSection) && (
+                  <Button
+                    size="sm"
+                    onClick={handleAddNewSlide}
+                    className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold gap-1.5 h-8 shadow-xs"
+                  >
+                    <Plus size={14} /> Add Slide
+                  </Button>
+                )}
+                <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                  {currentSection.badge}
+                </span>
+              </div>
             </CardHeader>
 
             <CardContent className="p-6 space-y-6">
@@ -326,12 +382,21 @@ export default function ComprehensiveCmsPage() {
                 <div className="py-16 text-center text-slate-400 space-y-3">
                   <Globe className="w-10 h-10 text-slate-300 mx-auto" />
                   <p className="font-semibold text-slate-700 dark:text-slate-300">No active content records in this section</p>
-                  <p className="text-xs max-w-sm mx-auto">This section can be initialized or will use standard defaults.</p>
+                  <p className="text-xs max-w-sm mx-auto">Click &quot;Add Slide&quot; above to initialize custom slides.</p>
+                  {['hero_slides', 'carousel', 'expertise'].includes(activeSection) && (
+                    <Button
+                      size="sm"
+                      onClick={handleAddNewSlide}
+                      className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold gap-1.5 h-8 mt-2"
+                    >
+                      <Plus size={14} /> Add First Slide
+                    </Button>
+                  )}
                 </div>
               ) : (
                 formData.map((item, index) => {
                   const isLongText = (item.content && item.content.length > 90) || item.id.includes('bio') || item.id.includes('quote') || item.id.includes('p1') || item.id.includes('p2') || item.id.includes('subheadline');
-                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise';
+                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides';
 
                   return (
                     <div
@@ -345,20 +410,31 @@ export default function ComprehensiveCmsPage() {
                             {item.title || item.id}
                           </h4>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                          ID: {item.id}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
+                            ID: {item.id}
+                          </span>
+                          {['hero_slides', 'carousel', 'expertise'].includes(item.section) && (
+                            <button
+                              onClick={() => deleteMutation.mutate(item.id)}
+                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded transition-colors"
+                              title="Delete this slide"
+                            >
+                              <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       {/* Title / Label Field */}
                       <div>
                         <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400 mb-1.5">
-                          Display Title / Heading
+                          {item.section === 'hero_slides' ? 'Slide Tag & Title (Format: Tag ::: Title)' : 'Display Title / Heading'}
                         </label>
                         <Input
                           value={item.title || ''}
                           onChange={(e) => updateField(item.id, 'title', e.target.value)}
-                          placeholder="e.g., Section headline"
+                          placeholder={item.section === 'hero_slides' ? 'e.g. Printing & Packaging ::: High-Quality Printing & Boxes' : 'e.g. Section headline'}
                           className="h-9 text-xs bg-white dark:bg-slate-900"
                         />
                       </div>

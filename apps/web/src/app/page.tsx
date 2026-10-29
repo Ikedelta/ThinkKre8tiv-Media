@@ -86,12 +86,32 @@ export default function HomePage() {
 
   const [heroSlideIndex, setHeroSlideIndex] = useState(0);
 
+  const dbHeroSlides = cmsContent?.filter((c: any) => c.section === 'hero_slides' && c.is_active);
+  const heroSlides = dbHeroSlides && dbHeroSlides.length > 0
+    ? dbHeroSlides.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map((s: any) => {
+        let tag = 'Production';
+        let title = s.title || 'High Quality Print';
+        if (title.includes(':::')) {
+          const parts = title.split(':::');
+          tag = parts[0].trim();
+          title = parts[1].trim();
+        }
+        return {
+          src: s.image_url || '/images/1.jpg',
+          tag,
+          title,
+          desc: s.content || ''
+        };
+      })
+    : HERO_SLIDES;
+
   useEffect(() => {
+    if (heroSlides.length <= 1) return;
     const timer = setInterval(() => {
-      setHeroSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length);
+      setHeroSlideIndex((prev) => (prev + 1) % heroSlides.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroSlides.length]);
 
   let expertise = DEFAULT_EXPERTISE;
   const dbExpertise = cmsContent?.filter((c: any) => c.section === 'expertise' && c.is_active);
@@ -184,9 +204,9 @@ export default function HomePage() {
             <div className="lg:col-span-5 relative">
               <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/3] group select-none">
                 {/* Slides with Crossfade Animation */}
-                {HERO_SLIDES.map((slide, idx) => (
+                {heroSlides.map((slide: any, idx: number) => (
                   <div
-                    key={slide.src}
+                    key={slide.src + idx}
                     className={cn(
                       'absolute inset-0 transition-opacity duration-700 ease-in-out',
                       idx === heroSlideIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
@@ -212,23 +232,23 @@ export default function HomePage() {
                 <button
                   type="button"
                   aria-label="Previous slide"
-                  onClick={() => setHeroSlideIndex((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer border border-white/10"
+                  onClick={() => setHeroSlideIndex((prev) => (prev - 1 + heroSlides.length) % heroSlides.length)}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer border border-white/10"
                 >
                   <ChevronLeft size={16} />
                 </button>
                 <button
                   type="button"
                   aria-label="Next slide"
-                  onClick={() => setHeroSlideIndex((prev) => (prev + 1) % HERO_SLIDES.length)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer border border-white/10"
+                  onClick={() => setHeroSlideIndex((prev) => (prev + 1) % heroSlides.length)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-8 h-8 rounded-full bg-slate-950/50 hover:bg-slate-950/80 text-white flex items-center justify-center opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity backdrop-blur-xs cursor-pointer border border-white/10"
                 >
                   <ChevronRight size={16} />
                 </button>
 
                 {/* Interactive Carousel Pagination Indicators */}
                 <div className="absolute top-4 right-4 z-30 flex items-center gap-1.5 bg-slate-950/60 backdrop-blur-xs px-2.5 py-1.5 rounded-full border border-white/10">
-                  {HERO_SLIDES.map((_, dotIdx) => (
+                  {heroSlides.map((_: any, dotIdx: number) => (
                     <button
                       key={dotIdx}
                       type="button"

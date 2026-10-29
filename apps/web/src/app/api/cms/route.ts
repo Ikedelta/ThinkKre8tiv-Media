@@ -95,3 +95,26 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Failed to create content' }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const authResult = await requireAdmin();
+    if (authResult instanceof Response) return authResult;
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+    if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
+
+    await sql`
+      DELETE FROM cms_content WHERE id = ${id}
+    `;
+
+    // Invalidate local memory cache immediately
+    cachedCms = null;
+    lastFetchTime = 0;
+
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return Response.json({ error: 'Failed to delete content' }, { status: 500 });
+  }
+}

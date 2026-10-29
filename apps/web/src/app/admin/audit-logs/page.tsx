@@ -139,60 +139,7 @@ export default function AuditLogsPage() {
         </div>
       </div>
 
-      {/* Metrics Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Audit Events</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{logs.length}</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Retrieved in active buffer</p>
-            </div>
-            <div className="p-3 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600">
-              <Database className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Security Clearance</p>
-              <h3 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">SUPER ADMIN ACTIVE</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Master role confirmed</p>
-            </div>
-            <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600">
-              <CheckCircle className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Sync Interval</p>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1">Live Reactive Sync</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Auto-updates every 15s</p>
-            </div>
-            <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600">
-              <Clock className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Integrity Verification</p>
-              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1">100% Verified</h3>
-              <p className="text-xs text-slate-400 mt-0.5">Tamper-proof ledger</p>
-            </div>
-            <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600">
-              <ShieldAlert className="w-5 h-5" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
