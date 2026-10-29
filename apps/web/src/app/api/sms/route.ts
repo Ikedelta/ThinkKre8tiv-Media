@@ -45,11 +45,11 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Insufficient SMS credits' }, { status: 400 });
     }
 
-    const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY;
+    const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY || settings?.sms_api_key;
     const arkeselSenderId = process.env.ARKESEL_SMS_SENDER_ID || settings?.sms_sender_id || 'ThinkKre8';
 
     if (!arkeselApiKey || arkeselApiKey.trim() === '') {
-      return Response.json({ error: 'SMS API Key is not configured. Please check your environment variables.' }, { status: 500 });
+      return Response.json({ error: 'SMS API Key is not configured. Please check your environment variables or Settings.' }, { status: 500 });
     }
 
     // Actually send via Arkesel
