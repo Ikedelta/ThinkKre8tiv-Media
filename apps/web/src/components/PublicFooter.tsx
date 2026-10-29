@@ -128,6 +128,8 @@ export default function PublicFooter() {
               <MapPin size={11} className="text-[#D22630]" />
               <span>Accra, Ghana</span>
             </div>
+            <span className="hidden sm:inline text-slate-800">|</span>
+            <span className="text-slate-400">Developed by <span className="text-slate-300 font-medium">Tech 34 Systems</span></span>
           </div>
           
           <div className="flex items-center gap-3">

@@ -145,9 +145,13 @@ export default function ComprehensiveCmsPage() {
     const newItem: CmsItem = {
       id: newId,
       section: activeSection,
-      title: activeSection === 'hero_slides' ? 'Featured ::: New Slide Heading' : 'New Item Title',
-      content: 'Description or details for this item...',
-      image_url: '/images/1.jpg',
+      title: activeSection === 'hero_slides' 
+        ? 'Featured ::: New Slide Heading' 
+        : activeSection === 'partners'
+        ? 'New Client / Partner'
+        : 'New Item Title',
+      content: activeSection === 'partners' ? 'Industry / Sector' : 'Description or details for this item...',
+      image_url: activeSection === 'partners' ? '' : '/images/1.jpg',
       sort_order: formData.length,
       is_active: true
     };
@@ -357,13 +361,13 @@ export default function ComprehensiveCmsPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                {['hero_slides', 'carousel', 'expertise'].includes(activeSection) && (
+                {['hero_slides', 'carousel', 'expertise', 'partners'].includes(activeSection) && (
                   <Button
                     size="sm"
                     onClick={handleAddNewSlide}
                     className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold gap-1.5 h-8 shadow-xs"
                   >
-                    <Plus size={14} /> Add Slide
+                    <Plus size={14} /> {activeSection === 'partners' ? 'Add Client Logo' : 'Add Slide'}
                   </Button>
                 )}
                 <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
@@ -382,21 +386,21 @@ export default function ComprehensiveCmsPage() {
                 <div className="py-16 text-center text-slate-400 space-y-3">
                   <Globe className="w-10 h-10 text-slate-300 mx-auto" />
                   <p className="font-semibold text-slate-700 dark:text-slate-300">No active content records in this section</p>
-                  <p className="text-xs max-w-sm mx-auto">Click &quot;Add Slide&quot; above to initialize custom slides.</p>
-                  {['hero_slides', 'carousel', 'expertise'].includes(activeSection) && (
+                  <p className="text-xs max-w-sm mx-auto">Click &quot;Add Slide&quot; or &quot;Add Client Logo&quot; above to initialize custom items.</p>
+                  {['hero_slides', 'carousel', 'expertise', 'partners'].includes(activeSection) && (
                     <Button
                       size="sm"
                       onClick={handleAddNewSlide}
                       className="bg-[#0F172A] hover:bg-slate-800 text-white text-xs font-bold gap-1.5 h-8 mt-2"
                     >
-                      <Plus size={14} /> Add First Slide
+                      <Plus size={14} /> {activeSection === 'partners' ? 'Add First Client Logo' : 'Add First Slide'}
                     </Button>
                   )}
                 </div>
               ) : (
                 formData.map((item, index) => {
                   const isLongText = (item.content && item.content.length > 90) || item.id.includes('bio') || item.id.includes('quote') || item.id.includes('p1') || item.id.includes('p2') || item.id.includes('subheadline');
-                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides';
+                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides' || item.section === 'partners';
 
                   return (
                     <div
@@ -414,11 +418,11 @@ export default function ComprehensiveCmsPage() {
                           <span className="text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-800 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                             ID: {item.id}
                           </span>
-                          {['hero_slides', 'carousel', 'expertise'].includes(item.section) && (
+                          {['hero_slides', 'carousel', 'expertise', 'partners'].includes(item.section) && (
                             <button
                               onClick={() => deleteMutation.mutate(item.id)}
                               className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded transition-colors"
-                              title="Delete this slide"
+                              title="Delete this item"
                             >
                               <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
                             </button>

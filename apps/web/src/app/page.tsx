@@ -86,6 +86,16 @@ export default function HomePage() {
 
   const [heroSlideIndex, setHeroSlideIndex] = useState(0);
 
+  const dbPartners = cmsContent?.filter((c: any) => c.section === 'partners' && c.is_active);
+  const partnersList = dbPartners && dbPartners.length > 0
+    ? dbPartners.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map((p: any) => ({
+        name: p.title || 'Client Partner',
+        category: p.content || 'Corporate Client',
+        logo: p.title?.toUpperCase() || 'PARTNER',
+        image_url: p.image_url || ''
+      }))
+    : PARTNERS;
+
   const dbHeroSlides = cmsContent?.filter((c: any) => c.section === 'hero_slides' && c.is_active);
   const heroSlides = dbHeroSlides && dbHeroSlides.length > 0
     ? dbHeroSlides.sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0)).map((s: any) => {
@@ -294,14 +304,24 @@ export default function HomePage() {
 
           <div className="animate-marquee flex items-center gap-8 sm:gap-14">
             {/* Duplicated list to create infinite seamless loop */}
-            {[...PARTNERS, ...PARTNERS].map((partner, idx) => (
+            {[...partnersList, ...partnersList].map((partner: any, idx: number) => (
               <div
                 key={idx}
                 className="flex items-center gap-3 px-5 py-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-sm shrink-0 group cursor-default"
               >
-                <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-slate-700 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-colors">
-                  {partner.name.charAt(0)}
-                </div>
+                {partner.image_url ? (
+                  <div className="w-10 h-10 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center p-1 overflow-hidden shrink-0">
+                    <img 
+                      src={partner.image_url} 
+                      alt={partner.name} 
+                      className="max-h-full max-w-full object-contain filter group-hover:scale-105 transition-transform" 
+                    />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-slate-700 dark:text-slate-300 group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
+                    {partner.name.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <h4 className="text-xs font-extrabold tracking-wider text-slate-800 dark:text-slate-200 uppercase group-hover:text-primary transition-colors">
                     {partner.logo}
@@ -487,8 +507,8 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             
             {/* CEO Portrait Column */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 aspect-[4/5] max-w-sm mx-auto lg:max-w-none group">
+            <div className="lg:col-span-4 relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 aspect-square max-w-[280px] sm:max-w-[320px] mx-auto lg:max-w-none group">
                 <img
                   src={ceoImage || '/images/CEO.jpg'}
                   alt={ceoName}
@@ -501,17 +521,17 @@ export default function HomePage() {
                   }}
                 />
                 {/* Ultra-subtle bottom shadow only for text contrast without darkening the face */}
-                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent pointer-events-none" />
                 
-                <div className="absolute bottom-4 left-4 right-4 text-white space-y-0.5">
-                  <h3 className="text-base font-extrabold text-white drop-shadow-sm">{ceoName}</h3>
-                  <p className="text-[11px] text-slate-200 font-medium drop-shadow-xs">{ceoTitle}</p>
+                <div className="absolute bottom-3.5 left-4 right-4 text-white space-y-0.5">
+                  <h3 className="text-sm font-extrabold text-white drop-shadow-sm">{ceoName}</h3>
+                  <p className="text-[10px] text-slate-200 font-medium drop-shadow-xs">{ceoTitle}</p>
                 </div>
               </div>
             </div>
 
             {/* CEO Statement & Philosophy */}
-            <div className="lg:col-span-7 space-y-4">
+            <div className="lg:col-span-8 space-y-4">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 text-[10px] font-bold uppercase tracking-wider border border-slate-200 dark:border-slate-800">
                 <Quote size={11} className="text-[#D22630]" /> Executive Message
               </div>
