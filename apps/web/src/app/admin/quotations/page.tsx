@@ -136,8 +136,8 @@ export default function QuotationsPage() {
         </div>
       </div>
 
-      {/* Data Table */}
-      <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800/50 rounded-xl overflow-hidden shadow-sm dark:shadow-none">
+      {/* Desktop Data Table */}
+      <div className="bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-slate-800/50 rounded-xl overflow-hidden shadow-sm dark:shadow-none hidden md:block">
         <div className="overflow-x-auto">
           <table className="w-full whitespace-nowrap text-sm text-left">
             <thead className="border-b border-slate-200 dark:border-slate-800/80 text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-[#080B12]">
@@ -269,6 +269,106 @@ export default function QuotationsPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Mobile Card List View */}
+      <div className="md:hidden space-y-3">
+        {isLoading ? (
+          Array(4).fill(0).map((_, i) => <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800/40 rounded-xl animate-pulse" />)
+        ) : filtered.length === 0 ? (
+          <div className="py-12 text-center text-slate-400 font-semibold bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+            No print jobs or estimates found
+          </div>
+        ) : (
+          filtered.map((job) => {
+            const cfg = statusConfig[job.status] || statusConfig.draft;
+            const dateStr = job.created_at ? job.created_at.split('T')[0] : '—';
+            let specs: any = { product: 'Custom Job', qty: 1, filename: 'No file' };
+            try {
+              if (job.notes && job.notes.startsWith('{')) {
+                specs = JSON.parse(job.notes);
+              }
+            } catch (e) {}
+
+            return (
+              <div
+                key={job.id}
+                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm space-y-3"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-sm">
+                      {job.quotation_number}
+                    </span>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-sm mt-0.5">
+                      {job.customer_name}
+                    </h3>
+                    <p className="text-xs text-slate-500">{dateStr}</p>
+                  </div>
+                  <span className={cn("inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[10px] font-bold tracking-wider uppercase", cfg.bg)}>
+                    <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
+                    {cfg.label}
+                  </span>
+                </div>
+
+                <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500 font-medium">Product:</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{specs.product || 'Standard Job'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500 font-medium">Quantity:</span>
+                    <span className="font-bold text-slate-900 dark:text-white">{specs.qty || 1} units</span>
+                  </div>
+                  {specs.filename && specs.filename !== 'no-file-attached' && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-500 font-medium">File:</span>
+                      <span className="font-mono text-[11px] text-slate-600 dark:text-slate-300 truncate max-w-[180px]">{specs.filename}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <Link
+                    href={`/admin/invoices/new?quotation_id=${job.id}&customer_id=${job.customer_id}&description=${encodeURIComponent(specs.product || 'Custom Job')}`}
+                    className="flex-1 min-w-[120px] flex items-center justify-center gap-1.5 py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 rounded-lg text-xs font-bold transition-colors"
+                  >
+                    <FileText size={13} /> Invoice Job
+                  </Link>
+
+                  {job.status === 'draft' && (
+                    <button
+                      onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'sent' })}
+                      className="flex-1 min-w-[100px] flex items-center justify-center gap-1 py-2 px-2.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold"
+                    >
+                      <Send size={12} /> Send
+                    </button>
+                  )}
+
+                  {(session?.user as any)?.role === 'admin' && (
+                    <>
+                      <Link href={`/admin/quotations/${job.id}/edit`}>
+                        <button className="p-2 bg-blue-50 text-blue-600 rounded-lg" title="Edit">
+                          <Edit2 size={14} />
+                        </button>
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          if (await confirm({ title: 'Confirmation', message: `Delete estimate?`, variant: 'destructive' }))
+                            deleteMutation.mutate(job.id);
+                        }}
+                        className="p-2 bg-rose-50 text-rose-600 rounded-lg"
+                        title="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

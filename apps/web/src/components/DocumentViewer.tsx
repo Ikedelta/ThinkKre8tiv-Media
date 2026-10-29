@@ -132,7 +132,7 @@ export function DocumentViewer({
                 </span>
               </div>
               <p className="text-[10px] font-medium text-slate-200">
-                OSU, Haramani Sport Complex, Accra &bull; +233 24 468 1391
+                Accra, Ghana &bull; +233 24 468 1391
               </p>
             </div>
           </div>
@@ -432,7 +432,7 @@ export function DocumentViewer({
 
   return (
     <div className="document-modal-overlay fixed inset-0 bg-slate-950/80 z-50 flex flex-col items-center justify-start overflow-hidden print:bg-white print:block backdrop-blur-md">
-      <div className="w-full bg-[#0F172A] border-b border-slate-800 p-4 flex justify-between items-center shrink-0 print:hidden shadow-lg z-50 max-w-7xl mx-auto rounded-b-xl">
+      <div className="w-full bg-[#0F172A] border-b border-slate-800 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 shrink-0 print:hidden shadow-lg z-50 max-w-7xl mx-auto rounded-b-xl">
         <div className="flex items-center gap-2 text-white">
           {isReceipt ? <ReceiptIcon className="w-4 h-4 text-emerald-400" /> : <FileText className="w-4 h-4 text-amber-400" />}
           <span className="text-xs font-bold uppercase tracking-wider">
@@ -440,35 +440,35 @@ export function DocumentViewer({
           </span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-end">
           {document.approval_status === 'pending' && isAdmin && onApprove && (
             <>
-              <Button onClick={() => onApprove(document.id, 'approved')} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold h-8">
+              <Button onClick={() => onApprove(document.id, 'approved')} className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold h-8 flex-1 sm:flex-none">
                 <CheckCircle2 size={14} className="mr-1.5" /> Approve
               </Button>
-              <Button onClick={() => onApprove(document.id, 'rejected')} className="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold h-8">
+              <Button onClick={() => onApprove(document.id, 'rejected')} className="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold h-8 flex-1 sm:flex-none">
                 <XCircle size={14} className="mr-1.5" /> Reject
               </Button>
             </>
           )}
           {onEdit && (
-            <Button variant="secondary" onClick={onEdit} className="bg-white/10 text-white hover:bg-white/20 border-none text-xs h-8 font-semibold">
+            <Button variant="secondary" onClick={onEdit} className="bg-white/10 text-white hover:bg-white/20 border-none text-xs h-8 font-semibold flex-1 sm:flex-none">
               <Edit2 size={14} className="mr-1.5" /> Edit
             </Button>
           )}
           {onSendSMS && (
-            <Button onClick={onSendSMS} className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs h-8" disabled={isSMSPending}>
+            <Button onClick={onSendSMS} className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs h-8 flex-1 sm:flex-none" disabled={isSMSPending}>
               <MessageSquare size={14} className="mr-1.5" /> Send SMS
             </Button>
           )}
           {/* Prevent print / export download unless document is approved (or inline editor preview) */}
           {(document.approval_status === 'approved' || inline) ? (
-            <Button onClick={() => window.print()} className="bg-gradient-to-r from-[#D22630] to-amber-500 text-white font-bold text-xs h-8 shadow-sm">
+            <Button onClick={() => window.print()} className="bg-gradient-to-r from-[#D22630] to-amber-500 text-white font-bold text-xs h-8 shadow-sm flex-1 sm:flex-none">
               <Printer size={14} className="mr-1.5" /> Print / Export PDF
             </Button>
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md text-xs font-bold">
-              <span>Approval Required to Print/Download</span>
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-md text-[11px] font-bold">
+              <span>Approval Required to Print</span>
             </div>
           )}
           {onClose && (

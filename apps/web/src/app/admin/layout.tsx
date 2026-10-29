@@ -359,7 +359,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
 
         {/* Mobile App-Style Bottom Navigation Bar (Smart Floating Pill for iOS & Android) */}
-        <nav className="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 z-40 md:hidden flex items-center justify-around px-2 py-2 shadow-lg safe-bottom print:hidden">
+        <nav className="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 z-40 md:hidden flex items-center justify-around px-2 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-lg print:hidden">
           {[
             { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
             { name: 'Customers', href: '/admin/customers', icon: Users },

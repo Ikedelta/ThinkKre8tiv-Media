@@ -124,7 +124,8 @@ export default function ExpensesPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Desktop Expenses Table */}
+          <div className="overflow-x-auto hidden md:block">
             <table className="w-full text-sm text-left">
               <thead className="bg-slate-50 text-slate-500 border-b border-slate-100">
                 <tr>
@@ -138,9 +139,9 @@ export default function ExpensesPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {isLoading ? (
-                  <tr><td colSpan={5} className="text-center py-8 text-slate-500">Loading expenses...</td></tr>
+                  <tr><td colSpan={6} className="text-center py-8 text-slate-500">Loading expenses...</td></tr>
                 ) : filtered.length === 0 ? (
-                  <tr><td colSpan={5} className="text-center py-12 text-slate-500 font-medium bg-slate-50/50">No expenses recorded yet.</td></tr>
+                  <tr><td colSpan={6} className="text-center py-12 text-slate-500 font-medium bg-slate-50/50">No expenses recorded yet.</td></tr>
                 ) : (
                   filtered.map(expense => (
                     <tr key={expense.id} className="hover:bg-slate-50 transition-colors">
@@ -192,6 +193,63 @@ export default function ExpensesPage() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Expenses Cards */}
+          <div className="md:hidden space-y-3 p-4">
+            {isLoading ? (
+              Array(3).fill(0).map((_, i) => <div key={i} className="h-24 bg-slate-100 rounded-xl animate-pulse" />)
+            ) : filtered.length === 0 ? (
+              <div className="py-10 text-center text-slate-400 font-semibold bg-slate-50 rounded-xl">
+                No expenses recorded yet
+              </div>
+            ) : (
+              filtered.map(expense => (
+                <div key={expense.id} className="p-4 rounded-xl border border-slate-200 bg-white shadow-xs space-y-2.5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-sm">{expense.vendor_name || 'General Expense'}</h4>
+                      <p className="text-xs text-slate-500">{expense.date?.split('T')[0]}</p>
+                    </div>
+                    <span className="font-black text-rose-600 text-base">{fmt(expense.amount)}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700">
+                      {expense.account_name || 'Supplies & Ink'}
+                    </span>
+                    <span className="text-[11px] font-medium text-slate-400 uppercase">
+                      {expense.payment_method?.replace('_', ' ') || 'Cash'}
+                    </span>
+                  </div>
+
+                  {expense.notes && (
+                    <p className="text-xs text-slate-500 italic bg-slate-50 p-2 rounded-lg">
+                      &quot;{expense.notes}&quot;
+                    </p>
+                  )}
+
+                  {(session?.user as any)?.role === 'admin' && (
+                    <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
+                      <Link href={`/admin/expenses/${expense.id}/edit`}>
+                        <button className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold flex items-center gap-1">
+                          <Edit2 size={12} /> Edit
+                        </button>
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          if (await confirm({ title: 'Confirmation', message: `Delete this expense?`, variant: 'destructive' }))
+                            deleteMutation.mutate(expense.id);
+                        }}
+                        className="px-3 py-1.5 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold flex items-center gap-1"
+                      >
+                        <Trash2 size={12} /> Delete
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

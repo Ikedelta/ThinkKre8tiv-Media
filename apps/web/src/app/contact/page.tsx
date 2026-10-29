@@ -10,7 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 const officesList = [
   {
     city: 'Accra, Ghana (HQ)',
-    address: 'OSU, Haramani Sport Complex, Accra',
+    address: 'Accra, Ghana',
     phone: '+233 24 555 9000',
     email: 'accra@thinkkre8tivmedia.com',
     hours: 'Mon–Fri: 8am–6pm, Sat: 9am–3pm',

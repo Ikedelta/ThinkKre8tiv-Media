@@ -142,7 +142,7 @@ export function generateUserWelcomeEmail({
         </div>
 
         <div class="footer">
-          Think Kre8tiv Media Ltd. &bull; OSU, Haramani Sport Complex, Accra, Ghana<br/>
+          Think Kre8tiv Media Ltd. &bull; Accra, Ghana<br/>
           If you did not expect this invitation, please contact your systems administrator.
         </div>
       </div>

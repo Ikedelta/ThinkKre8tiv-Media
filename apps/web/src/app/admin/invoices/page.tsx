@@ -742,28 +742,59 @@ export default function InvoicesPage() {
                       </button>
                     </div>
                   ) : (
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       {invoice.approval_status === 'approved' ? (
                         <button 
                           onClick={() => setSelectedInvoiceId(invoice.id)}
-                          className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-bold bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg border border-slate-200 dark:border-slate-700"
+                          className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 py-2 px-2.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition-colors"
                         >
-                          <Printer size={12} /> Print/View
+                          <Printer size={13} /> Print/View
                         </button>
                       ) : (
-                        <div className="flex-1 flex items-center justify-center gap-1 py-1.5 text-xs font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 cursor-not-allowed">
-                          <Printer size={12} /> Approval Required
+                        <div className="flex-1 min-w-[100px] flex items-center justify-center gap-1 py-2 px-2 text-[11px] font-medium text-slate-400 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-dashed border-slate-200 dark:border-slate-800 cursor-not-allowed">
+                          <Clock size={12} /> Pending
                         </div>
                       )}
-                      {(session?.user as any)?.role === 'admin' && (
+
+                      {invoice.status !== 'paid' && (
                         <button
-                          onClick={async () => {
-                            if (await confirm({ title: 'Confirmation', message: `Delete?`, variant: 'destructive' })) deleteMutation.mutate(invoice.id);
-                          }}
-                          className="py-1.5 px-3 text-xs font-bold bg-red-50 text-red-500 rounded-lg border border-red-100"
+                          onClick={() => setPaymentInvoice(invoice)}
+                          className="flex-1 min-w-[100px] flex items-center justify-center gap-1.5 py-2 px-2.5 text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg border border-emerald-200 transition-colors"
                         >
-                          <Trash2 size={12} />
+                          <Banknote size={13} /> Record Pay
                         </button>
+                      )}
+
+                      <Link href={`/admin/payments?search=${encodeURIComponent(invoice.invoice_number)}`} className="shrink-0">
+                        <button
+                          className="p-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-lg transition-colors border border-indigo-100"
+                          title="View Receipts"
+                        >
+                          <Receipt size={14} />
+                        </button>
+                      </Link>
+
+                      {(session?.user as any)?.role === 'admin' && (
+                        <>
+                          <Link href={`/admin/invoices/${invoice.id}/edit`} className="shrink-0">
+                            <button
+                              className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors border border-blue-100"
+                              title="Edit"
+                            >
+                              <Edit2 size={14} />
+                            </button>
+                          </Link>
+                          <button
+                            onClick={async () => {
+                              if (await confirm({ title: 'Confirmation', message: `Delete invoice ${invoice.invoice_number}?`, variant: 'destructive' }))
+                                deleteMutation.mutate(invoice.id);
+                            }}
+                            className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition-colors border border-rose-100 shrink-0"
+                            title="Delete"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </>
                       )}
                     </div>
                   )}

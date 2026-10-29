@@ -639,9 +639,9 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 auto-rows-[170px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3.5 md:auto-rows-[170px]">
             {/* Feature Image: High-Volume Production Facility */}
-            <div className="md:col-span-8 md:row-span-2 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-md">
+            <div className="sm:col-span-2 md:col-span-8 md:row-span-2 min-h-[260px] sm:min-h-[320px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-md">
               <img 
                 src="/images/1.jpg" 
                 alt="Think Kre8tiv Brand Printing & Packaging Suite" 
@@ -661,7 +661,7 @@ export default function HomePage() {
 
             {/* Gallery Items with verified real photography */}
             {GALLERY_ITEMS.slice(1, 5).map((item, idx) => (
-              <div key={idx} className={`relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm ${idx === 0 || idx === 3 ? 'md:col-span-4 md:row-span-2' : 'md:col-span-4 md:row-span-1'}`}>
+              <div key={idx} className={`min-h-[180px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm ${idx === 0 || idx === 3 ? 'md:col-span-4 md:row-span-2' : 'md:col-span-4 md:row-span-1'}`}>
                 <img 
                   src={item.image} 
                   alt={item.title} 

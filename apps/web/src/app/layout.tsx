@@ -30,6 +30,8 @@ export const metadata = {
   title: 'Think Kre8tiv Media | Premium Print & Branding Solutions',
   description:
     'Enterprise invoice and print management system for large format printing, branding, and professional printing services.',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover',
+  themeColor: '#D22630',
   icons: {
     icon: '/logo.png',
   },

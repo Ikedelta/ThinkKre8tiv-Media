@@ -403,7 +403,8 @@ export default function AdminDashboardPage() {
         {/* TAB 1: RECENT INVOICES */}
         {activeTab === 'invoices' && (
           <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Desktop Table */}
+            <div className="overflow-x-auto hidden sm:block">
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
                   <tr>
@@ -463,13 +464,68 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Cards View */}
+            <div className="sm:hidden divide-y divide-slate-100 dark:divide-slate-800 p-2.5 space-y-2">
+              {recent.invoices.length > 0 ? (
+                recent.invoices.slice(0, 6).map((inv: any) => (
+                  <div key={inv.id} className="p-3 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="font-mono font-bold text-blue-600 dark:text-blue-400 text-xs">
+                          {inv.invoice_number}
+                        </span>
+                        <h4 className="font-bold text-slate-900 dark:text-white text-sm mt-0.5">
+                          {inv.customer_name || 'Walk-in Customer'}
+                        </h4>
+                      </div>
+                      <Badge className={cn("border-none text-[9px] uppercase font-bold tracking-wider", statusColors[inv.status] || 'bg-slate-100 text-slate-600')}>
+                        {inv.status}
+                      </Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                      <div>
+                        <span className="text-[10px] text-slate-400 block">Total</span>
+                        <span className="font-bold text-slate-900 dark:text-white">{fmt(inv.total_amount)}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-slate-400 block">Balance Due</span>
+                        <span className={cn("font-bold", Number(inv.balance_due) > 0 ? "text-amber-600" : "text-emerald-600")}>
+                          {fmt(inv.balance_due)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="pt-1 flex justify-end gap-2">
+                      {Number(inv.balance_due) > 0 ? (
+                        <Link href={`/admin/payments/new?invoice_id=${inv.id}`} className="w-full">
+                          <Button size="sm" className="w-full h-8 text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700">
+                            Record Payment
+                          </Button>
+                        </Link>
+                      ) : (
+                        <Link href={`/admin/payments?search=${encodeURIComponent(inv.invoice_number)}`} className="w-full">
+                          <Button size="sm" variant="outline" className="w-full h-8 text-xs font-semibold">
+                            View Receipt
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-slate-400 text-xs font-medium">No recent invoices found</div>
+              )}
+            </div>
           </Card>
         )}
 
         {/* TAB 2: RECENT EXPENSES */}
         {activeTab === 'expenses' && (
           <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Desktop Table */}
+            <div className="overflow-x-auto hidden sm:block">
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
                   <tr>
@@ -511,13 +567,37 @@ export default function AdminDashboardPage() {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Cards View */}
+            <div className="sm:hidden divide-y divide-slate-100 dark:divide-slate-800 p-2.5 space-y-2">
+              {recent.expenses.length > 0 ? (
+                recent.expenses.slice(0, 6).map((ex: any) => (
+                  <div key={ex.id} className="p-3 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl space-y-1.5">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white text-xs">{ex.vendor_name || 'General Supplier'}</h4>
+                        <p className="text-[10px] text-slate-400">{ex.date ? new Date(ex.date).toLocaleDateString() : '—'}</p>
+                      </div>
+                      <span className="font-black text-rose-600 dark:text-rose-400 text-xs">{fmt(ex.amount)}</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
+                      <span>{ex.account_name || 'Supplies'}</span>
+                      <span className="uppercase text-[10px]">{ex.payment_method || 'Cash'}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-slate-400 text-xs font-medium">No expenses logged yet</div>
+              )}
+            </div>
           </Card>
         )}
 
         {/* TAB 3: CUSTOMERS */}
         {activeTab === 'customers' && (
           <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Desktop Table */}
+            <div className="overflow-x-auto hidden sm:block">
               <table className="w-full text-sm text-left">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
                   <tr>
@@ -558,6 +638,29 @@ export default function AdminDashboardPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Cards View */}
+            <div className="sm:hidden divide-y divide-slate-100 dark:divide-slate-800 p-2.5 space-y-2">
+              {recent.customers.length > 0 ? (
+                recent.customers.slice(0, 6).map((c: any) => (
+                  <div key={c.id} className="p-3 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h4 className="font-bold text-slate-900 dark:text-white text-xs">{c.name}</h4>
+                        {c.phone && <p className="text-[11px] text-slate-500">{c.phone}</p>}
+                      </div>
+                      <Link href={`/admin/invoices/new?customer_id=${c.id}`}>
+                        <Button size="sm" variant="outline" className="h-7 text-[11px] font-bold">
+                          Invoice
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-slate-400 text-xs font-medium">No customers found</div>
+              )}
             </div>
           </Card>
         )}

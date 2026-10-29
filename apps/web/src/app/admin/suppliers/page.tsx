@@ -242,7 +242,8 @@ export default function SuppliersPage() {
 
       {/* Suppliers Table */}
       <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="overflow-x-auto hidden md:block">
           <table className="w-full text-sm text-left">
             <thead className="bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider border-b border-slate-200 dark:border-slate-800">
               <tr>
@@ -363,6 +364,96 @@ export default function SuppliersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Supplier Cards */}
+        <div className="md:hidden space-y-3 p-3.5">
+          {isLoading ? (
+            Array(3).fill(0).map((_, i) => <div key={i} className="h-28 bg-slate-100 dark:bg-slate-800/40 rounded-xl animate-pulse" />)
+          ) : filtered.length === 0 ? (
+            <div className="py-10 text-center text-slate-400 font-semibold bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+              No suppliers found
+            </div>
+          ) : (
+            filtered.map((supplier) => (
+              <div key={supplier.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center font-bold text-base shrink-0">
+                      {supplier.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 dark:text-white text-sm">{supplier.name}</h4>
+                      {supplier.company && (
+                        <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mt-0.5">
+                          <Building2 className="w-3 h-3 text-slate-400" />
+                          {supplier.company}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {(supplier.phone || supplier.email || supplier.address) && (
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-lg space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                    {supplier.phone && (
+                      <a href={`tel:${supplier.phone}`} className="flex items-center gap-2 hover:text-indigo-600">
+                        <Phone className="w-3.5 h-3.5 text-slate-400" />
+                        <span>{supplier.phone}</span>
+                      </a>
+                    )}
+                    {supplier.email && (
+                      <a href={`mailto:${supplier.email}`} className="flex items-center gap-2 hover:text-indigo-600">
+                        <Mail className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="truncate">{supplier.email}</span>
+                      </a>
+                    )}
+                    {supplier.address && (
+                      <div className="flex items-center gap-2 text-slate-400 text-[11px]">
+                        <MapPin className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">{supplier.address}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <Link
+                    href={`/admin/expenses/new?vendor_id=${supplier.id}&vendor_name=${encodeURIComponent(supplier.name)}`}
+                    className="flex-1"
+                  >
+                    <Button variant="outline" size="sm" className="w-full text-xs font-bold text-rose-600 border-rose-200 hover:bg-rose-50 h-8">
+                      + Log Expense
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleOpenModal(supplier)}
+                    className="text-xs font-semibold h-8"
+                  >
+                    <Edit2 className="w-3.5 h-3.5 mr-1" /> Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      const ok = await confirm({
+                        title: 'Delete Supplier',
+                        message: `Are you sure you want to remove "${supplier.name}"?`,
+                        confirmText: 'Delete Supplier',
+                        variant: 'destructive',
+                      });
+                      if (ok) deleteMutation.mutate(supplier.id);
+                    }}
+                    className="text-xs font-semibold text-rose-600 border-rose-200 hover:bg-rose-50 h-8"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </Card>
 

@@ -119,41 +119,47 @@ export default function PublicNav() {
         </div>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu backdrop & drawer */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-5 py-6 space-y-1 shadow-xl">
-          {navLinks.map(({ label, href }) => {
-            const isActive = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'flex items-center justify-between text-sm font-medium py-3 px-3.5 rounded-lg transition-colors',
-                  isActive 
-                    ? 'text-[#D22630] bg-[#D22630]/5 font-semibold' 
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
-                )}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <span>{label}</span>
-                <ChevronRight size={16} className={isActive ? 'text-[#D22630]' : 'text-slate-400'} />
+        <>
+          <div 
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 md:hidden animate-fade-in"
+            onClick={() => setIsMenuOpen(false)} 
+          />
+          <div className="relative md:hidden bg-white border-t border-slate-200 px-5 py-6 space-y-1 shadow-2xl z-50 animate-in slide-in-from-top-3 duration-200">
+            {navLinks.map(({ label, href }) => {
+              const isActive = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    'flex items-center justify-between text-sm font-semibold py-3.5 px-4 rounded-xl transition-all active:scale-[0.99]',
+                    isActive 
+                      ? 'text-[#D22630] bg-[#D22630]/8 font-bold' 
+                      : 'text-slate-700 hover:bg-slate-50 active:bg-slate-100'
+                  )}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <span className="text-base">{label}</span>
+                  <ChevronRight size={18} className={isActive ? 'text-[#D22630]' : 'text-slate-400'} />
+                </Link>
+              );
+            })}
+            <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 mt-4">
+              <Link href="/admin" onClick={() => setIsMenuOpen(false)}>
+                <button className="w-full h-11 border border-slate-300 text-slate-800 font-bold rounded-xl text-xs uppercase tracking-wider transition-all active:bg-slate-100">
+                  Staff &bull; Portal Login
+                </button>
               </Link>
-            );
-          })}
-          <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-2.5 mt-3">
-            <Link href="/admin" onClick={() => setIsMenuOpen(false)}>
-              <button className="w-full border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all">
-                Portal Login
-              </button>
-            </Link>
-            <Link href="/submit" onClick={() => setIsMenuOpen(false)}>
-              <button className="w-full bg-[#D22630] hover:bg-[#b81d26] text-white font-semibold py-2.5 rounded-lg text-xs uppercase tracking-wider shadow-sm transition-all">
-                Submit Print Job
-              </button>
-            </Link>
+              <Link href="/submit" onClick={() => setIsMenuOpen(false)}>
+                <button className="w-full h-11 bg-[#D22630] hover:bg-[#b81d26] text-white font-bold rounded-xl text-xs uppercase tracking-wider shadow-sm transition-all active:scale-[0.99]">
+                  Submit Print Job
+                </button>
+              </Link>
+            </div>
           </div>
-        </div>
+        </>
       )}
     </nav>
   );

@@ -177,7 +177,7 @@ export default function SubmitPage() {
                   placeholder="e.g. John Doe"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-lg px-3.5 py-2.5 sm:py-2 text-sm sm:text-xs min-h-[42px] outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
               <div>
@@ -188,7 +188,7 @@ export default function SubmitPage() {
                   placeholder="e.g. 024 123 4567"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-lg px-3.5 py-2.5 sm:py-2 text-sm sm:text-xs min-h-[42px] outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
               <div className="sm:col-span-2">
@@ -199,7 +199,7 @@ export default function SubmitPage() {
                   placeholder="you@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-lg px-3.5 py-2.5 sm:py-2 text-sm sm:text-xs min-h-[42px] outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export default function SubmitPage() {
                   required
                   value={productType}
                   onChange={(e) => setProductType(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all appearance-none cursor-pointer"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-lg px-3.5 py-2.5 sm:py-2 text-sm sm:text-xs min-h-[42px] outline-none text-slate-900 font-normal transition-all appearance-none cursor-pointer"
                 >
                   {productOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -227,7 +227,7 @@ export default function SubmitPage() {
                   placeholder="How many?"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-lg px-3.5 py-2.5 sm:py-2 text-sm sm:text-xs min-h-[42px] outline-none text-slate-900 font-normal transition-all"
                 />
               </div>
             </div>
@@ -289,7 +289,7 @@ export default function SubmitPage() {
                 placeholder="Any special instructions or questions? Type them here..."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-md px-3 py-2 text-xs outline-none text-slate-900 font-normal transition-all resize-none"
+                className="w-full bg-slate-50 border border-slate-200 focus:border-[#D22630] focus:ring-1 focus:ring-[#D22630] rounded-lg px-3.5 py-2.5 text-sm sm:text-xs outline-none text-slate-900 font-normal transition-all resize-none"
               />
             </div>
 
@@ -297,7 +297,7 @@ export default function SubmitPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#D22630] hover:bg-[#b81d26] disabled:opacity-50 text-white font-semibold py-2.5 rounded-md text-xs uppercase tracking-wider transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-[#D22630] hover:bg-[#b81d26] disabled:opacity-50 text-white font-bold h-12 rounded-xl text-xs uppercase tracking-wider transition-all shadow-sm active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
             >
               {loading ? 'Submitting...' : 'Submit Request'}
             </button>
