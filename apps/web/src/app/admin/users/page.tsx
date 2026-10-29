@@ -20,6 +20,8 @@ import {
   Eye,
   EyeOff,
   Key,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -81,6 +83,8 @@ export default function UsersPage() {
   const [showForm, setShowForm] = useState(false);
   const [editUser, setEditUser] = useState<StaffUser | null>(null);
   const [form, setForm] = useState(defaultForm);
+  const [resetModalData, setResetModalData] = useState<{ userName: string; resetLink: string; message: string } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [expandedRole, setExpandedRole] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -218,21 +222,27 @@ export default function UsersPage() {
   });
 
   const resetPasswordMutation = useMutation({
-    mutationFn: async (userId: string) => {
+    mutationFn: async ({ userId, userName }: { userId: string; userName: string }) => {
       const res = await fetch('/api/admin/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to send reset link');
-      return data;
+      if (!res.ok) throw new Error(data.error || 'Failed to generate reset link');
+      return { ...data, userName };
     },
-    onSuccess: () => {
-      toast.success('Password reset link sent via SMS!');
+    onSuccess: (data) => {
+      toast.success(data.message || 'Password reset link generated!');
+      setResetModalData({
+        userName: data.userName,
+        resetLink: data.resetLink,
+        message: data.message,
+      });
+      setCopiedLink(false);
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to send reset link');
+      toast.error(error.message || 'Failed to process password reset');
     },
   });
 
@@ -433,12 +443,12 @@ export default function UsersPage() {
                           <button
                             onClick={async (e) => {
                               e.stopPropagation();
-                              if (await confirm({ title: 'Confirmation', message: `Send a password reset SMS to ${user.name}?`, variant: 'destructive' })) {
-                                resetPasswordMutation.mutate(user.id);
+                              if (await confirm({ title: 'Password Reset', message: `Generate and send a password reset link for ${user.name}?`, variant: 'destructive' })) {
+                                resetPasswordMutation.mutate({ userId: user.id, userName: user.name });
                               }
                             }}
                             className="p-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-md transition-colors shadow-sm font-medium"
-                            title="Reset Password via SMS"
+                            title="Reset Password"
                             disabled={resetPasswordMutation.isPending}
                           >
                             <Key size={14} />
@@ -508,6 +518,19 @@ export default function UsersPage() {
                       </div>
                     </div>
                     <div className="flex gap-1">
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (await confirm({ title: 'Password Reset', message: `Generate and send a password reset link for ${user.name}?`, variant: 'destructive' })) {
+                            resetPasswordMutation.mutate({ userId: user.id, userName: user.name });
+                          }
+                        }}
+                        className="p-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-md transition-colors shadow-sm font-medium"
+                        title="Reset Password"
+                        disabled={resetPasswordMutation.isPending}
+                      >
+                        <Key size={16} />
+                      </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -743,6 +766,87 @@ export default function UsersPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Password Reset Modal with Copy Link Option */}
+      {resetModalData && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-amber-50 text-amber-700 rounded-lg">
+                  <Key size={18} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm">Password Reset Generated</h3>
+                  <p className="text-[11px] text-slate-500">{resetModalData.userName}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setResetModalData(null)}
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-400"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                {resetModalData.message}
+              </p>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Direct Reset Link (Valid for 24 hours)
+                </label>
+                <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <input
+                    type="text"
+                    readOnly
+                    value={resetModalData.resetLink}
+                    className="bg-transparent text-xs text-slate-700 font-mono flex-1 outline-none select-all"
+                  />
+                  <Button
+                    size="sm"
+                    variant={copiedLink ? "default" : "outline"}
+                    className={cn("h-7 px-2.5 text-xs font-semibold gap-1", copiedLink && "bg-emerald-600 text-white")}
+                    onClick={() => {
+                      navigator.clipboard.writeText(resetModalData.resetLink);
+                      setCopiedLink(true);
+                      toast.success('Reset link copied to clipboard!');
+                      setTimeout(() => setCopiedLink(false), 2500);
+                    }}
+                  >
+                    {copiedLink ? (
+                      <>
+                        <Check size={12} /> Copied
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={12} /> Copy
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-400 leading-normal">
+                You can copy this link and send it directly via WhatsApp, SMS, or email to the user so they can set a new password.
+              </p>
+            </div>
+
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setResetModalData(null)}
+                className="font-semibold text-xs"
+              >
+                Done
+              </Button>
+            </div>
           </div>
         </div>
       )}
