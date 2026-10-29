@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Copy, Check, UploadCloud, FileText, Trash2, ChevronRight } from 'lucide-react';
 import PublicNav from '@/components/PublicNav';
+import PublicFooter from '@/components/PublicFooter';
 import { cn } from '@/lib/utils';
 
 export default function SubmitPage() {
@@ -112,10 +113,10 @@ export default function SubmitPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans pt-16 sm:pt-20 pb-12">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col justify-between overflow-x-hidden pt-16 sm:pt-20">
       <PublicNav />
 
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="w-full max-w-2xl mx-auto px-4 py-8 sm:py-12 flex-1">
         
         {/* Header */}
         <div className="text-center mb-8">
@@ -304,6 +305,8 @@ export default function SubmitPage() {
           </form>
         )}
       </div>
+
+      <PublicFooter />
     </div>
   );
 }

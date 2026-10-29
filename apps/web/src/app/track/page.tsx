@@ -107,11 +107,11 @@ function TrackPageContent() {
   const progressPct = getProgressPercentage();
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans pt-20">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col justify-between overflow-x-hidden pt-16 sm:pt-20">
       <PublicNav />
 
       {/* Header Banner */}
-      <section className="py-12 bg-slate-50 border-b border-border/40">
+      <section className="py-12 bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 text-center space-y-3 pt-4">
           <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight">
             Track Your Order
