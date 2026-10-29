@@ -19,7 +19,9 @@ import { Mail, Lock, Loader2, ArrowRight, Eye, EyeOff, ShieldAlert } from "lucid
 
 function SignInForm() {
 	const searchParams = useSearchParams();
-	const callbackUrl = searchParams.get("callbackUrl") || "/";
+	const paramCallback = searchParams.get("callbackUrl");
+	// Default to /admin so staff and admins immediately land on the dashboard after entering credentials
+	const callbackUrl = (paramCallback && paramCallback !== "/") ? paramCallback : "/admin";
 	const urlError = searchParams.get("error");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");

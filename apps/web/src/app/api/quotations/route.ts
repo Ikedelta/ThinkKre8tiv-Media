@@ -92,13 +92,15 @@ export async function PATCH(request: Request) {
     }
 
     const [quotation] = await sql`
-      UPDATE quotations SET status = ${status}, updated_at = NOW()
-      WHERE id = ${id} RETURNING *
+      UPDATE quotations 
+      SET status = ${status}::text, updated_at = NOW()
+      WHERE id = ${id} 
+      RETURNING *
     `;
     return Response.json(quotation);
-  } catch (error) {
-    console.error(error);
-    return Response.json({ error: 'Failed to update quotation' }, { status: 500 });
+  } catch (error: any) {
+    console.error('PATCH /api/quotations error:', error);
+    return Response.json({ error: error?.message || 'Failed to update quotation' }, { status: 500 });
   }
 }
 

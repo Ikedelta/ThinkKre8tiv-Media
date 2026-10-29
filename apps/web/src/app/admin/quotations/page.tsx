@@ -2,13 +2,15 @@
 
 import { useConfirm } from '@/components/providers/ConfirmProvider';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText, Edit2, AlertCircle } from 'lucide-react';
+import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText, Edit2, AlertCircle, Eye, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
+import { DocumentViewer } from '@/components/DocumentViewer';
 
 interface Quotation {
   id: string;
@@ -29,14 +31,22 @@ const statusConfig: Record<string, { label: string; dot: string; bg: string }> =
   converted: { label: 'Converted', dot: 'bg-indigo-500', bg: 'bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-500 dark:border-indigo-500/20' },
 };
 
-export default function QuotationsPage() {
+function QuotationsPageContent() {
   const { confirm } = useConfirm();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
+  const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
+  const searchParams = useSearchParams();
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const viewId = searchParams?.get('view');
+    if (viewId) {
+      setSelectedQuotationId(viewId);
+    }
+  }, [searchParams]);
 
   const { data: quotations = [], isLoading } = useQuery<Quotation[]>({
     queryKey: ['quotations'],
@@ -46,6 +56,17 @@ export default function QuotationsPage() {
       return res.json();
     },
     enabled: mounted,
+  });
+
+  const { data: quotationDetails } = useQuery<any>({
+    queryKey: ['quotation-details', selectedQuotationId],
+    queryFn: async () => {
+      if (!selectedQuotationId) return null;
+      const res = await fetch(`/api/quotations?id=${selectedQuotationId}`);
+      if (!res.ok) throw new Error('Failed to fetch quotation details');
+      return res.json();
+    },
+    enabled: !!selectedQuotationId,
   });
 
   const updateStatusMutation = useMutation({
@@ -98,6 +119,11 @@ export default function QuotationsPage() {
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 tracking-tight">Estimates & Quotations</h1>
           <p className="text-slate-500 text-sm font-medium">Manage estimates and send quotes to customers.</p>
         </div>
+        <Link href="/admin/quotations/new">
+          <button className="flex items-center gap-2 bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold uppercase tracking-wider px-4 py-2.5 rounded-lg shadow-sm transition-all cursor-pointer">
+            <Plus size={14} /> New Quotation
+          </button>
+        </Link>
       </div>
 
       {/* Metric Cards */}
@@ -174,11 +200,21 @@ export default function QuotationsPage() {
                   return (
                     <tr key={job.id} className="hover:bg-slate-50 dark:hover:bg-[#0D121F] transition-colors group">
                       <td className="px-6 py-5">
-                        <div className="font-bold text-indigo-600 dark:text-indigo-400 mb-1">{job.quotation_number}</div>
+                        <button
+                          onClick={() => setSelectedQuotationId(job.id)}
+                          className="font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline mb-1 text-left cursor-pointer"
+                        >
+                          {job.quotation_number}
+                        </button>
                         <div className="text-[10px] text-slate-500">{dateStr}</div>
                       </td>
                       <td className="px-6 py-5">
-                        <div className="font-bold text-slate-900 dark:text-slate-200 mb-0.5">{job.customer_name}</div>
+                        <button
+                          onClick={() => setSelectedQuotationId(job.id)}
+                          className="font-bold text-slate-900 dark:text-slate-200 hover:text-[#D22630] mb-0.5 text-left cursor-pointer"
+                        >
+                          {job.customer_name}
+                        </button>
                         <div className="text-xs text-slate-500">{job.customer_email || '—'}</div>
                       </td>
                       <td className="px-6 py-5">
@@ -201,6 +237,14 @@ export default function QuotationsPage() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setSelectedQuotationId(job.id)}
+                            className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-md transition-colors cursor-pointer"
+                            title="View Estimate"
+                          >
+                            <Eye size={15} />
+                          </button>
+
                           {job.status === 'draft' && (
                             <button
                               onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'sent' })}
@@ -329,6 +373,14 @@ export default function QuotationsPage() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100 dark:border-slate-800">
+                  <button
+                    onClick={() => setSelectedQuotationId(job.id)}
+                    className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center gap-1"
+                    title="View Estimate"
+                  >
+                    <Eye size={13} /> View
+                  </button>
+
                   <Link
                     href={`/admin/invoices/new?quotation_id=${job.id}&customer_id=${job.customer_id}&description=${encodeURIComponent(specs.product || 'Custom Job')}`}
                     className="flex-1 min-w-[120px] flex items-center justify-center gap-1.5 py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 rounded-lg text-xs font-bold transition-colors"
@@ -370,6 +422,29 @@ export default function QuotationsPage() {
           })
         )}
       </div>
+
+      {/* Document Viewer Modal for Quotation / Estimate */}
+      {selectedQuotationId && quotationDetails && (
+        <DocumentViewer
+          type="quotation"
+          document={quotationDetails}
+          onClose={() => setSelectedQuotationId(null)}
+          isAdmin={(session?.user as any)?.role === 'admin'}
+        />
+      )}
     </div>
+  );
+}
+
+export default function QuotationsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center h-[50vh] space-y-3">
+        <div className="w-8 h-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-slate-500 font-medium">Loading quotations...</p>
+      </div>
+    }>
+      <QuotationsPageContent />
+    </Suspense>
   );
 }

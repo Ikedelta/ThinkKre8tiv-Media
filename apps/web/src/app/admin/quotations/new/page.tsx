@@ -60,9 +60,9 @@ export default function NewQuotationPage() {
       if (!res.ok) throw new Error('Failed');
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast.success('Quotation created!');
-      router.push('/admin/quotations');
+      router.push(`/admin/quotations?view=${data.id}`);
     },
     onError: () => toast.error('Failed to create quotation'),
   });
