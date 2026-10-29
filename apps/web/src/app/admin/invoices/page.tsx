@@ -148,8 +148,15 @@ export default function InvoicesPage() {
       toast.error('Customer has no phone number on record.');
       return;
     }
-    const msg = `Dear ${doc.customer_name}, your invoice (${doc.invoice_number}) from Think Kre8tiv Media for GHS ${doc.total_amount} is ready.`;
-    if (await confirm({ title: 'Confirmation', message: `Send SMS to ${doc.customer_phone}? \n\nMessage: "${msg}"`, variant: 'destructive' })) {
+
+    const isOverdue = doc.due_date && new Date(doc.due_date) < new Date() && Number(doc.balance_due) > 0;
+    const formattedDueDate = doc.due_date ? new Date(doc.due_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+
+    const msg = isOverdue
+      ? `Dear ${doc.customer_name}, friendly reminder from Think Kre8tiv Media: Invoice #${doc.invoice_number} (Bal: GH₵${Number(doc.balance_due).toLocaleString(undefined, { minimumFractionDigits: 2 })}) was due on ${formattedDueDate}. Kindly settle via MoMo (024 468 1391) or Bank Transfer. Thank you!`
+      : `Dear ${doc.customer_name}, your invoice (${doc.invoice_number}) from Think Kre8tiv Media for GH₵${Number(doc.total_amount).toLocaleString(undefined, { minimumFractionDigits: 2 })} is ready. Settle via MoMo: 024 468 1391. Thank you!`;
+
+    if (await confirm({ title: 'Send SMS Notification', message: `Send SMS to ${doc.customer_phone}? \n\nTemplate Preview:\n"${msg}"`, variant: 'destructive' })) {
       smsMutation.mutate({
         recipients: [{ phone: doc.customer_phone, name: doc.customer_name }],
         message: msg
@@ -194,11 +201,36 @@ export default function InvoicesPage() {
             Manage and track customer billing
           </p>
         </div>
-        <Link href="/admin/invoices/new">
-          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold w-full sm:w-auto">
-            <Plus size={16} className="mr-2" /> New Invoice
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {(session?.user as any)?.role === 'admin' && (
+            <Button
+              variant="outline"
+              onClick={async () => {
+                try {
+                  toast.info('Checking and dispatching overdue SMS reminders...');
+                  const res = await fetch('/api/cron/overdue-invoices?trigger=send');
+                  const data = await res.json();
+                  if (data.success) {
+                    toast.success(`Processed ${data.processed} overdue invoices successfully!`);
+                  } else {
+                    toast.error(data.error || 'Failed to dispatch reminders');
+                  }
+                } catch (err: any) {
+                  toast.error(err.message || 'Error triggering overdue reminders');
+                }
+              }}
+              className="border-slate-300 dark:border-slate-700 font-bold text-xs gap-1.5 h-10"
+              title="Broadcast SMS reminders to all customers with overdue balances"
+            >
+              <MessageSquare size={15} className="text-[#D22630]" /> Send Overdue SMS Alerts
+            </Button>
+          )}
+          <Link href="/admin/invoices/new">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold w-full sm:w-auto h-10">
+              <Plus size={16} className="mr-2" /> New Invoice
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Pending alert */}
