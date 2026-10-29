@@ -223,7 +223,8 @@ export default function ComprehensiveCmsPage() {
         body: file,
       });
       if (!res.ok) {
-        throw new Error('Image upload failed');
+        const errJson = await res.json().catch(() => null);
+        throw new Error(errJson?.error || `Upload failed with status ${res.status}`);
       }
       const data = await res.json();
       if (data.url) {

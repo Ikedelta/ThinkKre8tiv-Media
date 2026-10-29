@@ -93,7 +93,7 @@ export async function PATCH(request: Request) {
 
     const [quotation] = await sql`
       UPDATE quotations 
-      SET status = ${status}::text, updated_at = NOW()
+      SET status = ${status}::text
       WHERE id = ${id} 
       RETURNING *
     `;
@@ -121,8 +121,7 @@ export async function PUT(request: Request) {
           discount_amount = COALESCE(${discount_amount}, discount_amount),
           total_amount = COALESCE(${total_amount}, total_amount),
           notes = COALESCE(${notes}, notes),
-          valid_until = COALESCE(${valid_until}, valid_until),
-          updated_at = NOW()
+          valid_until = COALESCE(${valid_until}, valid_until)
       WHERE id = ${id}
       RETURNING *
     `;
