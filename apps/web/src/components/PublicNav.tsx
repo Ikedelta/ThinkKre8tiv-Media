@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Printer, Menu, X, ChevronRight, Sun, Moon } from 'lucide-react';
+import { Printer, Menu, X, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useTheme } from 'next-themes';
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -19,14 +18,6 @@ export default function PublicNav() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = mounted && (resolvedTheme === 'dark' || theme === 'dark');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -99,16 +90,6 @@ export default function PublicNav() {
             <div className="h-4 w-px bg-slate-200 dark:bg-slate-800" />
 
             <div className="flex items-center gap-3">
-              {/* Theme Toggle */}
-              <button
-                onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                className="p-1.5 rounded-lg border transition-all duration-200 flex items-center justify-center hover:scale-105 active:scale-95 bg-slate-100/80 border-slate-200/80 text-slate-600 hover:bg-slate-200/80 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-400 dark:hover:bg-slate-700"
-                aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-                title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              >
-                {isDark ? <Sun size={14} /> : <Moon size={14} />}
-              </button>
-
               <Link
                 href="/admin"
                 className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-[#D22630] transition-colors"
@@ -127,13 +108,6 @@ export default function PublicNav() {
 
           {/* Mobile toggle */}
           <div className="flex items-center gap-1.5 md:hidden">
-            <button
-              onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-amber-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {isDark ? <Sun size={15} /> : <Moon size={15} />}
-            </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"

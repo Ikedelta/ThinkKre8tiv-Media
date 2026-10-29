@@ -46,21 +46,21 @@ const PARTNERS = [
 const HERO_SLIDES = [
   {
     src: '/images/1.jpg',
-    tag: 'Factory & Offset Plant',
-    title: 'Precision Lithography & Packaging',
-    desc: 'Operating industrial Heidelberg offset lines across Ghana.'
+    tag: 'Printing & Packaging',
+    title: 'High-Quality Printing & Boxes',
+    desc: 'From business brochures to custom product packaging, printed with rich colors and sharp detail.'
   },
   {
     src: '/images/2.jpg',
-    tag: 'Large Format & Fabrication',
-    title: 'Signage & Brand Fabrication',
-    desc: 'State-of-the-art wide format printing, 3D acrylic & billboards.'
+    tag: 'Signs & Banners',
+    title: 'Outdoor Signage & Shop Branding',
+    desc: '3D signs, banners, office displays, and vehicle branding that make your business stand out.'
   },
   {
     src: '/images/3.jpg',
-    tag: 'Finishing & Production',
-    title: 'Bespoke Packaging & Die-Cutting',
-    desc: 'Automated folding, embossing, and luxury presentation boxes.'
+    tag: 'Custom Finishing',
+    title: 'Luxury Gift & Product Packaging',
+    desc: 'Custom-made gift boxes, shopping bags, and premium paper finishes tailored for your brand.'
   }
 ];
 
@@ -107,64 +107,74 @@ export default function HomePage() {
       <PublicNav />
 
       {/* =========================================================================
-          SECTION 1: HERO SECTION (CLEAN, BESPOKE CORPORATE PALETTE)
+          SECTION 1: HERO SECTION (ENGAGING ABSTRACT DYNAMIC PALETTE)
           ========================================================================= */}
-      <section className="relative overflow-hidden bg-white dark:bg-slate-950 border-b border-slate-200/80 dark:border-slate-800 py-10 sm:py-14 lg:py-16">
+      <section className="relative overflow-hidden bg-slate-950 text-white border-b border-slate-800 py-12 sm:py-16 lg:py-20">
         
-        {/* Subtle grid background pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none opacity-50" />
+        {/* Rich Abstract Background Elements */}
+        {/* Soft Radial Ambient Glows */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#D22630]/20 rounded-full blur-[140px] pointer-events-none -translate-y-1/2" />
+        <div className="absolute bottom-0 right-10 w-[450px] h-[450px] bg-amber-500/10 rounded-full blur-[130px] pointer-events-none translate-y-1/3" />
+        <div className="absolute top-1/2 right-1/3 w-[350px] h-[350px] bg-indigo-600/15 rounded-full blur-[120px] pointer-events-none" />
+
+        {/* Abstract Architectural Mesh & Vector Geometry */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_75%_60%_at_50%_40%,#000_60%,transparent_100%)] pointer-events-none" />
+        
+        {/* Subtle Diagonal Dynamic Accent Lines */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 border border-white/[0.06] rounded-full pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-[32rem] h-[32rem] border border-white/[0.05] rounded-full pointer-events-none" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             
             {/* Left Column: Mission & Strategic Action */}
             <div className="lg:col-span-7 space-y-4 text-left">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-[11px] font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D22630]" />
-                <span className="font-semibold text-slate-700 dark:text-slate-300 tracking-wider text-[10px] uppercase">
-                  Commercial Printing &amp; Brand Fabrication
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-slate-200 text-[11px] font-semibold shadow-inner">
+                <span className="w-2 h-2 rounded-full bg-[#D22630] animate-pulse" />
+                <span className="font-semibold tracking-wider text-[10px] uppercase text-slate-100">
+                  Quality Printing &amp; Business Branding
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-950 dark:text-white tracking-tight leading-[1.2]">
+              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.18]">
                 {heroHeadline}
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-normal leading-relaxed max-w-xl">
+              <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed max-w-xl">
                 {heroSubheadline}
               </p>
 
               {/* Call to Actions with Brand Vibrant Colors */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link href="/submit">
-                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white h-9 px-4.5 rounded-md shadow-xs hover:shadow-sm transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
-                    Submit Print Job <ArrowRight size={13} />
+                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white h-10 px-5 rounded-lg shadow-lg hover:shadow-red-900/30 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                    Request a Quote <ArrowRight size={13} />
                   </button>
                 </Link>
                 <Link href="/services">
-                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 h-9 px-4 rounded-md transition-all shadow-xs cursor-pointer">
-                    Explore Capabilities
+                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border border-white/20 bg-white/10 hover:bg-white/15 text-white h-10 px-5 rounded-lg backdrop-blur-md transition-all shadow-xs cursor-pointer">
+                    Our Services
                   </button>
                 </Link>
               </div>
 
-              {/* Business Highlights Strip with Clean Monochromatic Figures */}
-              <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800">
-                  <div className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">14+</div>
-                  <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Years Established</div>
+              {/* Business Highlights Strip with Translucent Glass Aesthetic */}
+              <div className="pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                  <div className="text-xl font-extrabold text-white tracking-tight">14+</div>
+                  <div className="text-[10px] font-medium text-slate-400">Years of Experience</div>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800">
-                  <div className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">1,200+</div>
-                  <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Corporate Clients</div>
+                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                  <div className="text-xl font-extrabold text-white tracking-tight">1,200+</div>
+                  <div className="text-[10px] font-medium text-slate-400">Happy Clients</div>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800">
-                  <div className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">&lt; 24h</div>
-                  <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Fast Pre-Press Proofs</div>
+                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                  <div className="text-xl font-extrabold text-white tracking-tight">&lt; 24h</div>
+                  <div className="text-[10px] font-medium text-slate-400">Fast Sample Reviews</div>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-lg border border-slate-200/80 dark:border-slate-800">
-                  <div className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">100%</div>
-                  <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Quality Assurance</div>
+                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
+                  <div className="text-xl font-extrabold text-white tracking-tight">100%</div>
+                  <div className="text-[10px] font-medium text-slate-400">Satisfaction Guaranteed</div>
                 </div>
               </div>
             </div>
@@ -233,17 +243,6 @@ export default function HomePage() {
                   ))}
                 </div>
               </div>
-
-              {/* Floating Quality Badge with Clean Slate Border */}
-              <div className="hidden sm:flex absolute -bottom-5 -left-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-xl items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-slate-900 dark:bg-slate-800 text-white flex items-center justify-center font-bold shadow-sm">
-                  <Printer size={20} className="text-[#D22630]" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-white">ISO Standard Output</p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Strict CMYK Density Calibrations</p>
-                </div>
-              </div>
             </div>
 
           </div>
@@ -303,13 +302,13 @@ export default function HomePage() {
           {/* Header */}
           <div className="max-w-3xl mb-10">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-slate-200/80 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-[10px] font-bold uppercase tracking-wider mb-2.5">
-              <Compass size={12} className="text-primary" /> Corporate Identity &amp; Infrastructure
+              <Compass size={12} className="text-primary" /> About Think Kre8tiv
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Who We Are: Ghana’s Standard in Commercial Printing.
+              Quality Printing &amp; Branding Made Simple.
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2.5 leading-relaxed font-normal">
-              Think Kre8tiv Media is an industrial print manufacturing and corporate branding powerhouse. From high-speed Heidelberg offset printing to architectural signage and structural packaging boxes, we combine German print engineering with African ingenuity.
+              Think Kre8tiv Media is your one-stop partner for business printing, custom packaging, and signs. Whether you need corporate stationery, outdoor billboards, or product packaging boxes, we deliver high-quality work on time.
             </p>
           </div>
 
@@ -327,29 +326,29 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#D22630]">
-                    Offset Press
+                    Bulk Printing
                   </span>
-                  <span className="text-[11px] font-semibold text-slate-200">15,000 sph</span>
+                  <span className="text-[11px] font-semibold text-slate-200">Fast Delivery</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <Printer size={16} className="text-[#D22630]" />
-                    Industrial Lithography
+                    Commercial Printing
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-                    Equipped with Heidelberg offset multi-color lines delivering spectrophotometric color precision and sharp registration.
+                    Clear, bright, and vibrant prints for all your corporate and promotional materials.
                   </p>
                 </div>
                 <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <li className="flex items-center gap-2 text-[11px]">
                     <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    <span>Annual Reports &amp; Hardcover Books</span>
+                    <span>Company Reports, Notebooks &amp; Booklets</span>
                   </li>
                   <li className="flex items-center gap-2 text-[11px]">
                     <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    <span>Rigid Boxes &amp; FMCG Cartons</span>
+                    <span>Product Boxes &amp; Custom Packaging</span>
                   </li>
                 </ul>
               </div>
@@ -366,29 +365,29 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-900">
-                    Signage &amp; Build
+                    Signage &amp; Branding
                   </span>
-                  <span className="text-[11px] font-semibold text-slate-200">Architectural</span>
+                  <span className="text-[11px] font-semibold text-slate-200">Indoor &amp; Outdoor</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <Building2 size={16} className="text-indigo-600" />
-                    Signage &amp; Fabrication
+                    Signs &amp; Displays
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-                    In-house CNC routing, laser welding, and LED illumination labs for towering 3D architectural signage and retail environments.
+                    Custom-built 3D light signs, outdoor billboards, and office wall branding that stand out day and night.
                   </p>
                 </div>
                 <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <li className="flex items-center gap-2 text-[11px]">
                     <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    <span>Illuminated Stainless Channel Letters</span>
+                    <span>Lighted 3D Letters &amp; Shop Front Signs</span>
                   </li>
                   <li className="flex items-center gap-2 text-[11px]">
                     <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    <span>Nationwide Corporate Fleet Wraps</span>
+                    <span>Company Car &amp; Van Branding</span>
                   </li>
                 </ul>
               </div>
@@ -405,29 +404,29 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
                   <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-700">
-                    QA Certified
+                    Guaranteed Quality
                   </span>
-                  <span className="text-[11px] font-semibold text-slate-200">ISO Accuracy</span>
+                  <span className="text-[11px] font-semibold text-slate-200">Checked By Hand</span>
                 </div>
               </div>
               <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
                 <div>
                   <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                     <ShieldCheck size={16} className="text-emerald-600" />
-                    Certified Pre-Press &amp; QA
+                    Careful Quality Checks
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
-                    Integrated digital proofing, spectrophotometer calibration, computerized tracking, and automated dispatch alerts.
+                    Every design is checked before printing, with fast digital previews and careful review before packing.
                   </p>
                 </div>
                 <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <li className="flex items-center gap-2 text-[11px]">
                     <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    <span>24-Hour Proof Turnaround Guarantee</span>
+                    <span>Free Sample Preview Within 24 Hours</span>
                   </li>
                   <li className="flex items-center gap-2 text-[11px]">
                     <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
-                    <span>Itemized Invoicing &amp; VAT Receipts</span>
+                    <span>Clear Invoices &amp; Official Receipts</span>
                   </li>
                 </ul>
               </div>
@@ -438,18 +437,18 @@ export default function HomePage() {
           {/* Infrastructure Collage Banner */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white dark:bg-slate-900 rounded-2xl p-6 sm:p-8 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <div className="md:col-span-8 space-y-3">
-              <span className="text-xs font-bold uppercase tracking-widest text-primary">Strategic Advantage</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary">Why Work With Us</span>
               <h4 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Turnkey Print Production Under One Single Roof.
+                Everything Handled in One Place.
               </h4>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl font-normal">
-                Eliminate middle-man markups and scheduling delays. We control your job from initial prepress file inspection, direct plate imaging (CTP), automated printing, die-cutting, to white-glove corporate delivery.
+                No middlemen and no unnecessary delays. From reviewing your artwork to printing, cutting, finishing, and doorstep delivery — our team handles every step.
               </p>
             </div>
             <div className="md:col-span-4 flex justify-start md:justify-end">
               <Link href="/about">
-                <button className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 h-11 px-6 rounded-md shadow-sm transition-all">
-                  Read Corporate Story <ArrowRight size={14} />
+                <button className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 h-11 px-6 rounded-md shadow-sm transition-all cursor-pointer">
+                  Learn More About Us <ArrowRight size={14} />
                 </button>
               </Link>
             </div>
@@ -470,29 +469,21 @@ export default function HomePage() {
             <div className="lg:col-span-5 relative">
               <div className="relative rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/5] max-w-sm mx-auto lg:max-w-none group">
                 <img
-                  src={ceoImage}
+                  src={ceoImage || '/images/CEO.jpg'}
                   alt={ceoName}
-                  className="w-full h-full object-cover contrast-105 transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover object-top contrast-105 transition-transform duration-500 group-hover:scale-105"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    if (target.src !== '/images/CEO.jpg') {
+                      target.src = '/images/CEO.jpg';
+                    }
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
                 
                 <div className="absolute bottom-4 left-4 right-4 text-white space-y-0.5">
-                  <span className="inline-block px-2 py-0.5 rounded bg-[#D22630] text-[9px] font-bold uppercase tracking-wider text-white shadow-xs">
-                    Leadership &amp; Governance
-                  </span>
                   <h3 className="text-base font-extrabold text-white">{ceoName}</h3>
                   <p className="text-[11px] text-slate-300 font-medium">{ceoTitle}</p>
-                </div>
-              </div>
-
-              {/* Floating Leadership Badge with Slate / Corporate Accent */}
-              <div className="hidden sm:flex absolute -bottom-4 -right-4 bg-slate-900 text-white border border-slate-800 rounded-lg p-3.5 shadow-lg items-center gap-2.5 max-w-[240px]">
-                <div className="w-8 h-8 rounded-md bg-slate-800 text-[#D22630] border border-slate-700 flex items-center justify-center font-bold shrink-0 shadow-xs">
-                  <Award size={16} />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-white">14+ Years at the Helm</p>
-                  <p className="text-[10px] text-slate-400">Pioneering Commercial Print Tech</p>
                 </div>
               </div>
             </div>
@@ -592,22 +583,22 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          SECTION 6: HOW IT WORKS (STRUCTURED OPERATING PROCEDURE)
+          SECTION 6: HOW IT WORKS (SIMPLE 4-STEP PROCESS)
           ========================================================================= */}
       <section className="py-14 sm:py-16 bg-slate-50 dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-slate-800/80 relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Standard Operating Procedure</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Structured Production Pipeline</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Strict quality assurance milestones from project initiation to delivery.</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-primary">How It Works</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Our Simple 4-Step Process</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">From your first request to doorstep delivery, here is how we work with you.</p>
           </div>
           
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 relative">
             {[
-              { num: '01', title: 'Brief Submission', icon: FileText, desc: 'Submit technical specs, substrates, pantone references, and artwork files.' },
-              { num: '02', title: 'Pre-Press Proof', icon: Layers, desc: 'Digital soft-proofing and color density review for zero discrepancy.' },
-              { num: '03', title: 'Industrial Run', icon: Zap, desc: 'High-speed automated offset lithography with active quality control.' },
-              { num: '04', title: 'Inspected Dispatch', icon: Package, desc: 'Packaged in humidity-sealed containers and dispatched to your corporate hub.' }
+              { num: '01', title: 'Send Your Request', icon: FileText, desc: 'Share your project details, artwork, and preferred quantities with us.' },
+              { num: '02', title: 'Review & Approve', icon: Layers, desc: 'We send you a digital preview and exact quotation for confirmation.' },
+              { num: '03', title: 'Printing & Crafting', icon: Zap, desc: 'We print and assemble your items using top-tier inks and durable materials.' },
+              { num: '04', title: 'Pack & Deliver', icon: Package, desc: 'Carefully packaged and delivered straight to your office or doorstep.' }
             ].map((step, i) => (
               <div key={i} className="relative z-10 bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 group">
                 <div className="flex items-center justify-between mb-3">
@@ -627,20 +618,20 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          SECTION 7: GALLERY SHOWCASE (INSIDE THE PRESS)
+          SECTION 7: GALLERY SHOWCASE
           ========================================================================= */}
       <section className="bg-slate-950 py-16 text-slate-50 border-t border-slate-900 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
         <div className="mx-auto max-w-7xl px-4 relative z-10">
           <div className="mb-8 flex flex-col md:flex-row items-end justify-between gap-4">
             <div className="space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Inside the Press</p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Our Workshop</p>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white">
-                Crafted by Hand.<br/>Powered by Precision.
+                Carefully Crafted.<br/>Made with Pride.
               </h2>
             </div>
             <p className="max-w-md text-xs sm:text-sm text-slate-400 font-normal leading-relaxed">
-              Our printing press plant coordinates multiple Heidelberg offset lines and automated die cutters to ensure maximum speed and razor-sharp clarity.
+              We operate modern printing presses and cutting equipment in Accra to ensure fast turnarounds and clean, vivid output on every order.
             </p>
           </div>
 
@@ -655,9 +646,9 @@ export default function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
                 <span className="inline-block bg-primary text-primary-foreground text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full mb-2">
-                  Factory Floor
+                  Printing Facility
                 </span>
-                <h3 className="text-lg font-bold text-white">High-Volume Lithography</h3>
+                <h3 className="text-lg font-bold text-white">Large-Scale Printing</h3>
               </div>
             </div>
 

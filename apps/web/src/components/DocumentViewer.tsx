@@ -70,14 +70,14 @@ export function DocumentViewer({
   const isApproved = document.approval_status === 'approved';
   const isPaid = document.status === 'paid' || (document.balance_due !== undefined && Number(document.balance_due) <= 0);
 
-  // Dynamic Theme Palette: Emerald for Receipts, Classic Indigo/Navy for Invoices & Quotations
+  // Dynamic Theme Palette: Emerald for Receipts, Crimson Red (#D22630) for Invoices & Quotations
   const themeStyles = isReceipt
     ? {
         headerGradient: 'from-emerald-800 via-emerald-700 to-teal-800',
         badgeBg: 'bg-emerald-950/60 text-emerald-200 border-emerald-500/30',
         badgeText: 'OFFICIAL RECEIPT',
         voucherLabel: 'Receipt Voucher',
-        bannerBg: 'bg-emerald-50/90 border-emerald-200',
+        bannerBg: 'bg-emerald-50/80 border-emerald-200',
         bannerIcon: 'text-emerald-600',
         bannerTitle: 'text-emerald-800',
         bannerTitleText: 'Payment Cleared & Confirmed',
@@ -89,20 +89,20 @@ export function DocumentViewer({
         stampBorder: 'border-emerald-800',
       }
     : {
-        headerGradient: 'from-indigo-900 via-slate-800 to-indigo-950',
-        badgeBg: 'bg-indigo-950/70 text-indigo-200 border-indigo-400/30',
+        headerGradient: 'from-[#B71C1C] via-[#D22630] to-[#880E4F]',
+        badgeBg: 'bg-red-950/70 text-red-200 border-red-400/30',
         badgeText: isInvoice ? 'COMMERCIAL INVOICE' : 'OFFICIAL ESTIMATE',
         voucherLabel: isInvoice ? 'Invoice Reference' : 'Estimate Reference',
-        bannerBg: 'bg-indigo-50/90 border-indigo-200',
-        bannerIcon: isPaid ? 'text-emerald-600' : 'text-indigo-600',
-        bannerTitle: isPaid ? 'text-emerald-800' : 'text-indigo-900',
+        bannerBg: 'bg-red-50/80 border-red-200',
+        bannerIcon: isPaid ? 'text-emerald-600' : 'text-[#D22630]',
+        bannerTitle: isPaid ? 'text-emerald-800' : 'text-red-900',
         bannerTitleText: isPaid ? 'Invoice Settled (Paid Full)' : 'Invoice Billing & Settlement Due',
-        bannerSubtext: isPaid ? 'text-emerald-700' : 'text-indigo-700',
-        bannerTotalLabel: isPaid ? 'text-emerald-700' : 'text-indigo-700',
-        bannerTotalValue: isPaid ? 'text-emerald-900' : 'text-indigo-950',
-        accentBadge: 'text-indigo-700',
-        stampColor: 'text-indigo-600',
-        stampBorder: 'border-indigo-800',
+        bannerSubtext: isPaid ? 'text-emerald-700' : 'text-red-700',
+        bannerTotalLabel: isPaid ? 'text-emerald-700' : 'text-red-700',
+        bannerTotalValue: isPaid ? 'text-emerald-900' : 'text-red-950',
+        accentBadge: 'text-red-700',
+        stampColor: 'text-[#D22630]',
+        stampBorder: 'border-red-800',
       };
 
   const renderSharedDocumentTemplate = () => (
@@ -125,7 +125,7 @@ export function DocumentViewer({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-lg sm:text-xl font-black tracking-tight text-white uppercase">
-                  THINK <span className={isReceipt ? "text-emerald-300" : "text-amber-400"}>KRE8TIV</span>
+                  THINK <span className={isReceipt ? "text-emerald-300" : "text-amber-300"}>KRE8TIV</span>
                 </span>
                 <span className={cn("text-[8px] font-bold uppercase px-1.5 py-0.5 rounded tracking-wider border", themeStyles.badgeBg)}>
                   {themeStyles.badgeText}
@@ -145,21 +145,21 @@ export function DocumentViewer({
       </div>
 
       {/* Decorative Perforated Ticket Divider Line */}
-      <div className="relative h-5 bg-slate-50 flex items-center justify-between px-4 border-y border-dashed border-slate-300 print:bg-white">
-        <div className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-slate-900 rounded-full print:hidden" />
+      <div className="relative h-4 bg-slate-50 flex items-center justify-between px-4 border-y border-dashed border-slate-300 print:bg-white">
+        <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-900 rounded-full print:hidden" />
         <div className="w-full border-b border-dashed border-slate-300 mx-2" />
         <span className="text-[8px] font-mono uppercase tracking-widest text-slate-400 px-3 bg-slate-50 font-bold shrink-0">
-          {isReceipt ? 'Official Payment Receipt Voucher' : 'Commercial Tax & Billing Document'}
+          {isReceipt ? 'Official Payment Receipt Voucher' : 'Commercial Invoice Document'}
         </span>
         <div className="w-full border-b border-dashed border-slate-300 mx-2" />
-        <div className="absolute -right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 bg-slate-900 rounded-full print:hidden" />
+        <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-slate-900 rounded-full print:hidden" />
       </div>
 
       {/* Main Body */}
       <div className="p-5 sm:p-7 relative flex-1 flex flex-col justify-between bg-white space-y-4">
         
         {/* Verification Shield Watermark */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-[0.025] pointer-events-none select-none z-0">
+        <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none z-0">
           <BadgeCheck className="w-[300px] h-[300px] text-slate-900" />
         </div>
 
@@ -174,14 +174,14 @@ export function DocumentViewer({
         <div className="relative z-10 space-y-4">
           
           {/* Main Top Banner */}
-          <div className={cn("border rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs", themeStyles.bannerBg)}>
+          <div className={cn("border rounded-xl p-4 sm:p-4.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs", themeStyles.bannerBg)}>
             <div className="space-y-0.5">
               <span className={cn("text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5", themeStyles.bannerTitle)}>
                 <CheckCircle2 size={15} className={themeStyles.bannerIcon} />
                 <span>{themeStyles.bannerTitleText}</span>
               </span>
               <p className={cn("text-xs", themeStyles.bannerSubtext)}>
-                Issued on{' '}
+                Date:{' '}
                 <strong>{docDate ? new Date(docDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</strong>
                 {document.due_date && isInvoice && (
                   <span> &bull; Due: <strong className="text-[#D22630]">{new Date(document.due_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong></span>
@@ -198,11 +198,11 @@ export function DocumentViewer({
             </div>
           </div>
 
-          {/* Transaction Metadata Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-200">
+          {/* Clean Transaction Metadata Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/80 rounded-xl p-3.5 border border-slate-200">
             <div>
               <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 block mb-0.5">
-                {isReceipt ? 'Received From' : 'Billed To Customer'}
+                {isReceipt ? 'Received From' : 'Billed To'}
               </span>
               <h4 className="text-sm font-bold text-slate-900 leading-snug">
                 {document.customer_name || 'Customer / Client'}
@@ -213,14 +213,13 @@ export function DocumentViewer({
                   <span>{document.customer_company}</span>
                 </p>
               )}
-              <div className="text-[11px] text-slate-500 font-medium space-y-0.5 pt-1">
+              <div className="text-[11px] text-slate-500 font-medium space-y-0.5 pt-0.5">
                 {document.customer_phone && <p>Tel: {document.customer_phone}</p>}
                 {document.customer_email && <p>Email: {document.customer_email}</p>}
-                {document.customer_address && <p>Address: {document.customer_address}</p>}
               </div>
             </div>
 
-            <div className="space-y-2 sm:border-l sm:border-slate-200 sm:pl-4">
+            <div className="space-y-1.5 sm:border-l sm:border-slate-200 sm:pl-4">
               <div className="flex justify-between items-center text-xs">
                 <span className="font-semibold text-slate-500">{isReceipt ? 'Payment Method:' : 'Payment Channel:'}</span>
                 <span className="font-bold text-slate-900 capitalize px-2 py-0.5 bg-white border border-slate-200 rounded text-[11px]">
@@ -229,19 +228,15 @@ export function DocumentViewer({
               </div>
               {document.invoice_number && isReceipt && (
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-slate-500">Applied To Invoice:</span>
-                  <span className="font-mono font-bold text-indigo-700">{document.invoice_number}</span>
+                  <span className="font-semibold text-slate-500">Invoice Ref:</span>
+                  <span className="font-mono font-bold text-emerald-800">{document.invoice_number}</span>
                 </div>
               )}
               <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-slate-500">Settlement Status:</span>
-                <span className={cn("font-bold text-[11px]", isPaid || isReceipt ? "text-emerald-700" : "text-amber-700")}>
-                  {isReceipt ? 'Settled (Full Receipt)' : isPaid ? 'Paid in Full' : 'Pending Payment'}
+                <span className="font-semibold text-slate-500">Status:</span>
+                <span className={cn("font-bold text-[11px]", isPaid || isReceipt ? "text-emerald-700" : "text-[#D22630]")}>
+                  {isReceipt ? 'Payment Cleared' : isPaid ? 'Paid in Full' : 'Payment Due'}
                 </span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-slate-500">Currency:</span>
-                <span className="font-bold text-slate-800 text-[11px]">Ghanaian Cedi (GH₵)</span>
               </div>
             </div>
           </div>
@@ -251,7 +246,7 @@ export function DocumentViewer({
             <table className="w-full text-left text-xs">
               <thead>
                 <tr className="bg-slate-100 text-slate-900 text-[9px] font-black uppercase tracking-wider border-b border-slate-200">
-                  <th className="py-2.5 px-3">Description / Particulars</th>
+                  <th className="py-2.5 px-3">Description / Items</th>
                   <th className="py-2.5 px-3 text-center w-20">Qty</th>
                   <th className="py-2.5 px-3 text-right w-24">Rate (GH₵)</th>
                   <th className="py-2.5 px-3 text-right w-28">Amount (GH₵)</th>
@@ -261,32 +256,32 @@ export function DocumentViewer({
                 {document.items && document.items.length > 0 ? (
                   document.items.map((item: any, i: number) => (
                     <tr key={i} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-2.5 px-3">
+                      <td className="py-2 px-3">
                         <p className="font-bold text-slate-900 leading-snug">{item.description}</p>
                         {item.notes && <p className="text-[10px] text-slate-500 mt-0.5">{item.notes}</p>}
                       </td>
-                      <td className="py-2.5 px-3 text-center font-medium text-slate-700">{item.quantity}</td>
-                      <td className="py-2.5 px-3 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
-                      <td className="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
+                      <td className="py-2 px-3 text-center font-medium text-slate-700">{item.quantity}</td>
+                      <td className="py-2 px-3 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
+                      <td className="py-2 px-3 text-right font-bold text-slate-900 font-mono">
                         {fmt(item.total_price || (item.quantity * item.unit_price))}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td className="py-3 px-3">
+                    <td className="py-2.5 px-3">
                       <p className="font-bold text-slate-900 text-xs">
                         {isReceipt
                           ? `Commercial Settlement ${document.invoice_number ? `for Invoice #${document.invoice_number}` : ''}`
                           : 'Commercial Printing & Brand Fabrication Services'}
                       </p>
-                      <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
-                        {document.notes || (isReceipt ? `Funds credited to Think Kre8tiv Media accounts via ${paymentMethod.replace('_', ' ')}.` : 'As per contractual agreement')}
+                      <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                        {document.notes || (isReceipt ? `Funds credited to Think Kre8tiv Media via ${paymentMethod.replace('_', ' ')}.` : 'As per contractual agreement')}
                       </p>
                     </td>
-                    <td className="py-3 px-3 text-center font-medium text-slate-700 text-xs">1</td>
-                    <td className="py-3 px-3 text-right font-medium text-slate-600 text-xs">{fmt(document.amount || document.total_amount)}</td>
-                    <td className="py-3 px-3 text-right font-black font-mono text-sm text-slate-900">
+                    <td className="py-2.5 px-3 text-center font-medium text-slate-700 text-xs">1</td>
+                    <td className="py-2.5 px-3 text-right font-medium text-slate-600 text-xs">{fmt(document.amount || document.total_amount)}</td>
+                    <td className="py-2.5 px-3 text-right font-black font-mono text-sm text-slate-900">
                       {fmt(document.amount || document.total_amount)}
                     </td>
                   </tr>
@@ -298,14 +293,14 @@ export function DocumentViewer({
           {/* Account Balance & Calculations Summary */}
           <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-1">
             {/* Banking Remittance Block */}
-            <div className="sm:col-span-7 bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-1.5 text-xs">
+            <div className="sm:col-span-7 bg-slate-50/80 rounded-xl p-3 border border-slate-200 space-y-1.5 text-xs">
               <div className="flex items-center gap-1.5 border-b border-slate-200 pb-1">
-                <CreditCard size={12} className={isReceipt ? "text-emerald-700" : "text-indigo-700"} />
+                <CreditCard size={12} className={isReceipt ? "text-emerald-700" : "text-[#D22630]"} />
                 <span className="text-[10px] font-black uppercase tracking-wider text-slate-900">
-                  Bank Settlement &amp; Remittance Details
+                  Payment Details
                 </span>
               </div>
-              <div className="text-[11px] space-y-0.5 text-slate-600 font-medium">
+              <div className="text-[11px] space-y-1 text-slate-600 font-medium">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400 text-[10px] uppercase font-bold">Bank Name:</span>
                   <span className="font-bold text-slate-800">Stanbic Bank / GCB Bank</span>
@@ -315,17 +310,14 @@ export function DocumentViewer({
                   <span className="font-bold text-slate-800">Think Kre8tiv Media</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-400 text-[10px] uppercase font-bold">Mobile Money (MOMO):</span>
-                  <span className="font-bold text-emerald-700">024 468 1391 (Merchant)</span>
-                </div>
-                <div className="pt-1 border-t border-slate-200 text-[10px] text-slate-500">
-                  * Quote reference <strong>{docNumber}</strong> on all remittances.
+                  <span className="text-slate-400 text-[10px] uppercase font-bold">MOMO Merchant:</span>
+                  <span className="font-bold text-emerald-700">024 468 1391</span>
                 </div>
               </div>
             </div>
 
             {/* Calculations Breakdown */}
-            <div className="sm:col-span-5 bg-slate-50/80 p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs">
+            <div className="sm:col-span-5 bg-slate-50/80 p-3 rounded-xl border border-slate-200 space-y-1 text-xs">
               {isReceipt ? (
                 <>
                   {document.invoice_total_amount && (
@@ -369,7 +361,7 @@ export function DocumentViewer({
                     </div>
                   )}
                   <div className="flex justify-between items-center py-1 border-y border-slate-900 text-slate-950">
-                    <span className="text-[11px] font-black uppercase tracking-wider">Total Invoiced</span>
+                    <span className="text-[11px] font-black uppercase tracking-wider">Total</span>
                     <span className="text-base font-black font-mono">{fmt(document.total_amount || document.amount)}</span>
                   </div>
                   {document.amount_paid !== undefined && Number(document.amount_paid) > 0 && (
@@ -399,25 +391,24 @@ export function DocumentViewer({
         {/* Footer Sign-off & Verification */}
         <div className="relative z-10 pt-3 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 text-xs text-slate-500">
           <div className="space-y-0.5 max-w-sm">
-            <div className={cn("flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider", isReceipt ? "text-emerald-800" : "text-indigo-900")}>
-              <ShieldCheck size={13} className={isReceipt ? "text-emerald-600" : "text-indigo-600"} />
+            <div className={cn("flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider", isReceipt ? "text-emerald-800" : "text-[#D22630]")}>
+              <ShieldCheck size={13} className={isReceipt ? "text-emerald-600" : "text-[#D22630]"} />
               <span>Official Verification Stamp</span>
             </div>
             <p className="text-[9px] text-slate-400 leading-relaxed">
-              Official transaction document generated by Think Kre8tiv Media Cloud ERP. Valid without alteration.
+              Official transaction document generated by Think Kre8tiv Media Cloud ERP.
             </p>
           </div>
 
           <div className="flex flex-col sm:items-end text-left sm:text-right space-y-0.5">
             <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
-              {isReceipt ? 'Cashier / Finance Desk' : 'Commercial Finance Desk'}
+              Commercial Finance Desk
             </span>
-            <div className="h-7 flex items-center">
-              <span className={cn("font-serif italic text-sm font-bold border-b pb-0.5", isReceipt ? "text-emerald-900 border-emerald-800" : "text-indigo-950 border-indigo-900")}>
+            <div className="h-6 flex items-center">
+              <span className={cn("font-serif italic text-sm font-bold border-b pb-0.5", isReceipt ? "text-emerald-900 border-emerald-800" : "text-red-950 border-red-900")}>
                 Think Kre8tiv Accounts
               </span>
             </div>
-            <p className="text-[9px] font-bold uppercase tracking-wider text-slate-700">Commercial Finance Division</p>
           </div>
         </div>
 
