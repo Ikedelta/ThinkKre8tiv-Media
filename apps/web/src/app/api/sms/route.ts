@@ -8,14 +8,48 @@ export async function GET(request: Request) {
     const action = searchParams.get('action');
 
     const [settings] =
-      await sql`SELECT sms_balance, sms_sender_id FROM app_settings WHERE id = 'default'`;
+      await sql`SELECT sms_balance, sms_api_key, sms_sender_id FROM app_settings WHERE id = 'default'`;
+    
+    const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY || settings?.sms_api_key;
+    let liveBalance = settings?.sms_balance ?? 0;
+
+    // Fetch live, real-time balance directly from Arkesel Portal API
+    if (arkeselApiKey) {
+      try {
+        const arkeselRes = await fetch('https://sms.arkesel.com/api/v2/clients/balance-details', {
+          headers: {
+            'api-key': arkeselApiKey,
+            'Accept': 'application/json',
+          },
+          next: { revalidate: 30 }, // cache for 30s to stay fast and avoid rate limits
+        });
+
+        if (arkeselRes.ok) {
+          const resData = await arkeselRes.json();
+          // Arkesel returns data: { sms_balance, balance, main_balance }
+          const fetchedBalance =
+            resData?.data?.sms_balance ??
+            resData?.data?.balance ??
+            resData?.sms_balance ??
+            resData?.balance;
+
+          if (fetchedBalance !== undefined && fetchedBalance !== null) {
+            liveBalance = Number(fetchedBalance);
+            // Sync with local DB asynchronously
+            sql`UPDATE app_settings SET sms_balance = ${liveBalance} WHERE id = 'default'`.catch(() => {});
+          }
+        }
+      } catch (liveErr) {
+        console.warn('Could not fetch live Arkesel balance, falling back to local:', liveErr);
+      }
+    }
       
     if (action === 'balance') {
-      return Response.json({ balance: settings?.sms_balance ?? 0 });
+      return Response.json({ balance: liveBalance });
     }
 
     const logs = await sql`SELECT * FROM sms_logs ORDER BY created_at DESC LIMIT 100`;
-    return Response.json({ balance: settings?.sms_balance ?? 0, logs });
+    return Response.json({ balance: liveBalance, logs });
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to fetch SMS data' }, { status: 500 });
