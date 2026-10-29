@@ -121,6 +121,7 @@ export default function CustomersPage() {
   );
 
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
+  const isAdmin = (session?.user as any)?.role === 'admin';
 
   return (
     <div className="space-y-6">
@@ -137,53 +138,55 @@ export default function CustomersPage() {
         </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: 'Total Customers',
-            value: customers.length,
-            display: String(customers.length),
-            icon: Users,
-            color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/20',
-          },
-          {
-            label: 'Total Billed',
-            value: customers.reduce((a, c) => a + Number(c.total_billed), 0),
-            display: fmt(customers.reduce((a, c) => a + Number(c.total_billed), 0)),
-            icon: Coins,
-            color: 'text-green-600 bg-green-50 dark:bg-green-950/20',
-          },
-          {
-            label: 'Total Paid',
-            value: customers.reduce((a, c) => a + Number(c.total_paid), 0),
-            display: fmt(customers.reduce((a, c) => a + Number(c.total_paid), 0)),
-            icon: TrendingUp,
-            color: 'text-teal-600 bg-teal-50 dark:bg-teal-950/20',
-          },
-          {
-            label: 'Outstanding',
-            value: customers.reduce((a, c) => a + Number(c.total_outstanding), 0),
-            display: fmt(customers.reduce((a, c) => a + Number(c.total_outstanding), 0)),
-            icon: AlertCircle,
-            color: 'text-red-600 bg-red-50 dark:bg-red-950/20',
-          },
-        ].map((stat) => (
-          <Card key={stat.label} className="border-none shadow-sm dark:bg-slate-900">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className={cn('p-2.5 rounded-xl', stat.color)}>
-                  <stat.icon size={18} />
+      {/* Stats - Restricted to Admin so staff cannot see billing/owed overviews */}
+      {isAdmin && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            {
+              label: 'Total Customers',
+              value: customers.length,
+              display: String(customers.length),
+              icon: Users,
+              color: 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/20',
+            },
+            {
+              label: 'Total Billed',
+              value: customers.reduce((a, c) => a + Number(c.total_billed), 0),
+              display: fmt(customers.reduce((a, c) => a + Number(c.total_billed), 0)),
+              icon: Coins,
+              color: 'text-green-600 bg-green-50 dark:bg-green-950/20',
+            },
+            {
+              label: 'Total Paid',
+              value: customers.reduce((a, c) => a + Number(c.total_paid), 0),
+              display: fmt(customers.reduce((a, c) => a + Number(c.total_paid), 0)),
+              icon: TrendingUp,
+              color: 'text-teal-600 bg-teal-50 dark:bg-teal-950/20',
+            },
+            {
+              label: 'Outstanding',
+              value: customers.reduce((a, c) => a + Number(c.total_outstanding), 0),
+              display: fmt(customers.reduce((a, c) => a + Number(c.total_outstanding), 0)),
+              icon: AlertCircle,
+              color: 'text-red-600 bg-red-50 dark:bg-red-950/20',
+            },
+          ].map((stat) => (
+            <Card key={stat.label} className="border-none shadow-sm dark:bg-slate-900">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className={cn('p-2.5 rounded-xl', stat.color)}>
+                    <stat.icon size={18} />
+                  </div>
                 </div>
-              </div>
-              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-                {stat.label}
-              </p>
-              <p className="text-xl font-black text-slate-800 dark:text-white">{stat.display}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  {stat.label}
+                </p>
+                <p className="text-xl font-black text-slate-800 dark:text-white">{stat.display}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Search & Actions Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -356,29 +359,41 @@ export default function CustomersPage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <div className="text-center">
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center justify-center gap-1">
-                      <FileText size={9} /> Invoices
-                    </p>
-                    <p className="font-black text-slate-800 dark:text-white text-sm">{customer.invoice_count}</p>
+                {isAdmin ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <div className="text-center">
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center justify-center gap-1">
+                        <FileText size={9} /> Invoices
+                      </p>
+                      <p className="font-black text-slate-800 dark:text-white text-sm">{customer.invoice_count}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wider">Paid</p>
+                      <p className="font-black text-green-600 text-sm">{fmt(customer.total_paid)}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[10px] text-slate-400 uppercase tracking-wider">Owed</p>
+                      <p
+                        className={cn(
+                          'font-black text-sm',
+                          Number(customer.total_outstanding) > 0 ? 'text-red-500' : 'text-slate-450 dark:text-slate-500'
+                        )}
+                      >
+                        {fmt(customer.total_outstanding)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">Paid</p>
-                    <p className="font-black text-green-600 text-sm">{fmt(customer.total_paid)}</p>
+                ) : (
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                    <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
+                      <FileText size={11} className="text-slate-400" />
+                      Orders &amp; Invoices
+                    </span>
+                    <span className="font-black text-slate-800 dark:text-white px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs">
+                      {customer.invoice_count}
+                    </span>
                   </div>
-                  <div className="text-center">
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wider">Owed</p>
-                    <p
-                      className={cn(
-                        'font-black text-sm',
-                        Number(customer.total_outstanding) > 0 ? 'text-red-500' : 'text-slate-450 dark:text-slate-500'
-                      )}
-                    >
-                      {fmt(customer.total_outstanding)}
-                    </p>
-                  </div>
-                </div>
+                )}
                 <div className="mt-3.5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                   <span className="text-[11px] font-bold text-[#E04D1B] group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1">
                     View Engagements & Receipts &rarr;

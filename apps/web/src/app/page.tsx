@@ -77,7 +77,7 @@ export default function HomePage() {
 
   const heroHeadline = cmsContent?.find((c: any) => c.id === 'hero_headline')?.content || DEFAULT_SITEINFO.heroHeadline;
   const heroSubheadline = cmsContent?.find((c: any) => c.id === 'hero_subheadline')?.content || DEFAULT_SITEINFO.heroSubheadline;
-  const ceoName = cmsContent?.find((c: any) => c.id === 'ceo_name')?.content || 'Isaac Asante Darko';
+  const ceoName = cmsContent?.find((c: any) => c.id === 'ceo_name')?.content || 'Nii Armah Aryeetey';
   const ceoTitle = cmsContent?.find((c: any) => c.id === 'ceo_title')?.content || 'Chief Executive Officer & Managing Director';
   const ceoQuote = cmsContent?.find((c: any) => c.id === 'ceo_quote')?.content || 'Every print run is an ambassador of your company’s credibility.';
   const ceoBio = cmsContent?.find((c: any) => c.id === 'ceo_bio')?.content || 'At Think Kre8tiv Media, we founded this enterprise with one non-negotiable principle: zero compromise on substrate weight, Pantone precision, and delivery deadlines. We have invested heavily in high-output presses, ERP inventory management, and computerized die-cutting so Ghanaian corporations never have to import printed collateral from abroad.';
@@ -109,74 +109,73 @@ export default function HomePage() {
       <PublicNav />
 
       {/* =========================================================================
-          SECTION 1: HERO SECTION (ENGAGING ABSTRACT DYNAMIC PALETTE)
+          SECTION 1: HERO SECTION (CLEAN PREMIUM WHITE ABSTRACT CANVAS)
           ========================================================================= */}
-      <section className="relative overflow-hidden bg-slate-950 text-white border-b border-slate-800 py-12 sm:py-16 lg:py-20">
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/70 to-slate-100/60 text-slate-900 border-b border-slate-200/80 py-12 sm:py-16 lg:py-20">
         
-        {/* Rich Abstract Background Elements */}
-        {/* Soft Radial Ambient Glows */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-[#D22630]/20 rounded-full blur-[140px] pointer-events-none -translate-y-1/2" />
-        <div className="absolute bottom-0 right-10 w-[450px] h-[450px] bg-amber-500/10 rounded-full blur-[130px] pointer-events-none translate-y-1/3" />
-        <div className="absolute top-1/2 right-1/3 w-[350px] h-[350px] bg-indigo-600/15 rounded-full blur-[120px] pointer-events-none" />
+        {/* Soft Modern Abstract Mesh & Radial Glows (Light Canvas) */}
+        <div className="absolute top-0 left-1/4 w-[520px] h-[520px] bg-red-100/60 rounded-full blur-[140px] pointer-events-none -translate-y-1/2" />
+        <div className="absolute bottom-0 right-10 w-[450px] h-[450px] bg-amber-100/50 rounded-full blur-[130px] pointer-events-none translate-y-1/3" />
+        <div className="absolute top-1/2 right-1/3 w-[350px] h-[350px] bg-indigo-50/70 rounded-full blur-[120px] pointer-events-none" />
 
-        {/* Abstract Architectural Mesh & Vector Geometry */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_75%_60%_at_50%_40%,#000_60%,transparent_100%)] pointer-events-none" />
+        {/* Abstract Architectural Mesh & Vector Geometry in Subtle Light Tone */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_75%_60%_at_50%_40%,#000_65%,transparent_100%)] pointer-events-none" />
         
-        {/* Subtle Diagonal Dynamic Accent Lines */}
-        <div className="absolute -top-24 -left-24 w-96 h-96 border border-white/[0.06] rounded-full pointer-events-none" />
-        <div className="absolute -bottom-32 -right-32 w-[32rem] h-[32rem] border border-white/[0.05] rounded-full pointer-events-none" />
+        {/* Delicate Diagonal Dynamic Rings */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 border border-slate-200/60 rounded-full pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-[32rem] h-[32rem] border border-slate-200/50 rounded-full pointer-events-none" />
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             
             {/* Left Column: Mission & Strategic Action */}
             <div className="lg:col-span-7 space-y-4 text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-slate-200 text-[11px] font-semibold shadow-inner">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200/90 text-slate-700 text-[11px] font-semibold shadow-xs">
                 <span className="w-2 h-2 rounded-full bg-[#D22630] animate-pulse" />
-                <span className="font-semibold tracking-wider text-[10px] uppercase text-slate-100">
+                <span className="font-semibold tracking-wider text-[10px] uppercase text-slate-800">
                   Quality Printing &amp; Business Branding
                 </span>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white tracking-tight leading-[1.18]">
+              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-[1.18]">
                 {heroHeadline}
               </h1>
 
-              <p className="text-xs sm:text-sm text-slate-300 font-normal leading-relaxed max-w-xl">
+              <p className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed max-w-xl">
                 {heroSubheadline}
               </p>
 
               {/* Call to Actions with Brand Vibrant Colors */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link href="/submit">
-                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white h-10 px-5 rounded-lg shadow-lg hover:shadow-red-900/30 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
+                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider bg-[#D22630] hover:bg-[#b81d26] text-white h-10 px-5 rounded-lg shadow-md hover:shadow-red-900/20 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer">
                     Request a Quote <ArrowRight size={13} />
                   </button>
                 </Link>
                 <Link href="/services">
-                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border border-white/20 bg-white/10 hover:bg-white/15 text-white h-10 px-5 rounded-lg backdrop-blur-md transition-all shadow-xs cursor-pointer">
+                  <button className="inline-flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider border border-slate-300 bg-white hover:bg-slate-50 text-slate-800 h-10 px-5 rounded-lg transition-all shadow-xs cursor-pointer">
                     Our Services
                   </button>
                 </Link>
               </div>
 
-              {/* Business Highlights Strip with Translucent Glass Aesthetic */}
-              <div className="pt-5 border-t border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                  <div className="text-xl font-extrabold text-white tracking-tight">14+</div>
-                  <div className="text-[10px] font-medium text-slate-400">Years of Experience</div>
+              {/* Business Highlights Strip with Clean Elevated Cards */}
+              <div className="pt-5 border-t border-slate-200/80 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">14+</div>
+                  <div className="text-[10px] font-medium text-slate-500">Years of Experience</div>
                 </div>
-                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                  <div className="text-xl font-extrabold text-white tracking-tight">1,200+</div>
-                  <div className="text-[10px] font-medium text-slate-400">Happy Clients</div>
+                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">1,200+</div>
+                  <div className="text-[10px] font-medium text-slate-500">Happy Clients</div>
                 </div>
-                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                  <div className="text-xl font-extrabold text-white tracking-tight">&lt; 24h</div>
-                  <div className="text-[10px] font-medium text-slate-400">Fast Sample Reviews</div>
+                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">&lt; 24h</div>
+                  <div className="text-[10px] font-medium text-slate-500">Fast Sample Reviews</div>
                 </div>
-                <div className="bg-white/5 backdrop-blur-sm p-3 rounded-xl border border-white/10">
-                  <div className="text-xl font-extrabold text-white tracking-tight">100%</div>
-                  <div className="text-[10px] font-medium text-slate-400">Satisfaction Guaranteed</div>
+                <div className="bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <div className="text-xl font-extrabold text-slate-900 tracking-tight">100%</div>
+                  <div className="text-[10px] font-medium text-slate-500">Satisfaction Guaranteed</div>
                 </div>
               </div>
             </div>

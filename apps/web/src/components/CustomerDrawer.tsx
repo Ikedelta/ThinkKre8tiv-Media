@@ -39,6 +39,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
 
 interface CustomerDrawerProps {
   customerId: string | null;
@@ -51,6 +52,8 @@ export function CustomerDrawer({ customerId, onClose, onViewDocument }: Customer
   const [smsMessage, setSmsMessage] = useState('');
   const [isSendingSMS, setIsSendingSMS] = useState(false);
   const queryClient = useQueryClient();
+  const { data: session } = authClient.useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
 
   const { data, isLoading } = useQuery({
     queryKey: ['customer_engagements', customerId],
@@ -254,8 +257,8 @@ export function CustomerDrawer({ customerId, onClose, onViewDocument }: Customer
             </form>
           )}
 
-          {/* Engagement Financial Metrics */}
-          {customer && (
+          {/* Engagement Financial Metrics - Restricted to Admin */}
+          {customer && isAdmin && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mt-4">
               <div className="bg-white dark:bg-slate-800/80 p-3 rounded-xl border border-slate-200 dark:border-slate-700/60 shadow-2xs">
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total Billed</p>

@@ -60,7 +60,7 @@ export async function GET() {
       { id: 'about_p1', section: 'about', title: 'Our Story (Paragraph 1)', content: 'Established in 2012, Think Kre8tiv Media set out with a simple promise: make high-resolution commercial printing, bespoke packaging, and vibrant signage accessible to growing businesses and multinationals.' },
       { id: 'about_p2', section: 'about', title: 'Capacity (Paragraph 2)', content: 'Today, we run integrated commercial offset presses, digital dye sublimation, and structural acrylic & metal fabrication workshops across Accra. Every job is precision-calibrated to European ISO standard output.' },
       
-      { id: 'ceo_name', section: 'ceo', title: 'Chief Executive Officer', content: 'Isaac Asante Darko' },
+      { id: 'ceo_name', section: 'ceo', title: 'Chief Executive Officer', content: 'Nii Armah Aryeetey' },
       { id: 'ceo_title', section: 'ceo', title: 'Executive Title', content: 'Chief Executive Officer & Managing Director' },
       { id: 'ceo_quote', section: 'ceo', title: 'Executive Quote', content: 'Every print run is an ambassador of your company’s credibility.' },
       { id: 'ceo_bio', section: 'ceo', title: 'CEO Statement / Vision', content: 'At Think Kre8tiv Media, we founded this enterprise with one non-negotiable principle: zero compromise on substrate weight, Pantone precision, and delivery deadlines. We have invested in multi-color Heidelberg presses and automated die-cutting so Ghanaian corporations never have to import printed collateral.' },

@@ -213,162 +213,166 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* DETAILED FINANCIAL OVERVIEW (5 KEY QuickBooks CARDS) */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <Activity className="w-5 h-5 text-indigo-500" />
-            Financial Health & Balances
-          </h2>
-          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-            Formula: Net Profit = Total Income (Collections) &minus; Expenses
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* 1. Net Profit */}
-          <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Profit</p>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {fmt(metrics.netProfit)}
-              </h3>
-              <div className="flex items-center gap-1.5 mt-2.5">
-                <span className={cn("w-1.5 h-1.5 rounded-full", (metrics.netProfit || 0) >= 0 ? "bg-emerald-500" : "bg-rose-500")} />
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  Income minus expenses
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 2. Total Income (Collected) */}
-          <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Income</p>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                  <Wallet className="w-4 h-4 text-[#D22630]" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {fmt(metrics.totalReceived)}
-              </h3>
-              <div className="flex items-center gap-1.5 mt-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  Collected payments to date
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 3. Total Expenses */}
-          <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Expenses</p>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                  <ArrowDownRight className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {fmt(metrics.totalExpenses)}
-              </h3>
-              <div className="flex items-center gap-1.5 mt-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  Supplier &amp; operations
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 4. Outstanding A/R */}
-          <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Outstanding A/R</p>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                  <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-500" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {fmt(metrics.totalOutstanding)}
-              </h3>
-              <div className="flex items-center gap-1.5 mt-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  {metrics.unpaidInvoicesCount} pending invoices
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 5. Total Billed */}
-          <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Invoiced</p>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                  <Coins className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                {fmt(metrics.totalInvoiced)}
-              </h3>
-              <div className="flex items-center gap-1.5 mt-2.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D22630]" />
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  {collectionRate}% collection rate
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* QUICKBOOKS INVOICE AGING / PROGRESS STRIP */}
-      <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl p-5">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              Invoicing & Accounts Receivable Health
-            </h3>
-            <p className="text-xs text-slate-500">Live breakdown between collected revenue and pending customer balances</p>
-          </div>
-          <div className="flex items-center gap-4 text-xs font-semibold">
-            <span className="flex items-center gap-1.5 text-emerald-600">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-              Paid: {fmt(metrics.totalReceived)}
-            </span>
-            <span className="flex items-center gap-1.5 text-amber-600">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-              A/R Pending: {fmt(metrics.totalOutstanding)}
+      {/* DETAILED FINANCIAL OVERVIEW (RESTRICTED TO ADMIN) */}
+      {isAdmin && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Activity className="w-5 h-5 text-indigo-500" />
+              Financial Health &amp; Balances
+            </h2>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+              Formula: Net Profit = Total Income (Collections) &minus; Expenses
             </span>
           </div>
-        </div>
 
-        {/* Visual Progress Bar */}
-        <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-          <div 
-            className="bg-emerald-500 h-full transition-all duration-500" 
-            style={{ width: `${Math.min(100, collectionRate)}%` }}
-            title={`Collected: ${collectionRate}%`}
-          />
-          <div 
-            className="bg-amber-500 h-full transition-all duration-500" 
-            style={{ width: `${Math.max(0, 100 - collectionRate)}%` }}
-            title={`Pending: ${100 - collectionRate}%`}
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* 1. Net Profit */}
+            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Profit</p>
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {fmt(metrics.netProfit)}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-2.5">
+                  <span className={cn("w-1.5 h-1.5 rounded-full", (metrics.netProfit || 0) >= 0 ? "bg-emerald-500" : "bg-rose-500")} />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    Income minus expenses
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 2. Total Income (Collected) */}
+            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Income</p>
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                    <Wallet className="w-4 h-4 text-[#D22630]" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {fmt(metrics.totalReceived)}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    Collected payments to date
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 3. Total Expenses */}
+            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Expenses</p>
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                    <ArrowDownRight className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {fmt(metrics.totalExpenses)}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    Supplier &amp; operations
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 4. Outstanding A/R */}
+            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Outstanding A/R</p>
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-500" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {fmt(metrics.totalOutstanding)}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    {metrics.unpaidInvoicesCount} pending invoices
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 5. Total Billed */}
+            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Invoiced</p>
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                    <Coins className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  {fmt(metrics.totalInvoiced)}
+                </h3>
+                <div className="flex items-center gap-1.5 mt-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#D22630]" />
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                    {collectionRate}% collection rate
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </Card>
+      )}
+
+      {/* QUICKBOOKS INVOICE AGING / PROGRESS STRIP (ADMIN ONLY) */}
+      {isAdmin && (
+        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl p-5">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
+            <div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                Invoicing &amp; Accounts Receivable Health
+              </h3>
+              <p className="text-xs text-slate-500">Live breakdown between collected revenue and pending customer balances</p>
+            </div>
+            <div className="flex items-center gap-4 text-xs font-semibold">
+              <span className="flex items-center gap-1.5 text-emerald-600">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                Paid: {fmt(metrics.totalReceived)}
+              </span>
+              <span className="flex items-center gap-1.5 text-amber-600">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                A/R Pending: {fmt(metrics.totalOutstanding)}
+              </span>
+            </div>
+          </div>
+
+          {/* Visual Progress Bar */}
+          <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+            <div 
+              className="bg-emerald-500 h-full transition-all duration-500" 
+              style={{ width: `${Math.min(100, collectionRate)}%` }}
+              title={`Collected: ${collectionRate}%`}
+            />
+            <div 
+              className="bg-amber-500 h-full transition-all duration-500" 
+              style={{ width: `${Math.max(0, 100 - collectionRate)}%` }}
+              title={`Pending: ${100 - collectionRate}%`}
+            />
+          </div>
+        </Card>
+      )}
 
       {/* RECENT TRANSACTIONS & ACTIVITY (TABBED QUICKBOOKS LEDGER) */}
       <div className="space-y-4">
