@@ -41,10 +41,6 @@ export async function POST(request: Request) {
       await sql`SELECT sms_balance, sms_api_key, sms_sender_id FROM app_settings WHERE id = 'default'`;
     const creditsNeeded = recipients.length;
 
-    if ((settings?.sms_balance ?? 0) < creditsNeeded) {
-      return Response.json({ error: 'Insufficient SMS credits' }, { status: 400 });
-    }
-
     const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY || settings?.sms_api_key;
     const arkeselSenderId = process.env.ARKESEL_SMS_SENDER_ID || settings?.sms_sender_id || 'ThinkKre8';
 

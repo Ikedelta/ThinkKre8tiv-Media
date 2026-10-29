@@ -226,109 +226,84 @@ export default function AdminDashboardPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
             {/* 1. Net Profit */}
-            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Net Profit</p>
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                    <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  </div>
+            <Card className="border border-slate-200/80 dark:border-slate-800/80 shadow-2xs rounded-xl bg-white dark:bg-slate-900/90 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Net Profit</p>
+                  <TrendingUp className="w-3.5 h-3.5 text-slate-400" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {fmt(metrics.netProfit)}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-2.5">
-                  <span className={cn("w-1.5 h-1.5 rounded-full", (metrics.netProfit || 0) >= 0 ? "bg-emerald-500" : "bg-rose-500")} />
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    Income minus expenses
-                  </p>
-                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Income minus expenses
+                </p>
               </CardContent>
             </Card>
 
             {/* 2. Total Income (Collected) */}
-            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Income</p>
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                    <Wallet className="w-4 h-4 text-[#D22630]" />
-                  </div>
+            <Card className="border border-slate-200/80 dark:border-slate-800/80 shadow-2xs rounded-xl bg-white dark:bg-slate-900/90 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Income</p>
+                  <Wallet className="w-3.5 h-3.5 text-slate-400" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {fmt(metrics.totalReceived)}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    Collected payments to date
-                  </p>
-                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Collected to date
+                </p>
               </CardContent>
             </Card>
 
             {/* 3. Total Expenses */}
-            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Expenses</p>
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                    <ArrowDownRight className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                  </div>
+            <Card className="border border-slate-200/80 dark:border-slate-800/80 shadow-2xs rounded-xl bg-white dark:bg-slate-900/90 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Expenses</p>
+                  <ArrowDownRight className="w-3.5 h-3.5 text-slate-400" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {fmt(metrics.totalExpenses)}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    Supplier &amp; operations
-                  </p>
-                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  Supplier &amp; operations
+                </p>
               </CardContent>
             </Card>
 
             {/* 4. Outstanding A/R */}
-            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Outstanding A/R</p>
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-500" />
-                  </div>
+            <Card className="border border-slate-200/80 dark:border-slate-800/80 shadow-2xs rounded-xl bg-white dark:bg-slate-900/90 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Outstanding A/R</p>
+                  <AlertCircle className="w-3.5 h-3.5 text-slate-400" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {fmt(metrics.totalOutstanding)}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    {metrics.unpaidInvoicesCount} pending invoices
-                  </p>
-                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  {metrics.unpaidInvoicesCount} pending invoices
+                </p>
               </CardContent>
             </Card>
 
             {/* 5. Total Billed */}
-            <Card className="border border-slate-200/90 dark:border-slate-800 shadow-sm rounded-xl bg-white dark:bg-slate-900 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Invoiced</p>
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
-                    <Coins className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                  </div>
+            <Card className="border border-slate-200/80 dark:border-slate-800/80 shadow-2xs rounded-xl bg-white dark:bg-slate-900/90 overflow-hidden hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Total Invoiced</p>
+                  <Coins className="w-3.5 h-3.5 text-slate-400" />
                 </div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
                   {fmt(metrics.totalInvoiced)}
                 </h3>
-                <div className="flex items-center gap-1.5 mt-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#D22630]" />
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                    {collectionRate}% collection rate
-                  </p>
-                </div>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  {collectionRate}% collection rate
+                </p>
               </CardContent>
             </Card>
           </div>

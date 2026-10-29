@@ -468,11 +468,11 @@ export default function HomePage() {
             
             {/* CEO Portrait Column */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/5] max-w-sm mx-auto lg:max-w-none group">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 aspect-[4/5] max-w-sm mx-auto lg:max-w-none group">
                 <img
                   src={ceoImage || '/images/CEO.jpg'}
                   alt={ceoName}
-                  className="w-full h-full object-cover object-top contrast-105 transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover object-[center_15%] transition-transform duration-700 group-hover:scale-102"
                   onError={(e) => {
                     const target = e.currentTarget as HTMLImageElement;
                     if (target.src !== '/images/CEO.jpg') {
@@ -480,11 +480,12 @@ export default function HomePage() {
                     }
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                {/* Ultra-subtle bottom shadow only for text contrast without darkening the face */}
+                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent pointer-events-none" />
                 
                 <div className="absolute bottom-4 left-4 right-4 text-white space-y-0.5">
-                  <h3 className="text-base font-extrabold text-white">{ceoName}</h3>
-                  <p className="text-[11px] text-slate-300 font-medium">{ceoTitle}</p>
+                  <h3 className="text-base font-extrabold text-white drop-shadow-sm">{ceoName}</h3>
+                  <p className="text-[11px] text-slate-200 font-medium drop-shadow-xs">{ceoTitle}</p>
                 </div>
               </div>
             </div>
