@@ -202,12 +202,14 @@ export function CustomerDrawer({ customerId, onClose, onViewDocument }: Customer
                     Email
                   </a>
                 )}
-                <Link href={`/admin/customers/${customer.id}/edit`}>
-                  <Button size="sm" variant="outline" className="h-8 text-xs font-bold gap-1.5 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">
-                    <Edit2 size={13} />
-                    <span>Edit</span>
-                  </Button>
-                </Link>
+                {isAdmin && (
+                  <Link href={`/admin/customers/${customer.id}/edit`}>
+                    <Button size="sm" variant="outline" className="h-8 text-xs font-bold gap-1.5 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">
+                      <Edit2 size={13} />
+                      <span>Edit</span>
+                    </Button>
+                  </Link>
+                )}
               </div>
             </div>
           ) : null}
@@ -291,7 +293,7 @@ export function CustomerDrawer({ customerId, onClose, onViewDocument }: Customer
             { id: 'receipts', label: 'Receipts', icon: ReceiptIcon, count: receipts.length },
             { id: 'invoices', label: 'Invoices', icon: FileText, count: invoices.length },
             { id: 'quotations', label: 'Estimates', icon: FileSignature, count: quotations.length },
-            { id: 'activities', label: 'Activity Timeline', icon: Activity, count: activities.length },
+            ...(isAdmin ? [{ id: 'activities', label: 'Activity Timeline', icon: Activity, count: activities.length }] : []),
             { id: 'info', label: 'Client Profile', icon: User },
           ].map((tab) => (
             <button
@@ -554,8 +556,8 @@ export function CustomerDrawer({ customerId, onClose, onViewDocument }: Customer
                 </div>
               )}
 
-              {/* TAB 4: ACTIVITY TIMELINE */}
-              {activeTab === 'activities' && (
+              {/* TAB 4: ACTIVITY TIMELINE (ADMIN ONLY) */}
+              {activeTab === 'activities' && isAdmin && (
                 <div className="space-y-4">
                   <div className="pb-1">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500">

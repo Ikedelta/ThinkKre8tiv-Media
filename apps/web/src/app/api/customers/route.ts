@@ -106,7 +106,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const authResult = await requireStaffOrAdmin();
+    const authResult = await requireAdmin();
     if (authResult instanceof Response) return authResult;
     const body = await request.json();
     const { id, name, email, phone, address, company, notes, industry, social_handle, birthday } = body;

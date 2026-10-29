@@ -26,7 +26,7 @@ export default function AboutPage() {
 
   const aboutTitle = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_title')?.content || "From a Small Studio to Ghana’s Premier Print Partner";
   const aboutP1 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p1')?.content || "Established in 2012, Think Kre8tiv Media set out with a simple promise: make high-resolution branding stickers and premium signs accessible to growing Ghanaian businesses.";
-  const aboutP2 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p2')?.content || "Today, we run our integrated fabrication and print facilities located in Accra Osu. From digital linen cards to towering steel billboards, our fabrication engineers and layout artists build to the highest quality standards.";
+  const aboutP2 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p2')?.content || "Today, we run our integrated fabrication and print facilities in Accra. From digital linen cards to towering steel billboards, our fabrication engineers and layout artists build to the highest quality standards.";
   const aboutP3 = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_p3')?.content || "We combine heavy industrial equipment with detailed client portals to ensure your print estimates, approvals, and SMS alerts are processed seamlessly.";
 
   return (

@@ -81,7 +81,7 @@ export default function PublicFooter() {
             <span className="hidden sm:inline text-slate-700">|</span>
             <div className="flex items-center gap-1.5 text-slate-400">
               <MapPin size={11} className="text-primary" />
-              <span>Accra Osu Operations</span>
+              <span>Accra, Ghana</span>
             </div>
           </div>
           

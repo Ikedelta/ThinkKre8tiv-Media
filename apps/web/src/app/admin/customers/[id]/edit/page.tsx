@@ -25,6 +25,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { authClient } from '@/lib/auth-client';
 
 const emptyForm = {
   name: '',
@@ -42,6 +43,15 @@ export default function EditCustomerPage() {
   const id = params.id as string;
   const queryClient = useQueryClient();
   const [form, setForm] = useState(emptyForm);
+  const { data: session } = authClient.useSession();
+  const isAdmin = (session?.user as any)?.role === 'admin';
+
+  useEffect(() => {
+    if (session && !isAdmin) {
+      toast.error('Only administrators are authorized to edit customer details.');
+      router.push('/admin/customers');
+    }
+  }, [session, isAdmin, router]);
 
   const { data: customer, isLoading } = useQuery({
     queryKey: ['customer', id],

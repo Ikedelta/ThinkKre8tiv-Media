@@ -277,7 +277,7 @@ export const PROJECTS_LIST = [
     title: 'GCB Bank Campaign',
     category: 'Large Format Printing',
     image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80',
-    desc: 'City-wide flex billboard and route branch banners across Accra Osu.',
+    desc: 'City-wide flex billboard and route branch banners across Accra.',
     specs: { size: '12m x 4m Billboard', media: 'Heavy Flex Canvas', speed: '48 Hours delivery' },
     review: 'Think Kre8tiv Media delivered our route campaigns on exact schedule. Quality is flawless.',
     client: 'GCB Marketing Dept.'

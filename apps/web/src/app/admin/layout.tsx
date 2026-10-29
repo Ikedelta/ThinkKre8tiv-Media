@@ -352,11 +352,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 pb-6 transition-colors duration-300 bg-[#F8FAFC] dark:bg-[#0B0F19] print:overflow-visible print:h-auto print:p-0 print:m-0 print:bg-white">
+        <main className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 pb-20 md:pb-6 transition-colors duration-300 bg-[#F8FAFC] dark:bg-[#0B0F19] print:overflow-visible print:h-auto print:p-0 print:m-0 print:bg-white">
           <div className="print:overflow-visible print:h-auto">
             {children}
           </div>
         </main>
+
+        {/* Mobile App-Style Bottom Navigation Bar (Smart Floating Pill for iOS & Android) */}
+        <nav className="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 z-40 md:hidden flex items-center justify-around px-2 py-2 shadow-lg safe-bottom print:hidden">
+          {[
+            { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+            { name: 'Customers', href: '/admin/customers', icon: Users },
+            { name: 'Invoices', href: '/admin/invoices', icon: FileText },
+            { name: 'Receipts', href: '/admin/receipts', icon: Receipt },
+            { name: 'Menu', href: '#', icon: Menu, isMenuTrigger: true },
+          ].map((item) => {
+            const isActive = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+            return (
+              <button
+                key={item.name}
+                onClick={() => {
+                  if (item.isMenuTrigger) {
+                    setIsSidebarOpen(true);
+                  } else {
+                    router.push(item.href);
+                  }
+                }}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl transition-all active:scale-95",
+                  isActive && !item.isMenuTrigger
+                    ? "text-[#D22630] font-black"
+                    : "text-slate-500 dark:text-slate-400 font-medium"
+                )}
+              >
+                <item.icon size={18} className={cn(isActive && !item.isMenuTrigger ? "text-[#D22630]" : "")} />
+                <span className="text-[10px] leading-tight tracking-tight">{item.name}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
 
       {/* Enterprise Command Palette Modal */}
