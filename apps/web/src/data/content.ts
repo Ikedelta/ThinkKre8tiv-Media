@@ -117,54 +117,44 @@ export const EXPERTISE = [
  */
 export const GALLERY_ITEMS = [
   {
-    image: 'https://images.unsplash.com/photo-1562654501-a0ccc0fc3fb1?auto=format&fit=crop&w=400&q=80',
-    category: 'Equipment',
-    title: 'Offset Press Calibration',
+    image: '/images/1.jpg',
+    category: 'Offset Press',
+    title: 'High-Volume Commercial Printing',
   },
   {
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80',
-    category: 'Collateral',
-    title: 'Premium Catalog Runs',
+    image: '/images/2.jpg',
+    category: 'Large Format',
+    title: 'Outdoor & 3D Architectural Signs',
   },
   {
-    image: 'https://images.unsplash.com/photo-1603380353725-f8a4d39cc41e?auto=format&fit=crop&w=400&q=80',
-    category: 'Production',
-    title: 'Wide-Format Signage',
+    image: '/images/3.jpg',
+    category: 'Packaging',
+    title: 'Luxury Gift & Rigid Product Boxes',
   },
   {
     image: '/images/IMG-20260617-WA0060.jpg',
     category: 'Branding',
-    title: 'Custom Branded Swag',
+    title: 'Corporate Swag & Executive Merchandise',
   },
   {
-    image: 'https://images.unsplash.com/photo-1585776245991-cf89dd7fc73a?auto=format&fit=crop&w=400&q=80',
-    category: 'Finishing',
-    title: 'Luxury Foil Business Cards',
+    image: '/images/IMG-20260617-WA0059.jpg',
+    category: 'Stationery',
+    title: 'Corporate Books, Folders & Envelopes',
   },
   {
     image: '/images/IMG-20260617-WA0063.jpg',
-    category: 'Textile',
-    title: 'Custom Embroidery',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=400&q=80',
-    category: 'Creative',
-    title: 'Bespoke Brand Layouts',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=400&q=80',
-    category: 'Finishing',
-    title: 'Precision Die Cutting',
-  },
-  {
-    image: '/images/IMG-20260617-WA0058.jpg',
     category: 'Apparel',
-    title: 'Branded Caps',
+    title: 'Precision Embroidery & Screen Prints',
   },
   {
     image: '/images/IMG-20260617-WA0064.jpg',
-    category: 'Souvenirs',
-    title: 'Engraved Keychains',
+    category: 'Signage',
+    title: 'Custom Fabricated Acrylic Displays',
+  },
+  {
+    image: '/images/IMG-20260617-WA0056.jpg',
+    category: 'Fabrication',
+    title: 'Modern Finishing & Die-Cutting',
   },
 ];
 
