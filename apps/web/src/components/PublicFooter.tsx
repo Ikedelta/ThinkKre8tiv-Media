@@ -57,7 +57,7 @@ export default function PublicFooter() {
             <span>© 2026 Think Kre8tiv Media Ltd.</span>
             <span className="hidden sm:inline text-slate-800">•</span>
             <span className="inline-flex items-center gap-1 text-slate-400">
-              <MapPin size={12} className="text-[#D22630]" /> Accra, Ghana
+              <MapPin size={12} className="text-[#D22630]" /> Accra OSU, Haramani Sport
             </span>
             <span className="hidden sm:inline text-slate-800">•</span>
             <span className="text-slate-400">

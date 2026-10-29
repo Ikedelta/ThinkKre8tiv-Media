@@ -37,8 +37,8 @@ interface Settings {
 const defaultSettings: Settings = {
   company_name: 'Think Kre8tiv Media',
   company_email: 'hello@thinkkre8tivmedia.com',
-  company_phone: '+233 20 000 0000',
-  company_address: 'Accra, Ghana',
+  company_phone: '+233 24 468 1391',
+  company_address: 'Accra OSU, Haramani Sport',
   currency: 'GH₵',
   currency_code: 'GHS',
   vat_rate: 15.0,

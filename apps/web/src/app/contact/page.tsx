@@ -20,7 +20,7 @@ export default function ContactPage() {
   
   const directPhone = contactSection.find((c: any) => c.id === 'contact_phone')?.content || '+233 24 468 1391';
   const directEmail = contactSection.find((c: any) => c.id === 'contact_email')?.content || 'hello@thinkkre8tivmedia.com';
-  const directAddress = contactSection.find((c: any) => c.id === 'contact_address')?.content || 'Accra, Ghana';
+  const directAddress = contactSection.find((c: any) => c.id === 'contact_address')?.content || 'Accra OSU, Haramani Sport';
 
   const [form, setForm] = useState({
     name: '',

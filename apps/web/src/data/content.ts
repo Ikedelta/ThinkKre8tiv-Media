@@ -26,8 +26,8 @@ export const siteInfo = {
   // Footer / Contact info
   contact: {
     email: 'info@thinkkre8tivmedia.com',
-    phone: '+233 24 555 9000',
-    address: 'Accra, Ghana',
+    phone: '+233 24 468 1391',
+    address: 'Accra OSU, Haramani Sport',
     facebook: 'https://facebook.com/thinkkre8tive',
     instagram: 'https://instagram.com/thinkkre8tive',
     twitter: 'https://twitter.com/thinkkre8tive'

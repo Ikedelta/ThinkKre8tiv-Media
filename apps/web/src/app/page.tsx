@@ -303,20 +303,20 @@ export default function HomePage() {
           <div className="absolute right-0 top-0 bottom-0 w-24 sm:w-36 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
 
           <div className="animate-marquee flex items-center gap-8 sm:gap-14">
-            {/* Duplicated list to create infinite seamless loop of client logos */}
+            {/* Duplicated list to create infinite seamless loop of client logos in their original vibrant colors */}
             {[...partnersList, ...partnersList].map((partner: any, idx: number) => (
               <div
                 key={idx}
-                className="flex items-center justify-center h-16 sm:h-20 px-6 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/50 hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-xs shrink-0 group cursor-default min-w-[120px]"
+                className="flex items-center justify-center h-16 sm:h-20 px-6 py-2.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-xs shrink-0 group cursor-default min-w-[130px]"
               >
                 {partner.image_url ? (
                   <img 
                     src={partner.image_url} 
-                    alt={partner.name || 'Client Logo'} 
-                    className="max-h-10 sm:max-h-12 max-w-[130px] object-contain filter grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-200" 
+                    alt="Client Logo" 
+                    className="max-h-10 sm:max-h-12 max-w-[130px] object-contain group-hover:scale-105 transition-transform duration-200" 
                   />
                 ) : (
-                  <span className="text-xs sm:text-sm font-extrabold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                  <span className="text-xs sm:text-sm font-extrabold tracking-wider text-slate-800 dark:text-slate-200 uppercase">
                     {partner.name || partner.logo || 'Client'}
                   </span>
                 )}

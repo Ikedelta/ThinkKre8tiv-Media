@@ -132,7 +132,7 @@ export function DocumentViewer({
                 </span>
               </div>
               <p className="text-[10px] font-medium text-slate-200">
-                Accra, Ghana &bull; +233 24 468 1391
+                Accra OSU, Haramani Sport &bull; +233 24 468 1391
               </p>
             </div>
           </div>
