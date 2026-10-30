@@ -215,7 +215,7 @@ export default function HomePage() {
 
             {/* Right Column: Sliding Hero Carousel */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/3] sm:aspect-[4/3] lg:aspect-[1/1] xl:aspect-[4/4.2] group select-none">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/3] sm:aspect-[4/3] lg:aspect-[4/3.4] xl:aspect-[4/3.3] max-h-[460px] group select-none">
                 {/* Slides with Crossfade Animation */}
                 {heroSlides.map((slide: any, idx: number) => {
                   const isActive = idx === heroSlideIndex;
