@@ -519,13 +519,6 @@ export default function HomePage() {
                     }
                   }}
                 />
-                {/* Ultra-subtle bottom shadow only for text contrast without darkening the face */}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent pointer-events-none" />
-                
-                <div className="absolute bottom-3.5 left-4 right-4 text-white space-y-0.5">
-                  <h3 className="text-sm font-extrabold text-white drop-shadow-sm">{ceoName}</h3>
-                  <p className="text-[10px] text-slate-200 font-medium drop-shadow-xs">{ceoTitle}</p>
-                </div>
               </div>
             </div>
 
