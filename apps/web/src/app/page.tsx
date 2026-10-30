@@ -214,31 +214,36 @@ export default function HomePage() {
 
             {/* Right Column: Sliding Hero Carousel */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/3] group select-none">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/3] sm:aspect-[4/3] lg:aspect-[1/1] xl:aspect-[4/4.2] group select-none">
                 {/* Slides with Crossfade Animation */}
-                {heroSlides.map((slide: any, idx: number) => (
-                  <div
-                    key={slide.src + idx}
-                    className={cn(
-                      'absolute inset-0 transition-opacity duration-700 ease-in-out',
-                      idx === heroSlideIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-                    )}
-                  >
-                    <img
-                      src={slide.src}
-                      alt={slide.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
-                    <div className="absolute bottom-6 left-6 right-6 text-white space-y-1.5 z-20">
-                      <span className="inline-block px-2.5 py-1 rounded bg-[#D22630] text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
-                        {slide.tag}
-                      </span>
-                      <h3 className="text-lg font-bold text-white leading-tight">{slide.title}</h3>
-                      <p className="text-xs text-slate-200 font-normal leading-relaxed">{slide.desc}</p>
+                {heroSlides.map((slide: any, idx: number) => {
+                  const isActive = idx === heroSlideIndex;
+                  return (
+                    <div
+                      key={slide.src + idx}
+                      className={cn(
+                        'absolute inset-0 transition-opacity duration-700 ease-in-out',
+                        isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                      )}
+                    >
+                      <img
+                        src={slide.src}
+                        alt={slide.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+                      <div className="absolute bottom-5 sm:bottom-6 left-5 sm:left-6 right-5 sm:right-6 text-white space-y-1.5 z-20">
+                        <span className="inline-block px-2.5 py-1 rounded bg-[#D22630] text-[10px] font-bold uppercase tracking-wider text-white shadow-sm">
+                          {slide.tag}
+                        </span>
+                        <h3 className="text-base sm:text-lg font-bold text-white leading-tight drop-shadow-sm">{slide.title}</h3>
+                        {slide.desc && (
+                          <p className="text-xs text-slate-200 font-normal leading-relaxed line-clamp-2 drop-shadow-xs">{slide.desc}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
 
                 {/* Left / Right Carousel Navigation Buttons */}
                 <button
