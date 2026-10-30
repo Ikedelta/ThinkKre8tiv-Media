@@ -417,15 +417,18 @@ export default function ComprehensiveCmsPage() {
                         className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs space-y-4 hover:border-slate-300 transition-all"
                       >
                         <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-1 mr-4">
                             <span className="text-xs font-mono font-bold text-slate-400">#{index + 1}</span>
-                            <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                              {item.title || 'Client Partner Logo'}
-                            </h4>
+                            <Input
+                              value={item.title || ''}
+                              onChange={(e) => updateField(item.id, 'title', e.target.value)}
+                              placeholder="Partner Brand Name (Optional)"
+                              className="h-8 text-xs font-bold text-slate-900 dark:text-white bg-slate-50/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 max-w-xs"
+                            />
                           </div>
                           <button
                             onClick={() => deleteMutation.mutate(item.id)}
-                            className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer"
+                            className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer shrink-0"
                             title="Delete this logo"
                           >
                             <span className="text-xs font-bold uppercase px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
@@ -436,7 +439,7 @@ export default function ComprehensiveCmsPage() {
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                              Logo Image
+                              Client / Partner Logo
                             </label>
                             <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-[#D22630] hover:text-[#b81d26] bg-red-50 hover:bg-red-100/70 px-3 py-1.5 rounded-lg transition-colors border border-red-200">
                               {uploadingId === item.id ? (
@@ -463,7 +466,7 @@ export default function ComprehensiveCmsPage() {
                               {item.image_url ? (
                                 <img
                                   src={item.image_url}
-                                  alt="Client Logo"
+                                  alt={item.title || 'Client Logo'}
                                   className="max-w-full max-h-full object-contain"
                                   onError={(e) => {
                                     (e.target as HTMLElement).style.display = 'none';
@@ -477,14 +480,14 @@ export default function ComprehensiveCmsPage() {
                               {item.image_url ? (
                                 <div className="flex items-center gap-2">
                                   <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-900/50">
-                                    <Check className="w-3 h-3" /> Image attached
+                                    <Check className="w-3 h-3" /> Logo attached
                                   </span>
                                   <button
                                     type="button"
                                     onClick={() => updateField(item.id, 'image_url', '')}
                                     className="text-xs text-slate-500 hover:text-rose-600 underline cursor-pointer"
                                   >
-                                    Clear
+                                    Clear logo
                                   </button>
                                 </div>
                               ) : (
