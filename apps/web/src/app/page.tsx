@@ -200,8 +200,8 @@ export default function HomePage() {
                   <div className="text-xs font-semibold text-slate-500 mt-0.5">Happy Clients</div>
                 </div>
                 <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200/80 shadow-2xs">
-                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">&lt; 24h</div>
-                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Fast Sample Reviews</div>
+                  <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Fast</div>
+                  <div className="text-xs font-semibold text-slate-500 mt-0.5">Quick Turnaround</div>
                 </div>
                 <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200/80 shadow-2xs">
                   <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">100%</div>
