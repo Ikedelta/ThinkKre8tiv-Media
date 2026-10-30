@@ -79,11 +79,11 @@ const sectionConfig: Record<string, { label: string; desc: string; icon: any; co
     badge: 'About Page'
   },
   expertise: {
-    label: 'Core Capabilities',
-    desc: 'Primary business pillars displayed on the homepage with high-res photos and service descriptions.',
+    label: 'Featured Projects & Works',
+    desc: 'Showcase real client printouts, custom packaging jobs, and delivered corporate branding projects.',
     icon: CheckCircle2,
     color: 'text-violet-500',
-    badge: 'Services Grid'
+    badge: 'Recent Works'
   },
   carousel: {
     label: 'Production Showcase',

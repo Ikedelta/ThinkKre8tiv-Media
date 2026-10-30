@@ -559,54 +559,54 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          SECTION 5: CORE EXPERTISE & CAPABILITIES
+          SECTION 5: RECENT PROJECTS & FEATURED CLIENT WORK
           ========================================================================= */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 relative">
         <div className="mb-12 flex flex-wrap items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-primary">Core Capabilities</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">Portfolio &amp; Client Projects</p>
             <h2 className="mt-2 text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              {heroHeadline}
+              Featured Works &amp; Real Printouts
             </h2>
+            <p className="mt-1.5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+              A sample of print, packaging, branding, and outdoor signage projects we have produced.
+            </p>
           </div>
           <Link href="/services" className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-400 hover:text-primary transition-colors flex items-center gap-1.5">
-            View all capabilities <ChevronRight size={14} />
+            View all services <ChevronRight size={14} />
           </Link>
         </div>
 
-        <div className="grid gap-7 md:grid-cols-3">
+        <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
           {expertise.map((item) => {
-            const Icon = item.icon;
             return (
-              <Link href="/services" key={item.title} className="group block relative flex flex-col bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 overflow-hidden">
-                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 dark:bg-slate-800">
+              <div key={item.title} className="group block relative flex flex-col bg-white dark:bg-slate-900 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-300 overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-800">
                   <img 
                     src={item.image} 
                     alt={item.title} 
                     loading="lazy" 
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-80" />
-                  <div className="absolute left-3.5 top-3.5 inline-flex items-center gap-1.5 rounded bg-slate-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white border border-white/10 shadow-sm">
-                    <Icon size={12} className="text-primary" />
-                    <span>Commercial Division</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-70" />
+                  <div className="absolute left-3.5 top-3.5 inline-flex items-center gap-1.5 rounded bg-slate-950/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-white border border-white/10 shadow-xs">
+                    <span>Client Project</span>
                   </div>
                 </div>
                 <div className="p-5 space-y-2 flex-1 flex flex-col justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors flex items-center justify-between">
-                      <span>{item.title}</span>
-                      <ArrowRight size={14} className="opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0 text-primary" />
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">
+                      {item.title}
                     </h3>
                     <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400 font-normal">
                       {item.desc}
                     </p>
                   </div>
                   <div className="pt-3 border-t border-slate-100 dark:border-slate-800/80 text-[11px] font-semibold text-primary uppercase tracking-wider flex items-center gap-1">
-                    Explore Solution <ChevronRight size={12} />
+                    Delivered Work <ChevronRight size={12} />
                   </div>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
