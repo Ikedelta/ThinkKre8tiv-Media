@@ -429,7 +429,7 @@ export function DocumentViewer({
   if (inline) {
     return (
       <div className="w-full bg-slate-100/80 dark:bg-slate-900/60 rounded-xl p-2 sm:p-3 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-inner flex justify-center">
-        <div className="w-full max-w-[700px] py-1 scale-[0.88] sm:scale-[0.92] origin-top transition-transform">
+        <div className="w-full max-w-[560px] py-1 scale-[0.72] sm:scale-[0.78] origin-top transition-transform">
           {content}
         </div>
       </div>
@@ -486,7 +486,7 @@ export function DocumentViewer({
       </div>
 
       <div className="flex-1 w-full overflow-y-auto p-4 sm:p-6 md:p-8 flex justify-center items-start">
-        <div className="w-full max-w-[760px] my-auto py-2">
+        <div className="w-full max-w-[640px] my-auto py-2 scale-[0.82] sm:scale-[0.86] md:scale-[0.90] origin-top transition-transform">
           {content}
         </div>
       </div>
