@@ -78,27 +78,27 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Visual Grid Collage */}
+            {/* Visual Grid Collage with Real Workshop Photos */}
             <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="col-span-2 rounded-2xl overflow-hidden h-60 border border-border shadow-sm hover:shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:border-foreground/30 transition-all duration-300 animate-fade-in">
+              <div className="col-span-2 rounded-2xl overflow-hidden h-64 border border-slate-200 dark:border-slate-800 shadow-sm group">
                 <img
-                  src={IMG_FACILITY}
+                  src="/images/1.jpg"
                   alt="Think Kre8tiv Media workshop"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              <div className="rounded-2xl overflow-hidden h-44 border border-border shadow-sm hover:shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:border-foreground/30 transition-all duration-300">
+              <div className="rounded-2xl overflow-hidden h-48 border border-slate-200 dark:border-slate-800 shadow-sm group">
                 <img
-                  src={IMG_DIGITAL}
-                  alt="Industrial printing"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  src="/images/2.jpg"
+                  alt="Corporate apparel & uniforms"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              <div className="rounded-2xl overflow-hidden h-44 border border-border shadow-sm hover:shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:border-foreground/30 transition-all duration-300">
+              <div className="rounded-2xl overflow-hidden h-48 border border-slate-200 dark:border-slate-800 shadow-sm group">
                 <img
-                  src={IMG_BRANDING}
-                  alt="Corporate branding"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  src="/images/3.jpg"
+                  alt="Packaging & corporate gifting"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
             </div>
