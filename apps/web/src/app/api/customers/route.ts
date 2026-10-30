@@ -89,42 +89,46 @@ export async function POST(request: Request) {
     const authResult = await requireStaffOrAdmin();
     if (authResult instanceof Response) return authResult;
     const body = await request.json();
-    const { name, email, phone, address, company, notes, industry, social_handle, birthday } = body;
+    const { name, email, phone, address, company, notes, industry } = body;
     if (!name) return Response.json({ error: 'Name is required' }, { status: 400 });
 
     const [customer] = await sql`
-      INSERT INTO customers (name, email, phone, address, company, notes, industry, social_handle, birthday)
-      VALUES (${name}, ${email ?? null}, ${phone ?? null}, ${address ?? null}, ${company ?? null}, ${notes ?? null}, ${industry ?? null}, ${social_handle ?? null}, ${birthday || null})
+      INSERT INTO customers (name, email, phone, address, company, notes, industry)
+      VALUES (${name}, ${email ?? null}, ${phone ?? null}, ${address ?? null}, ${company ?? null}, ${notes ?? null}, ${industry ?? null})
       RETURNING *
     `;
     return Response.json(customer);
-  } catch (error) {
-    console.error(error);
-    return Response.json({ error: 'Failed to create customer' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Failed to create customer:', error);
+    return Response.json({ error: error.message || 'Failed to create customer' }, { status: 500 });
   }
 }
 
 export async function PUT(request: Request) {
   try {
-    const authResult = await requireAdmin();
+    const authResult = await requireStaffOrAdmin();
     if (authResult instanceof Response) return authResult;
     const body = await request.json();
-    const { id, name, email, phone, address, company, notes, industry, social_handle, birthday } = body;
+    const { id, name, email, phone, address, company, notes, industry } = body;
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
 
     const [customer] = await sql`
       UPDATE customers
-      SET name = ${name}, email = ${email ?? null}, phone = ${phone ?? null},
-          address = ${address ?? null}, company = ${company ?? null}, notes = ${notes ?? null},
-          industry = ${industry ?? null}, social_handle = ${social_handle ?? null}, birthday = ${birthday || null},
+      SET name = ${name}, 
+          email = ${email ?? null}, 
+          phone = ${phone ?? null},
+          address = ${address ?? null}, 
+          company = ${company ?? null}, 
+          notes = ${notes ?? null},
+          industry = ${industry ?? null},
           updated_at = NOW()
       WHERE id = ${id}
       RETURNING *
     `;
     return Response.json(customer);
-  } catch (error) {
-    console.error(error);
-    return Response.json({ error: 'Failed to update customer' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Failed to update customer:', error);
+    return Response.json({ error: error.message || 'Failed to update customer' }, { status: 500 });
   }
 }
 

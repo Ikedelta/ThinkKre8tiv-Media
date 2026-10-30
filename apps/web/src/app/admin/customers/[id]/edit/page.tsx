@@ -84,7 +84,10 @@ export default function EditCustomerPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, id }),
       });
-      if (!res.ok) throw new Error('Failed');
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        throw new Error(errJson?.error || 'Failed to update customer');
+      }
       return res.json();
     },
     onSuccess: () => {
@@ -93,7 +96,7 @@ export default function EditCustomerPage() {
       toast.success('Customer details updated successfully!');
       router.push('/admin/customers');
     },
-    onError: () => toast.error('Failed to update customer'),
+    onError: (err: any) => toast.error(err.message || 'Failed to update customer'),
   });
 
   const handleSubmit = (e: React.FormEvent) => {

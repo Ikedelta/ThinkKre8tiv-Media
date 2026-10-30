@@ -29,7 +29,12 @@ export default function NewQuotationPage() {
   const [items, setItems] = useState<LineItem[]>([{ ...emptyItem }]);
   const [vatRate, setVatRate] = useState(15);
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [validUntil, setValidUntil] = useState('');
+  // Default valid until (due/expiry date) to 2 weeks (14 days) from today
+  const [validUntil, setValidUntil] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 14);
+    return d.toISOString().split('T')[0];
+  });
   const [notes, setNotes] = useState('');
 
   const { data: customers = [] } = useQuery<Customer[]>({

@@ -33,7 +33,12 @@ export default function NewInvoicePage() {
   const [items, setItems] = useState<LineItem[]>([{ ...emptyItem, description: searchParams?.get('description') || '' }]);
   const [vatRate, setVatRate] = useState(15);
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [dueDate, setDueDate] = useState('');
+  // Default due date to exactly 2 weeks (14 days) from today
+  const [dueDate, setDueDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 14);
+    return d.toISOString().split('T')[0];
+  });
   const [notes, setNotes] = useState('');
 
   const quotationId = searchParams?.get('quotation_id');
