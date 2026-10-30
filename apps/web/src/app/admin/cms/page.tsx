@@ -229,7 +229,7 @@ export default function ComprehensiveCmsPage() {
       const data = await res.json();
       if (data.url) {
         updateField(itemId, 'image_url', data.url);
-        toast.success('Image uploaded to storage bucket! Click "Save Changes" to publish.');
+        toast.success('Image uploaded successfully! Click "Save Changes" to publish.');
       }
     } catch (err: any) {
       console.error(err);
@@ -345,9 +345,9 @@ export default function ComprehensiveCmsPage() {
           </div>
 
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 space-y-1">
-            <p className="font-bold text-slate-700 dark:text-slate-300">💡 Instant Cloud Sync</p>
+            <p className="font-bold text-slate-700 dark:text-slate-300">💡 Instant Website Sync</p>
             <p className="leading-relaxed">
-              Images uploaded here save directly into your Neon cloud storage bucket and refresh live on visitor browsers.
+              Upload photos or edit text, then click &quot;Save Changes&quot; to update your live website immediately.
             </p>
           </div>
         </div>
@@ -423,25 +423,20 @@ export default function ComprehensiveCmsPage() {
                               {item.title || 'Client Partner Logo'}
                             </h4>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-mono text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                              {item.id}
-                            </span>
-                            <button
-                              onClick={() => deleteMutation.mutate(item.id)}
-                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer"
-                              title="Delete this logo"
-                            >
-                              <span className="text-xs font-bold uppercase px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => deleteMutation.mutate(item.id)}
+                            className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer"
+                            title="Delete this logo"
+                          >
+                            <span className="text-xs font-bold uppercase px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
+                          </button>
                         </div>
 
                         {/* Minimalist Logo Upload Box */}
                         <div>
                           <div className="flex items-center justify-between mb-2">
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                              Logo Image File
+                              Logo Image
                             </label>
                             <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-[#D22630] hover:text-[#b81d26] bg-red-50 hover:bg-red-100/70 px-3 py-1.5 rounded-lg transition-colors border border-red-200">
                               {uploadingId === item.id ? (
@@ -449,7 +444,7 @@ export default function ComprehensiveCmsPage() {
                               ) : (
                                 <Upload className="w-3.5 h-3.5" />
                               )}
-                              <span>{uploadingId === item.id ? 'Uploading...' : 'Upload Logo'}</span>
+                              <span>{uploadingId === item.id ? 'Uploading...' : (item.image_url ? 'Replace Logo' : 'Upload Logo')}</span>
                               <input
                                 type="file"
                                 accept="image/*"
@@ -475,18 +470,30 @@ export default function ComprehensiveCmsPage() {
                                   }}
                                 />
                               ) : (
-                                <span className="text-[10px] text-slate-400 font-semibold text-center">No logo uploaded</span>
+                                <span className="text-[10px] text-slate-400 font-semibold text-center">No logo selected</span>
                               )}
                             </div>
-                            <div className="flex-1 space-y-1">
-                              <Input
-                                value={item.image_url || ''}
-                                onChange={(e) => updateField(item.id, 'image_url', e.target.value)}
-                                placeholder="Paste logo image URL or click Upload Logo..."
-                                className="h-10 text-xs bg-slate-50/50 dark:bg-slate-900 font-mono"
-                              />
+                            <div className="flex-1 space-y-1.5">
+                              {item.image_url ? (
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-900/50">
+                                    <Check className="w-3 h-3" /> Image attached
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateField(item.id, 'image_url', '')}
+                                    className="text-xs text-slate-500 hover:text-rose-600 underline cursor-pointer"
+                                  >
+                                    Clear
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="text-xs text-slate-500">
+                                  Click <strong>Upload Logo</strong> to select an image from your device.
+                                </p>
+                              )}
                               <p className="text-[11px] text-slate-400">
-                                Transparent PNG or SVG logos work best for the brand ticker.
+                                Transparent PNG or SVG logos work best for the brand slider.
                               </p>
                             </div>
                           </div>
@@ -507,20 +514,15 @@ export default function ComprehensiveCmsPage() {
                             {item.title || item.id}
                           </h4>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-mono text-slate-400 bg-slate-50 dark:bg-slate-800 px-2.5 py-0.5 rounded border border-slate-200 dark:border-slate-700">
-                            {item.id}
-                          </span>
-                          {['hero_slides', 'carousel', 'expertise', 'partners'].includes(item.section) && (
-                            <button
-                              onClick={() => deleteMutation.mutate(item.id)}
-                              className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer"
-                              title="Delete this item"
-                            >
-                              <span className="text-xs font-bold uppercase px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
-                            </button>
-                          )}
-                        </div>
+                        {['hero_slides', 'carousel', 'expertise', 'partners'].includes(item.section) && (
+                          <button
+                            onClick={() => deleteMutation.mutate(item.id)}
+                            className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition-colors cursor-pointer"
+                            title="Delete this item"
+                          >
+                            <span className="text-xs font-bold uppercase px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-600">Remove</span>
+                          </button>
+                        )}
                       </div>
 
                       {/* Title / Label Field */}
@@ -564,7 +566,7 @@ export default function ComprehensiveCmsPage() {
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                              {item.section === 'partners' ? 'Client Logo Image' : 'Image Asset • URL or Direct Upload'}
+                              {item.section === 'partners' ? 'Client Logo Image' : 'Section Image'}
                             </label>
                             <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-[#D22630] hover:text-[#b81d26] bg-red-50 hover:bg-red-100/70 px-3 py-1.5 rounded-lg transition-colors border border-red-200">
                               {uploadingId === item.id ? (
@@ -572,7 +574,7 @@ export default function ComprehensiveCmsPage() {
                               ) : (
                                 <Upload className="w-3.5 h-3.5" />
                               )}
-                              <span>{uploadingId === item.id ? 'Uploading to Bucket...' : 'Upload Image File'}</span>
+                              <span>{uploadingId === item.id ? 'Uploading...' : (item.image_url ? 'Replace Image' : 'Upload Image')}</span>
                               <input
                                 type="file"
                                 accept="image/*"
@@ -586,15 +588,9 @@ export default function ComprehensiveCmsPage() {
                             </label>
                           </div>
                           
-                          <div className="flex gap-3 items-center">
-                            <Input
-                              value={item.image_url || ''}
-                              onChange={(e) => updateField(item.id, 'image_url', e.target.value)}
-                              placeholder="https://... or upload image above"
-                              className="h-10 text-sm bg-slate-50/50 dark:bg-slate-900 flex-1 font-mono text-xs"
-                            />
-                            {item.image_url ? (
-                              <div className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1 shrink-0 flex items-center justify-center shadow-xs">
+                          <div className="flex gap-4 items-center">
+                            <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1 shrink-0 flex items-center justify-center shadow-xs">
+                              {item.image_url ? (
                                 <img
                                   src={item.image_url}
                                   alt="Preview"
@@ -603,8 +599,30 @@ export default function ComprehensiveCmsPage() {
                                     (e.target as HTMLElement).style.display = 'none';
                                   }}
                                 />
-                              </div>
-                            ) : null}
+                              ) : (
+                                <span className="text-[10px] text-slate-400 font-semibold text-center">No image</span>
+                              )}
+                            </div>
+                            <div className="flex-1 space-y-1">
+                              {item.image_url ? (
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-md border border-emerald-200 dark:border-emerald-900/50">
+                                    <Check className="w-3 h-3" /> Image attached
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => updateField(item.id, 'image_url', '')}
+                                    className="text-xs text-slate-500 hover:text-rose-600 underline cursor-pointer"
+                                  >
+                                    Remove image
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className="text-xs text-slate-500">
+                                  Click <strong>Upload Image</strong> to select a photo from your computer.
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )}
