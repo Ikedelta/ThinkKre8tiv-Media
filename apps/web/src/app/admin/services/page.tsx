@@ -17,7 +17,25 @@ interface Service {
   unit: string;
   is_active: boolean;
   created_at: string;
+  image_url?: string;
 }
+
+// Map service names to their corresponding public featured images
+const SERVICE_IMAGE_MAP: Record<string, string> = {
+  'Offset & Bulk Commercial Printing': '/images/1.jpg',
+  'Commercial Printing': '/images/1.jpg',
+  'Custom Packaging & Luxury Rigid Boxes': '/images/3.jpg',
+  'Custom Packaging & Boxes': '/images/3.jpg',
+  '3D Channel Signs & Office Branding': 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=800&q=80',
+  '3D Signs & Office Branding': 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=800&q=80',
+  'Corporate Apparel & Staff Uniforms': '/images/2.jpg',
+  'Corporate Apparel & Uniforms': '/images/2.jpg',
+  'Vehicle & Fleet Advertising Wraps': 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80',
+  'Vehicle & Fleet Wraps': 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80',
+  'Executive Souvenirs & Corporate Gifts': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+  'Corporate Gifts & Souvenirs': 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+  'One Way Vision': '/images/IMG-20260617-WA0061.jpg',
+};
 
 export default function ServicesPage() {
   const { confirm } = useConfirm();
@@ -213,55 +231,72 @@ export default function ServicesPage() {
                   </td>
                 </tr>
               ) : (
-                filtered.map((service) => (
-                  <tr key={service.id} className="hover:bg-slate-50 dark:hover:bg-[#0D121F] transition-colors group">
-                    <td className="px-6 py-5">
-                      <div className="font-bold text-slate-900 dark:text-slate-200 mb-0.5">{service.name}</div>
-                      <div className="text-xs text-slate-500 max-w-[300px] truncate">{service.description || 'No description'}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-bold tracking-wider">
-                        {service.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="font-bold text-slate-900 dark:text-slate-200">{fmt(service.base_price)}</div>
-                      <div className="text-[10px] font-medium text-slate-500">per {service.unit}</div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <button 
-                        onClick={() => toggleStatusMutation.mutate(service)}
-                        className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-colors border",
-                          service.is_active 
-                            ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-500 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20" 
-                            : "bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
-                        )}
-                      >
-                        <span className={cn("w-1.5 h-1.5 rounded-full", service.is_active ? "bg-emerald-500" : "bg-slate-400")} />
-                        {service.is_active ? 'Active' : 'Inactive'}
-                      </button>
-                    </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center justify-end gap-2">
+                filtered.map((service) => {
+                  const previewImg = service.image_url || SERVICE_IMAGE_MAP[service.name] || '/images/1.jpg';
+                  return (
+                    <tr key={service.id} className="hover:bg-slate-50 dark:hover:bg-[#0D121F] transition-colors group">
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3.5">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 shrink-0 shadow-2xs">
+                            <img
+                              src={previewImg}
+                              alt={service.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLImageElement).src = '/images/1.jpg';
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-900 dark:text-slate-200 mb-0.5">{service.name}</div>
+                            <div className="text-xs text-slate-500 max-w-[280px] truncate">{service.description || 'No description'}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] font-bold tracking-wider">
+                          {service.category}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="font-bold text-slate-900 dark:text-slate-200">{fmt(service.base_price)}</div>
+                        <div className="text-[10px] font-medium text-slate-500">per {service.unit}</div>
+                      </td>
+                      <td className="px-6 py-5">
                         <button 
-                          onClick={() => openEdit(service)}
-                          className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-all"
+                          onClick={() => toggleStatusMutation.mutate(service)}
+                          className={cn(
+                            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase transition-colors border",
+                            service.is_active 
+                              ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-500 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20" 
+                              : "bg-slate-100 border-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700"
+                          )}
                         >
-                          <Edit size={16} />
+                          <span className={cn("w-1.5 h-1.5 rounded-full", service.is_active ? "bg-emerald-500" : "bg-slate-400")} />
+                          {service.is_active ? 'Active' : 'Inactive'}
                         </button>
-                        <button
-                          onClick={async () => {
-                            if (await confirm({ title: 'Confirmation', message: `Remove "${service.name}" from the catalog?`, variant: 'destructive' })) deleteMutation.mutate(service.id);
-                          }}
-                          className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => openEdit(service)}
+                            className="p-2 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-all"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (await confirm({ title: 'Confirmation', message: `Remove "${service.name}" from the catalog?`, variant: 'destructive' })) deleteMutation.mutate(service.id);
+                            }}
+                            className="p-2 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

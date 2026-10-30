@@ -19,61 +19,61 @@ import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import { cn } from '@/lib/utils';
 
-// Clean, focused service catalog
+// Clean, focused service catalog with minimal concise copy
 const SERVICES = [
   {
     id: 'offset-printing',
-    title: 'Offset & Bulk Commercial Printing',
+    title: 'Commercial Printing',
     category: 'Commercial Print',
     icon: Printer,
     image: '/images/1.jpg',
-    description: 'High-speed automated Heidelberg printing for corporate brochures, annual reports, presentation folders, flyers, and magazines with razor-sharp Pantone color accuracy.',
-    highlights: ['Pantone color calibration', '150gsm–450gsm stock', 'Spot UV & foil stamping', 'High-volume production runs']
+    description: 'Corporate brochures, flyers, annual reports, presentation folders, and magazines with exact Pantone color calibration.',
+    highlights: ['Pantone color calibration', 'Spot UV & foil stamping', 'High-volume production runs']
   },
   {
     id: 'packaging-boxes',
-    title: 'Custom Packaging & Luxury Rigid Boxes',
+    title: 'Custom Packaging & Boxes',
     category: 'Packaging',
     icon: Package,
     image: '/images/3.jpg',
-    description: 'Bespoke rigid gift boxes, magnetic closure product packaging, retail cartons, and custom tote bags engineered to elevate your brand presentation.',
-    highlights: ['Custom die-cut inserts', 'Rigid greyboard cores', 'Embossed & foil stamped', 'Bespoke corporate gifting']
+    description: 'Bespoke rigid gift boxes, magnetic closure packaging, retail cartons, and branded shopping tote bags.',
+    highlights: ['Custom die-cut greyboard', 'Embossed & foil stamped', 'Luxury product presentation']
   },
   {
     id: '3d-signage',
-    title: '3D Channel Signs & Office Branding',
+    title: '3D Signs & Office Branding',
     category: 'Signage & Displays',
     icon: Building2,
     image: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=800&q=80',
-    description: 'Backlit 3D illuminated letters, stainless steel halo channel signs, outdoor pylons, and acrylic reception wall branding built for durability.',
-    highlights: ['Waterproof LED modules', 'Brushed steel & acrylic', 'Laser contour cutting', 'Professional site installation']
+    description: 'Backlit 3D illuminated letters, stainless steel channel signs, outdoor pylons, and acrylic reception branding.',
+    highlights: ['Waterproof LED modules', 'Laser contour cutting', 'Professional site installation']
   },
   {
     id: 'corporate-apparel',
-    title: 'Corporate Apparel & Staff Uniforms',
+    title: 'Corporate Apparel & Uniforms',
     category: 'Apparel',
     icon: Award,
     image: '/images/2.jpg',
-    description: 'High-density embroidered pique polo shirts, corporate uniforms, event t-shirts, branded caps, and executive apparel with durable stitching.',
-    highlights: ['Tajima precision embroidery', 'Durable screen & DTF print', '100% combed cotton', 'Full corporate size runs']
+    description: 'Embroidered polo shirts, corporate uniforms, event t-shirts, branded caps, and executive workwear.',
+    highlights: ['Precision embroidery', 'Durable screen & DTF print', '100% combed cotton']
   },
   {
     id: 'fleet-branding',
-    title: 'Vehicle & Fleet Advertising Wraps',
+    title: 'Vehicle & Fleet Wraps',
     category: 'Branding',
     icon: Truck,
     image: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=800&q=80',
-    description: 'Full commercial vehicle branding, cast vinyl wraps, and reflective delivery fleet graphics engineered to withstand weather and road conditions.',
-    highlights: ['Premium cast vinyl wraps', 'UV protective overlaminate', 'Seamless panel alignment', 'Certified installation crew']
+    description: 'Full commercial vehicle branding, cast vinyl wraps, and reflective delivery fleet graphics.',
+    highlights: ['Cast vinyl wrapping', 'UV protective overlaminate', 'Certified installation']
   },
   {
     id: 'promotional-souvenirs',
-    title: 'Executive Souvenirs & Corporate Gifts',
+    title: 'Corporate Gifts & Souvenirs',
     category: 'Promotional Items',
     icon: Gift,
     image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
-    description: 'Laser-engraved thermal bottles, leather notebook sets, crystal awards, pens, and customized executive gift hampers.',
-    highlights: ['Precision laser etching', 'Rotary UV cylinder print', 'Curated gift packaging', 'Fast turnaround for events']
+    description: 'Laser-engraved thermal bottles, leather notebook sets, crystal awards, pens, and customized executive gift sets.',
+    highlights: ['Laser etching & UV print', 'Curated gift packaging', 'Fast turnaround for events']
   }
 ];
 
