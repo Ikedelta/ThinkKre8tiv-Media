@@ -428,8 +428,8 @@ export function DocumentViewer({
 
   if (inline) {
     return (
-      <div className="w-full bg-slate-100/80 dark:bg-slate-900/60 rounded-xl p-2 sm:p-4 border border-slate-200 dark:border-slate-800 overflow-x-auto shadow-inner flex justify-center">
-        <div className="w-full max-w-[760px] py-1">
+      <div className="w-full bg-slate-100/80 dark:bg-slate-900/60 rounded-xl p-2 sm:p-3 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-inner flex justify-center">
+        <div className="w-full max-w-[700px] py-1 scale-[0.88] sm:scale-[0.92] origin-top transition-transform">
           {content}
         </div>
       </div>
