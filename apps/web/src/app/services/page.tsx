@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import {
   Printer,
   Layers,
@@ -80,6 +81,27 @@ const SERVICES = [
 export default function ServicesPage() {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
+  const { data: cmsContent } = useQuery({
+    queryKey: ['cms'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms', { cache: 'no-store' });
+      return res.json();
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
+  // Dynamically overlay images and titles updated by Admin in CMS
+  const dynamicServices = SERVICES.map((s) => {
+    const cmsItem = cmsContent?.find((c: any) => c.section === 'services' && c.id === `service_${s.id.replace(/-/g, '_')}`);
+    return {
+      ...s,
+      title: cmsItem?.title || s.title,
+      description: cmsItem?.content || s.description,
+      image: cmsItem?.image_url || s.image,
+    };
+  });
+
   const categories = [
     { id: 'all', label: 'All Services' },
     { id: 'Commercial Print', label: 'Printing' },
@@ -91,8 +113,8 @@ export default function ServicesPage() {
   ];
 
   const filtered = selectedCategory === 'all' 
-    ? SERVICES 
-    : SERVICES.filter(s => s.category === selectedCategory);
+    ? dynamicServices 
+    : dynamicServices.filter(s => s.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-slate-50/50 text-slate-900 font-sans overflow-x-hidden pt-14 sm:pt-16">

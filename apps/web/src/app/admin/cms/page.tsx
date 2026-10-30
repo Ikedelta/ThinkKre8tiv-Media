@@ -78,6 +78,13 @@ const sectionConfig: Record<string, { label: string; desc: string; icon: any; co
     color: 'text-emerald-500',
     badge: 'About Page'
   },
+  services: {
+    label: 'Services & 3D Signage',
+    desc: 'Upload images, update titles, and customize service catalog cards including 3D signage.',
+    icon: Layers,
+    color: 'text-rose-500',
+    badge: 'Services Page'
+  },
   expertise: {
     label: 'Featured Projects & Works',
     desc: 'Showcase real client printouts, custom packaging jobs, and delivered corporate branding projects.',
@@ -407,7 +414,7 @@ export default function ComprehensiveCmsPage() {
                 formData.map((item, index) => {
                   const isPartners = item.section === 'partners';
                   const isLongText = (item.content && item.content.length > 90) || item.id.includes('bio') || item.id.includes('quote') || item.id.includes('p1') || item.id.includes('p2') || item.id.includes('subheadline');
-                  const hasImage = item.image_url !== null && (item.id === 'ceo_name' || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides' || item.section === 'partners');
+                  const hasImage = item.image_url !== null && (item.id === 'ceo_name' || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides' || item.section === 'partners' || item.section === 'services');
 
                   // Streamlined pure logo card for Partners / Clients
                   if (isPartners) {
