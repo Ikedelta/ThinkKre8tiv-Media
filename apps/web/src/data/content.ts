@@ -89,26 +89,26 @@ export const EXPERTISE = [
   {
     image: '/images/IMG-20260617-WA0062.jpg',
     icon: Printer,
-    title: 'Corporate Printing & Stationery',
-    desc: 'High-volume letterheads, brochures, presentation folders, and bespoke corporate cards matching your exact brand manual colors.',
+    title: 'Corporate Executive Sets',
+    desc: 'Bespoke corporate ties, branded presentation boxes, and customized executive gifts.',
   },
   {
     image: '/images/IMG-20260617-WA0058.jpg',
     icon: Layers,
-    title: 'Commercial Packaging',
-    desc: 'High-quality product packaging boxes, food-grade cartons, paper bags, and customized adhesive labeling for retail products.',
+    title: 'Embroidered Brand Caps',
+    desc: 'Custom high-density embroidered sports caps with reinforced eyelets and contrast stitching.',
   },
   {
     image: '/images/IMG-20260617-WA0057.jpg',
     icon: Palette,
-    title: 'Brand Activation & Signage',
-    desc: 'Illuminated 3D pylons, teardrop banners, roll-up stands, and wide-format backdrops that make your brand visible from miles away.',
+    title: 'Custom Silk Striped Ties',
+    desc: 'Premium corporate uniform neckwear woven with company colors and woven identity crests.',
   },
   {
     image: '/images/IMG-20260617-WA0065.jpg',
     icon: Truck,
-    title: 'Vehicle & Fleet Branding',
-    desc: 'Precision vinyl wrapping for corporate delivery vans, buses, and executive fleets to turn your transport into mobile billboards.',
+    title: 'Luxury Gifting Packaging',
+    desc: 'Rigid matte black gift boxes with gold foil logo stamps and magnetic closure flaps.',
   },
 ];
 
