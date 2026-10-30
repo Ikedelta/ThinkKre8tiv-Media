@@ -687,7 +687,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3.5 md:auto-rows-[170px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3.5 md:auto-rows-[185px]">
             {/* Feature Image: High-Volume Production Facility */}
             <div className="sm:col-span-2 md:col-span-8 md:row-span-2 min-h-[260px] sm:min-h-[320px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-md">
               <img 
@@ -707,21 +707,61 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Gallery Items with verified real photography */}
-            {GALLERY_ITEMS.slice(1, 5).map((item, idx) => (
-              <div key={idx} className={`min-h-[180px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm ${idx === 0 || idx === 3 ? 'md:col-span-4 md:row-span-2' : 'md:col-span-4 md:row-span-1'}`}>
-                <img 
-                  src={item.image} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute bottom-3.5 left-3.5 right-3.5">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-[#D22630] mb-0.5 block">{item.category}</span>
-                  <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">{item.title}</h3>
-                </div>
+            {/* Item 1: Brand Identity Kits (Right Top, 4 cols, 1 row) */}
+            <div className="md:col-span-4 md:row-span-1 min-h-[180px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm">
+              <img 
+                src={GALLERY_ITEMS[1].image} 
+                alt={GALLERY_ITEMS[1].title} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-3.5 left-3.5 right-3.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#D22630] mb-0.5 block">{GALLERY_ITEMS[1].category}</span>
+                <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">{GALLERY_ITEMS[1].title}</h3>
               </div>
-            ))}
+            </div>
+
+            {/* Item 4: Custom Acrylic & Frosted Keyrings (Right Bottom, 4 cols, 2 rows) */}
+            <div className="md:col-span-4 md:row-span-2 min-h-[220px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm">
+              <img 
+                src={GALLERY_ITEMS[4].image} 
+                alt={GALLERY_ITEMS[4].title} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-3.5 left-3.5 right-3.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#D22630] mb-0.5 block">{GALLERY_ITEMS[4].category}</span>
+                <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">{GALLERY_ITEMS[4].title}</h3>
+              </div>
+            </div>
+
+            {/* Item 2: Branded Thermal Tumblers (Left Bottom col 1, 4 cols, 1 row) */}
+            <div className="md:col-span-4 md:row-span-1 min-h-[180px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm">
+              <img 
+                src={GALLERY_ITEMS[2].image} 
+                alt={GALLERY_ITEMS[2].title} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-3.5 left-3.5 right-3.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#D22630] mb-0.5 block">{GALLERY_ITEMS[2].category}</span>
+                <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">{GALLERY_ITEMS[2].title}</h3>
+              </div>
+            </div>
+
+            {/* Item 3: Precision Cotton Bedding & Textile Printing (Left Bottom col 2, 4 cols, 1 row) */}
+            <div className="md:col-span-4 md:row-span-1 min-h-[180px] md:min-h-0 relative rounded-2xl overflow-hidden group border border-slate-800 bg-slate-900 shadow-sm">
+              <img 
+                src={GALLERY_ITEMS[3].image} 
+                alt={GALLERY_ITEMS[3].title} 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/25 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-3.5 left-3.5 right-3.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-[#D22630] mb-0.5 block">{GALLERY_ITEMS[3].category}</span>
+                <h3 className="text-xs sm:text-sm font-bold text-white leading-tight">{GALLERY_ITEMS[3].title}</h3>
+              </div>
+            </div>
           </div>
         </div>
       </section>
