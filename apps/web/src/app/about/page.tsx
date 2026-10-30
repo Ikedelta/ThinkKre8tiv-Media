@@ -17,11 +17,11 @@ export default function AboutPage() {
   const { data: cmsContent } = useQuery({
     queryKey: ['cms'],
     queryFn: async () => {
-      const res = await fetch('/api/cms');
+      const res = await fetch('/api/cms', { cache: 'no-store' });
       return res.json();
     },
-    staleTime: 60 * 1000,
-    gcTime: 5 * 60 * 1000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const aboutTitle = cmsContent?.find((c: any) => c.section === 'about' && c.id === 'about_title')?.content || "From a Small Studio to Ghana’s Premier Print Partner";

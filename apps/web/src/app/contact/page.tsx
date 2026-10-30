@@ -11,9 +11,11 @@ export default function ContactPage() {
   const { data: cmsContent } = useQuery({
     queryKey: ['cms'],
     queryFn: async () => {
-      const res = await fetch('/api/cms');
+      const res = await fetch('/api/cms', { cache: 'no-store' });
       return res.json();
-    }
+    },
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const contactSection = cmsContent?.filter((c: any) => c.section === 'contact' && c.is_active) || [];
