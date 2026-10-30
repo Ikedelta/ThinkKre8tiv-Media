@@ -20,7 +20,8 @@ import {
   Quote,
   Target,
   Compass,
-  Briefcase
+  Briefcase,
+  Truck
 } from 'lucide-react';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
@@ -612,33 +613,53 @@ export default function HomePage() {
       </section>
 
       {/* =========================================================================
-          SECTION 6: HOW IT WORKS (SIMPLE 4-STEP PROCESS)
+          SECTION 6: ENTERPRISE COMMITMENT & QUALITY STANDARDS
           ========================================================================= */}
       <section className="py-14 sm:py-16 bg-slate-50 dark:bg-slate-900/40 border-y border-slate-200/80 dark:border-slate-800/80 relative">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto space-y-2 mb-10">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-primary">How It Works</p>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Our Simple 4-Step Process</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">From your first request to doorstep delivery, here is how we work with you.</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Why Industry Leaders Choose Us</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Enterprise Production Standards</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Precision manufacturing, audited quality, and rapid turnaround for corporate Ghana.</p>
           </div>
           
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4 relative">
             {[
-              { num: '01', title: 'Send Your Request', icon: FileText, desc: 'Share your project details, artwork, and preferred quantities with us.' },
-              { num: '02', title: 'Review & Approve', icon: Layers, desc: 'We send you a digital preview and exact quotation for confirmation.' },
-              { num: '03', title: 'Printing & Crafting', icon: Zap, desc: 'We print and assemble your items using top-tier inks and durable materials.' },
-              { num: '04', title: 'Pack & Deliver', icon: Package, desc: 'Carefully packaged and delivered straight to your office or doorstep.' }
-            ].map((step, i) => (
-              <div key={i} className="relative z-10 bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition-all duration-200 group">
+              {
+                num: '01',
+                title: 'Pantone Color Accuracy',
+                icon: Target,
+                desc: 'Digital densitometer calibration ensures your exact corporate Pantone shades across every single batch.'
+              },
+              {
+                num: '02',
+                title: 'Automated Press Speed',
+                icon: Zap,
+                desc: 'Industrial Heidelberg 4-color and 5-color offset presses delivering high-volume orders on tight schedules.'
+              },
+              {
+                num: '03',
+                title: 'Premium Raw Substrates',
+                icon: ShieldCheck,
+                desc: 'Certified FSC card stocks, high-gauge acrylics, cast vinyls, and durable rigid box cores built to last.'
+              },
+              {
+                num: '04',
+                title: 'Corporate Delivery Network',
+                icon: Truck,
+                desc: 'Protective shrink-wrapped packaging delivered directly to your headquarters or regional branches across Ghana.'
+              }
+            ].map((feature, i) => (
+              <div key={i} className="relative z-10 bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-200 group">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-md flex items-center justify-center text-slate-700 dark:text-slate-200 group-hover:bg-primary group-hover:text-white transition-colors duration-200">
-                    <step.icon size={15} />
+                  <div className="w-9 h-9 bg-red-50 dark:bg-red-950/40 rounded-lg flex items-center justify-center text-[#D22630] group-hover:bg-[#D22630] group-hover:text-white transition-colors duration-200">
+                    <feature.icon size={17} />
                   </div>
-                  <span className="font-mono text-[11px] font-bold text-slate-400 dark:text-slate-500">{step.num}</span>
+                  <span className="font-mono text-xs font-bold text-slate-400 dark:text-slate-500">{feature.num}</span>
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1.5">{step.title}</h3>
-                <p className="text-[11px] leading-relaxed text-slate-500 dark:text-slate-400 font-normal">
-                  {step.desc}
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1.5">{feature.title}</h3>
+                <p className="text-xs leading-relaxed text-slate-500 dark:text-slate-400 font-normal">
+                  {feature.desc}
                 </p>
               </div>
             ))}
