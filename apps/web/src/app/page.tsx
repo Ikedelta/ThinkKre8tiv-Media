@@ -81,7 +81,9 @@ export default function HomePage() {
   const ceoTitle = cmsContent?.find((c: any) => c.id === 'ceo_title')?.content || 'Chief Executive Officer & Managing Director';
   const ceoQuote = cmsContent?.find((c: any) => c.id === 'ceo_quote')?.content || 'Every print run is an ambassador of your company’s credibility.';
   const ceoBio = cmsContent?.find((c: any) => c.id === 'ceo_bio')?.content || 'At Think Kre8tiv Media, we founded this enterprise with one non-negotiable principle: zero compromise on substrate weight, Pantone precision, and delivery deadlines. We have invested heavily in high-output presses, ERP inventory management, and computerized die-cutting so Ghanaian corporations never have to import printed collateral from abroad.';
-  const ceoImage = cmsContent?.find((c: any) => c.id === 'ceo_image')?.content || '/images/CEO.jpg';
+  const ceoImageRecord = cmsContent?.find((c: any) => c.id === 'ceo_image');
+  const ceoNameRecord = cmsContent?.find((c: any) => c.id === 'ceo_name');
+  const ceoImage = ceoImageRecord?.image_url || (ceoImageRecord?.content?.startsWith('/') || ceoImageRecord?.content?.startsWith('http') ? ceoImageRecord?.content : '') || ceoNameRecord?.image_url || '/images/CEO.jpg';
   const partnersText = cmsContent?.find((c: any) => c.id === 'partners_text')?.content || 'Trusted by Industry Leaders Across West Africa';
 
   const [heroSlideIndex, setHeroSlideIndex] = useState(0);
@@ -543,16 +545,11 @@ export default function HomePage() {
               </div>
 
               {/* CEO Signature Block */}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
                 <div>
                   <h4 className="text-base font-bold text-slate-900 dark:text-white">{ceoName}</h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{ceoTitle}</p>
                 </div>
-                <Link href="/contact" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-wider border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-11 px-5 rounded-xl shadow-xs transition-all cursor-pointer">
-                    Schedule Executive Consultation <ArrowRight size={13} />
-                  </button>
-                </Link>
               </div>
 
             </div>

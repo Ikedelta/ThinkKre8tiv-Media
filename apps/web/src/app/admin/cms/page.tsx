@@ -407,7 +407,7 @@ export default function ComprehensiveCmsPage() {
                 formData.map((item, index) => {
                   const isPartners = item.section === 'partners';
                   const isLongText = (item.content && item.content.length > 90) || item.id.includes('bio') || item.id.includes('quote') || item.id.includes('p1') || item.id.includes('p2') || item.id.includes('subheadline');
-                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides' || item.section === 'partners';
+                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides' || item.section === 'partners' || item.section === 'ceo';
 
                   // Streamlined pure logo card for Partners / Clients
                   if (isPartners) {
