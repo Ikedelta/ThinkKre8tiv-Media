@@ -407,7 +407,7 @@ export default function ComprehensiveCmsPage() {
                 formData.map((item, index) => {
                   const isPartners = item.section === 'partners';
                   const isLongText = (item.content && item.content.length > 90) || item.id.includes('bio') || item.id.includes('quote') || item.id.includes('p1') || item.id.includes('p2') || item.id.includes('subheadline');
-                  const hasImage = item.image_url !== null || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides' || item.section === 'partners' || item.section === 'ceo';
+                  const hasImage = item.image_url !== null && (item.id === 'ceo_name' || item.id.includes('image') || item.section === 'carousel' || item.section === 'expertise' || item.section === 'hero_slides' || item.section === 'partners');
 
                   // Streamlined pure logo card for Partners / Clients
                   if (isPartners) {
@@ -566,7 +566,7 @@ export default function ComprehensiveCmsPage() {
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                              {item.section === 'partners' ? 'Client Logo Image' : 'Section Image'}
+                              {item.id === 'ceo_name' ? 'CEO Portrait Photograph' : item.section === 'partners' ? 'Client Logo Image' : 'Section Image'}
                             </label>
                             <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-bold text-[#D22630] hover:text-[#b81d26] bg-red-50 hover:bg-red-100/70 px-3 py-1.5 rounded-lg transition-colors border border-red-200">
                               {uploadingId === item.id ? (
