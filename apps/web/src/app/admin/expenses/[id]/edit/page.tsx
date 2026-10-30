@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Camera, UploadCloud, FileCheck, X, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,6 +29,7 @@ export default function EditExpensePage() {
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
   const [receiptUrl, setReceiptUrl] = useState('');
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false);
 
   const { data: vendors = [] } = useQuery<any[]>({
     queryKey: ['vendors'],
@@ -69,6 +70,27 @@ export default function EditExpensePage() {
       setReceiptUrl(expense.receipt_url || '');
     }
   }, [expense]);
+
+  const handleFileUpload = async (file: File) => {
+    try {
+      setIsUploadingReceipt(true);
+      toast.info('Uploading receipt image...');
+      const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+        method: 'POST',
+        body: file,
+      });
+      if (!res.ok) throw new Error('Failed to upload file');
+      const data = await res.json();
+      const uploadedUrl = data.public_url || data.url;
+      setReceiptUrl(uploadedUrl);
+      toast.success('Receipt successfully uploaded and attached!');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message || 'Failed to upload receipt');
+    } finally {
+      setIsUploadingReceipt(false);
+    }
+  };
 
   const updateMutation = useMutation({
     mutationFn: async (data: object) => {
@@ -248,28 +270,107 @@ export default function EditExpensePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-              <div>
-                <label className={labelClass}>Payment Method</label>
+            {/* Payment Method */}
+            <div className="pt-3 border-t border-slate-100">
+              <div className="space-y-1.5 max-w-md">
+                <label className={labelClass}>Payment Method *</label>
                 <select required value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className={inputClass}>
-                  <option value="mobile_money">Mobile Money</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="cash">Cash</option>
-                  <option value="credit_card">Credit Card</option>
+                  <option value="mobile_money">Mobile Money (MTN / Telecel / AT)</option>
+                  <option value="bank_transfer">Bank Transfer (GCB / Stanbic)</option>
+                  <option value="cash">Cash on Hand</option>
+                  <option value="credit_card">Debit / Credit Card</option>
                   <option value="cheque">Cheque</option>
                 </select>
               </div>
+            </div>
 
-              <div>
-                <label className={labelClass}>Receipt URL (Optional)</label>
-                <input
-                  type="url"
-                  placeholder="Link to scanned receipt image/PDF"
-                  value={receiptUrl}
-                  onChange={(e) => setReceiptUrl(e.target.value)}
-                  className={inputClass}
-                />
+            {/* Scan / Take Picture / Upload Physical Receipt */}
+            <div className="pt-4 border-t border-slate-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label className={cn(labelClass, "mb-0.5 text-slate-800")}>Physical Receipt / Bill Document</label>
+                  <p className="text-xs text-slate-500">Scan or take a picture with your phone camera, or upload a receipt image/PDF</p>
+                </div>
+                {receiptUrl && (
+                  <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                    <FileCheck size={14} /> Receipt Attached
+                  </span>
+                )}
               </div>
+
+              {receiptUrl ? (
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-lg bg-white border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                      <img src={receiptUrl} alt="Receipt preview" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-800">Scanned Receipt Stored</p>
+                      <a href={receiptUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-rose-600 font-semibold hover:underline flex items-center gap-1 mt-0.5">
+                        <Eye size={12} /> View Full Receipt
+                      </a>
+                    </div>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setReceiptUrl('')}
+                    className="text-xs text-slate-600 hover:text-rose-600 hover:bg-rose-50 border-slate-200"
+                  >
+                    <X size={13} className="mr-1" /> Remove
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <label className="cursor-pointer flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-rose-200 hover:border-rose-400 bg-rose-50/50 hover:bg-rose-50 transition-all">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      disabled={isUploadingReceipt}
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file);
+                      }}
+                    />
+                    <div className="w-10 h-10 rounded-lg bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <Camera size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Take Photo / Camera Scan</p>
+                      <p className="text-[11px] text-slate-500">Snap directly using device camera</p>
+                    </div>
+                  </label>
+
+                  <label className="cursor-pointer flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-slate-400 bg-slate-50/80 hover:bg-slate-100 transition-all">
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      disabled={isUploadingReceipt}
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleFileUpload(file);
+                      }}
+                    />
+                    <div className="w-10 h-10 rounded-lg bg-slate-800 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <UploadCloud size={20} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Upload Image or PDF</p>
+                      <p className="text-[11px] text-slate-500">Pick from photo library or drive</p>
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {isUploadingReceipt && (
+                <p className="text-xs font-semibold text-rose-600 animate-pulse flex items-center gap-1.5">
+                  <UploadCloud size={14} className="animate-bounce" /> Uploading and attaching receipt...
+                </p>
+              )}
             </div>
 
             <div className="pt-4 border-t border-slate-100">

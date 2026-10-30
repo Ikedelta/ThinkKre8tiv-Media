@@ -149,7 +149,8 @@ export async function PUT(request: Request) {
           amount = COALESCE(${amount}, amount),
           payment_method = COALESCE(${payment_method}, payment_method),
           date = COALESCE(${date}, date),
-          notes = COALESCE(${notes}, notes)
+          notes = COALESCE(${notes}, notes),
+          receipt_url = COALESCE(${body.receipt_url}, receipt_url)
       WHERE id = ${id}
       RETURNING *
     `;

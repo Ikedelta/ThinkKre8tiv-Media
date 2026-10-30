@@ -4,7 +4,7 @@ import { useConfirm } from '@/components/providers/ConfirmProvider';
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Filter, Calendar, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, Calendar, Edit2, Trash2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -158,7 +158,20 @@ export default function ExpensesPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-600 truncate max-w-xs">
-                        {expense.notes || '-'}
+                        <div className="flex items-center gap-2">
+                          <span>{expense.notes || '-'}</span>
+                          {expense.receipt_url && (
+                            <a
+                              href={expense.receipt_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[11px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 hover:bg-rose-100 shrink-0"
+                              title="View Attached Receipt"
+                            >
+                              <Eye size={11} /> Receipt
+                            </a>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 font-black text-rose-600 text-right">
                         {fmt(expense.amount)}
@@ -227,6 +240,19 @@ export default function ExpensesPage() {
                     <p className="text-xs text-slate-500 italic bg-slate-50 p-2 rounded-lg">
                       &quot;{expense.notes}&quot;
                     </p>
+                  )}
+
+                  {expense.receipt_url && (
+                    <div className="pt-1">
+                      <a
+                        href={expense.receipt_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200 hover:bg-rose-100"
+                      >
+                        <Eye size={12} /> View Attached Scanned Receipt
+                      </a>
+                    </div>
                   )}
 
                   {(session?.user as any)?.role === 'admin' && (
