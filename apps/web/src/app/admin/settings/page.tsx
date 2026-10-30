@@ -15,6 +15,7 @@ interface Settings {
   currency: string;
   currency_code: string;
   vat_rate: number;
+  nhil_rate: number;
   invoice_prefix: string;
   quotation_prefix: string;
   receipt_prefix: string;
@@ -42,6 +43,7 @@ const defaultSettings: Settings = {
   currency: 'GH₵',
   currency_code: 'GHS',
   vat_rate: 15.0,
+  nhil_rate: 5.0,
   invoice_prefix: 'TK-INV',
   quotation_prefix: 'TK-QT',
   receipt_prefix: 'TK-RCT',
@@ -201,7 +203,7 @@ export default function SettingsPage() {
                 placeholder="GHS"
               />
             </div>
-            <div className="col-span-2">
+            <div>
               <label className={labelClass}>
                 <span className="flex items-center gap-1">
                   <Percent size={11} /> VAT Rate (%)
@@ -215,7 +217,23 @@ export default function SettingsPage() {
                 className={inputClass}
                 placeholder="15.0"
               />
-              <p className="text-[10px] text-slate-400 mt-1">Ghana standard VAT is 15%</p>
+              <p className="text-[10px] text-slate-400 mt-1">Ghana standard VAT (15%)</p>
+            </div>
+            <div>
+              <label className={labelClass}>
+                <span className="flex items-center gap-1">
+                  <Percent size={11} /> NHIL Rate (%)
+                </span>
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={form.nhil_rate}
+                onChange={(e) => update('nhil_rate', parseFloat(e.target.value) || 0)}
+                className={inputClass}
+                placeholder="5.0"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">Ghana standard NHIL (5%)</p>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -108,7 +108,7 @@ export default function RecordExpensePage() {
   };
 
   const labelClass = 'block text-xs font-semibold text-slate-500 uppercase tracking-widest mb-2';
-  const inputClass = 'w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-rose-500 outline-none transition-all';
+  const inputClass = 'w-full bg-white border border-slate-200 rounded-lg px-3.5 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all shadow-xs';
 
   // Standard pre-defined categories for Quick Select
   const defaultExpenseCategories = [
@@ -117,7 +117,7 @@ export default function RecordExpensePage() {
   ];
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-12">
+    <div className="w-full max-w-4xl mx-auto space-y-6 pb-12 px-4 sm:px-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/expenses">
           <button className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors">
@@ -127,20 +127,20 @@ export default function RecordExpensePage() {
       </div>
 
       <div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Record Expense</h1>
-        <p className="text-sm text-slate-500 font-medium mt-0.5">Log cash outflows and categorize your spending</p>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Record Expense</h1>
+        <p className="text-sm text-slate-500 font-medium mt-0.5">Log cash outflows and categorize your business spending</p>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <Card className="border border-slate-200 shadow-sm">
-          <CardContent className="p-6 space-y-6">
+        <Card className="border border-slate-200/90 shadow-sm rounded-2xl overflow-hidden">
+          <CardContent className="p-4 sm:p-7 space-y-6">
             
-            {/* Amount & Date */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-rose-50 p-6 rounded-xl border border-rose-100">
-              <div>
+            {/* Amount & Date Card */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 bg-gradient-to-br from-rose-50/80 to-amber-50/30 p-4 sm:p-6 rounded-xl border border-rose-100">
+              <div className="space-y-1.5">
                 <label className={cn(labelClass, "text-rose-700")}>Total Amount *</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-rose-400">GH₵</span>
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-rose-500">GH₵</span>
                   <input
                     type="number"
                     required
@@ -148,101 +148,123 @@ export default function RecordExpensePage() {
                     step="0.01"
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
-                    className={`${inputClass} pl-10 font-bold text-xl text-rose-600 border-rose-200 focus:ring-rose-500`}
+                    className={`${inputClass} pl-12 font-black text-xl sm:text-2xl text-rose-600 border-rose-200 focus:ring-rose-500/20 focus:border-rose-500`}
                     placeholder="0.00"
                   />
                 </div>
               </div>
               
-              <div>
+              <div className="space-y-1.5">
                 <label className={cn(labelClass, "text-rose-700")}>Date of Expense *</label>
                 <input
                   type="date"
                   required
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className={`${inputClass} border-rose-200 focus:ring-rose-500`}
+                  className={`${inputClass} border-rose-200 focus:ring-rose-500/20 focus:border-rose-500 font-medium`}
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+            {/* Payee & Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 pt-2">
               {/* Payee / Vendor */}
-              <div className="space-y-3">
-                <label className={labelClass}>Payee / Vendor *</label>
-                <select value={vendorId} onChange={handleVendorSelect} className={inputClass}>
-                  <option value="">-- Select existing payee --</option>
-                  {vendors.map((v) => (
-                    <option key={v.id} value={v.id}>{v.name}</option>
-                  ))}
-                  <option value="NEW">+ Add New Payee</option>
-                </select>
-                
-                {(!vendorId || vendorId === 'NEW') && (
-                  <input
-                    type="text"
-                    required
-                    placeholder="Enter payee name (e.g., MTN, Facebook)"
-                    value={vendorInput}
-                    onChange={(e) => {
-                      setVendorInput(e.target.value);
-                      setVendorId('');
-                    }}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className={labelClass}>Payee / Vendor *</label>
+                  <span className="text-[11px] text-slate-400">Recipient of payment</span>
+                </div>
+                <div className="space-y-2.5">
+                  <select 
+                    value={vendorId || (vendorInput ? 'NEW' : '')} 
+                    onChange={handleVendorSelect} 
                     className={inputClass}
-                  />
-                )}
+                  >
+                    <option value="">-- Select existing payee --</option>
+                    {vendors.map((v) => (
+                      <option key={v.id} value={v.id}>{v.name}</option>
+                    ))}
+                    <option value="NEW">+ Add New Payee</option>
+                  </select>
+                  
+                  {(!vendorId || vendorId === 'NEW') && (
+                    <div className="pt-1">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Type payee name (e.g., MTN, Total, Shell)"
+                        value={vendorInput}
+                        onChange={(e) => {
+                          setVendorInput(e.target.value);
+                          setVendorId('');
+                        }}
+                        className={inputClass}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Category / Account */}
-              <div className="space-y-3">
-                <label className={labelClass}>Expense Category *</label>
-                <select value={accountId} onChange={handleAccountSelect} className={inputClass}>
-                  <option value="">-- Select category --</option>
-                  {accounts.filter(a => a.type === 'expense').map((a) => (
-                    <option key={a.id} value={a.id}>{a.name}</option>
-                  ))}
-                  <option value="NEW">+ Add New Category</option>
-                </select>
-                
-                {(!accountId || accountId === 'NEW') && (
-                  <div>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g., Office Supplies"
-                      value={accountInput}
-                      onChange={(e) => {
-                        setAccountInput(e.target.value);
-                        setAccountId('');
-                      }}
-                      className={inputClass}
-                      list="default-categories"
-                    />
-                    <datalist id="default-categories">
-                      {defaultExpenseCategories.map(cat => <option key={cat} value={cat} />)}
-                    </datalist>
-                  </div>
-                )}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className={labelClass}>Expense Category *</label>
+                  <span className="text-[11px] text-slate-400">Accounting head</span>
+                </div>
+                <div className="space-y-2.5">
+                  <select 
+                    value={accountId || (accountInput ? 'NEW' : '')} 
+                    onChange={handleAccountSelect} 
+                    className={inputClass}
+                  >
+                    <option value="">-- Select category --</option>
+                    {accounts.filter(a => a.type === 'expense').map((a) => (
+                      <option key={a.id} value={a.id}>{a.name}</option>
+                    ))}
+                    <option value="NEW">+ Add New Category</option>
+                  </select>
+                  
+                  {(!accountId || accountId === 'NEW') && (
+                    <div className="pt-1">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Type or pick category (e.g., Office Supplies)"
+                        value={accountInput}
+                        onChange={(e) => {
+                          setAccountInput(e.target.value);
+                          setAccountId('');
+                        }}
+                        className={inputClass}
+                        list="default-categories"
+                      />
+                      <datalist id="default-categories">
+                        {defaultExpenseCategories.map(cat => <option key={cat} value={cat} />)}
+                      </datalist>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-              <div>
-                <label className={labelClass}>Payment Method</label>
+            {/* Payment Method & Receipt */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 pt-3 border-t border-slate-100">
+              <div className="space-y-1.5">
+                <label className={labelClass}>Payment Method *</label>
                 <select required value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className={inputClass}>
-                  <option value="mobile_money">Mobile Money</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="cash">Cash</option>
-                  <option value="credit_card">Credit Card</option>
+                  <option value="mobile_money">Mobile Money (MTN / Telecel / AT)</option>
+                  <option value="bank_transfer">Bank Transfer (GCB / Stanbic)</option>
+                  <option value="cash">Cash on Hand</option>
+                  <option value="credit_card">Debit / Credit Card</option>
                   <option value="cheque">Cheque</option>
                 </select>
               </div>
 
-              <div>
+              <div className="space-y-1.5">
                 <label className={labelClass}>Receipt URL (Optional)</label>
                 <input
                   type="url"
-                  placeholder="Link to scanned receipt image/PDF"
+                  placeholder="https://... (scanned bill or PDF link)"
                   value={receiptUrl}
                   onChange={(e) => setReceiptUrl(e.target.value)}
                   className={inputClass}
@@ -250,14 +272,15 @@ export default function RecordExpensePage() {
               </div>
             </div>
 
-            <div>
-              <label className={labelClass}>Description / Notes</label>
+            {/* Description Notes */}
+            <div className="space-y-1.5 pt-3 border-t border-slate-100">
+              <label className={labelClass}>Description / Notes *</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 className={inputClass}
                 rows={3}
-                placeholder="What was this expense for?"
+                placeholder="Details of expense (e.g., A4 Paper reams purchase for factory production)"
                 required
               />
             </div>
@@ -265,8 +288,17 @@ export default function RecordExpensePage() {
           </CardContent>
         </Card>
 
-        <div className="mt-6 flex justify-end">
-          <Button type="submit" disabled={createMutation.isPending || !amount} className="bg-rose-600 hover:bg-rose-700 text-white font-bold px-8 shadow-sm">
+        <div className="mt-6 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+          <Link href="/admin/expenses" className="w-full sm:w-auto">
+            <Button type="button" variant="outline" className="w-full sm:w-auto font-semibold">
+              Cancel
+            </Button>
+          </Link>
+          <Button 
+            type="submit" 
+            disabled={createMutation.isPending || !amount} 
+            className="w-full sm:w-auto bg-rose-600 hover:bg-rose-700 text-white font-bold px-8 shadow-sm h-10"
+          >
             {createMutation.isPending ? 'Saving...' : 'Save Expense'}
           </Button>
         </div>

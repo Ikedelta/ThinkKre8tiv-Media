@@ -258,21 +258,76 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* Print-only Report Header with Scope & Timestamp */}
-      <div className="hidden print:flex items-center justify-between border-b border-slate-300 pb-3 mb-2 text-xs text-slate-600">
-        <div>
-          <span className="font-bold uppercase tracking-wider text-slate-700">Reporting Duration: </span>
-          <span className="font-extrabold text-slate-900">
-            {selectedRange === 'custom' && appliedCustom
-              ? `${appliedCustom.start} to ${appliedCustom.end}`
-              : rangeButtons.find((btn) => btn.id === selectedRange)?.label || selectedRange}
-          </span>
+      {/* Professional Print Report Template */}
+      <div className="hidden print:block mb-6">
+        <div className="border-b-2 border-slate-900 pb-5 mb-5">
+          <div className="flex justify-between items-start">
+            <div className="flex items-center gap-3.5">
+              <div className="w-14 h-14 bg-white rounded-xl border border-slate-200 p-2 shrink-0 flex items-center justify-center">
+                <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black tracking-tight text-slate-950 uppercase">
+                  THINK <span className="text-[#D22630]">KRE8TIV</span> MEDIA
+                </h1>
+                <p className="text-[11px] font-semibold text-slate-600">
+                  Accra OSU, Haramani Sport &bull; +233 24 468 1391 &bull; info@thinkkre8tiv.com
+                </p>
+                <p className="text-[10px] text-slate-500 font-medium">
+                  Official Business Operations & Financial Audit Statement
+                </p>
+              </div>
+            </div>
+
+            <div className="text-right">
+              <span className="inline-block bg-slate-900 text-white text-[9px] font-black uppercase px-2.5 py-1 rounded tracking-widest mb-1.5">
+                EXECUTIVE REPORT
+              </span>
+              <p className="text-xs font-bold text-slate-800">
+                Period: <span className="text-[#D22630] font-black">{selectedRange === 'custom' && appliedCustom ? `${appliedCustom.start} to ${appliedCustom.end}` : rangeButtons.find((btn) => btn.id === selectedRange)?.label || selectedRange}</span>
+              </p>
+              <p className="text-[10px] text-slate-500">
+                Generated: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+          </div>
         </div>
-        <div>
-          <span className="font-bold uppercase tracking-wider text-slate-700">Printed On: </span>
-          <span className="font-extrabold text-slate-900">
-            {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-          </span>
+
+        {/* Executive Summary Grid for Print */}
+        <div className="grid grid-cols-5 gap-2.5 mb-6">
+          <div className="border border-slate-200 bg-slate-50/70 p-3 rounded-lg text-center">
+            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 block mb-0.5">Total Billed</span>
+            <span className="text-sm font-black text-slate-900 font-mono">{fmt(rev?.total_billed ?? 0)}</span>
+            <span className="text-[9px] text-slate-400 block mt-0.5">{rev?.total_invoices ?? 0} invoices</span>
+          </div>
+          <div className="border border-emerald-200 bg-emerald-50/60 p-3 rounded-lg text-center">
+            <span className="text-[9px] font-black uppercase tracking-wider text-emerald-800 block mb-0.5">Total Collected</span>
+            <span className="text-sm font-black text-emerald-900 font-mono">{fmt(pay?.total_collected ?? rev?.total_revenue ?? 0)}</span>
+            <span className="text-[9px] text-emerald-700 block mt-0.5">{pay?.total_payments ?? rev?.paid_invoices ?? 0} settlements</span>
+          </div>
+          <div className="border border-amber-200 bg-amber-50/60 p-3 rounded-lg text-center">
+            <span className="text-[9px] font-black uppercase tracking-wider text-amber-800 block mb-0.5">Receivables Due</span>
+            <span className="text-sm font-black text-amber-900 font-mono">{fmt(rev?.total_outstanding ?? 0)}</span>
+            <span className="text-[9px] text-amber-700 block mt-0.5">Outstanding</span>
+          </div>
+          <div className="border border-rose-200 bg-rose-50/60 p-3 rounded-lg text-center">
+            <span className="text-[9px] font-black uppercase tracking-wider text-rose-800 block mb-0.5">Total Expenses</span>
+            <span className="text-sm font-black text-rose-900 font-mono">{fmt(exp?.total_expenses ?? 0)}</span>
+            <span className="text-[9px] text-rose-700 block mt-0.5">{exp?.total_records ?? 0} records</span>
+          </div>
+          <div className={cn("border p-3 rounded-lg text-center", isProfitable ? "border-blue-200 bg-blue-50/60" : "border-rose-200 bg-rose-50/60")}>
+            <span className="text-[9px] font-black uppercase tracking-wider block mb-0.5 text-slate-600">Net Profit</span>
+            <span className={cn("text-sm font-black font-mono", isProfitable ? "text-blue-900" : "text-rose-900")}>
+              {fmt(Math.abs(profitGross))}
+            </span>
+            <span className="text-[9px] text-slate-500 block mt-0.5">{isProfitable ? `+${data?.profit?.netMarginPct || 0}% margin` : 'Deficit'}</span>
+          </div>
+        </div>
+
+        {/* Print Sign-off Bar */}
+        <div className="border-t border-slate-300 pt-3 flex justify-between items-center text-[10px] text-slate-500">
+          <span>Think Kre8tiv Media ERP &bull; Confidential Business Financial Record</span>
+          <span className="font-semibold text-slate-700">Audit Verified &bull; Page 1 of 1</span>
         </div>
       </div>
 

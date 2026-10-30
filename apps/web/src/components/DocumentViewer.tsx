@@ -350,9 +350,17 @@ export function DocumentViewer({
                     <span className="font-medium text-slate-500">Subtotal</span>
                     <span className="font-mono font-bold text-slate-900">{fmt(document.subtotal || document.amount || document.total_amount)}</span>
                   </div>
-                  {Number(document.vat_amount || 0) > 0 && (
+                  {(Number(document.nhil_amount || 0) > 0 || (document.nhil_rate && Number(document.nhil_rate) > 0)) && (
                     <div className="flex justify-between items-center text-slate-600 text-xs">
-                      <span className="font-medium text-slate-500">VAT ({document.vat_rate || 0}%)</span>
+                      <span className="font-medium text-slate-500">NHIL ({document.nhil_rate !== undefined ? document.nhil_rate : 5}%)</span>
+                      <span className="font-mono font-bold text-slate-900">
+                        {fmt(document.nhil_amount !== undefined ? document.nhil_amount : ((Number(document.subtotal || document.amount || document.total_amount) - Number(document.discount_amount || 0)) * (Number(document.nhil_rate || 5) / 100)))}
+                      </span>
+                    </div>
+                  )}
+                  {(Number(document.vat_amount || 0) > 0 || (document.vat_rate && Number(document.vat_rate) > 0)) && (
+                    <div className="flex justify-between items-center text-slate-600 text-xs">
+                      <span className="font-medium text-slate-500">VAT ({document.vat_rate !== undefined ? document.vat_rate : 15}%)</span>
                       <span className="font-mono font-bold text-slate-900">{fmt(document.vat_amount)}</span>
                     </div>
                   )}

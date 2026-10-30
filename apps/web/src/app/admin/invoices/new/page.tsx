@@ -32,6 +32,7 @@ export default function NewInvoicePage() {
   const [customerId, setCustomerId] = useState(searchParams?.get('customer_id') || '');
   const [items, setItems] = useState<LineItem[]>([{ ...emptyItem, description: searchParams?.get('description') || '' }]);
   const [vatRate, setVatRate] = useState(15);
+  const [nhilRate, setNhilRate] = useState(5);
   const [discountAmount, setDiscountAmount] = useState(0);
   // Default due date to exactly 2 weeks (14 days) from today
   const [dueDate, setDueDate] = useState(() => {
@@ -51,6 +52,26 @@ export default function NewInvoicePage() {
       return res.json();
     },
   });
+
+  const { data: appSettings } = useQuery<any>({
+    queryKey: ['settings'],
+    queryFn: async () => {
+      const res = await fetch('/api/settings');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+  });
+
+  useEffect(() => {
+    if (appSettings) {
+      if (appSettings.vat_rate !== undefined && quotationId === null) {
+        setVatRate(Number(appSettings.vat_rate));
+      }
+      if (appSettings.nhil_rate !== undefined && quotationId === null) {
+        setNhilRate(Number(appSettings.nhil_rate));
+      }
+    }
+  }, [appSettings, quotationId]);
 
   const { data: quotationData } = useQuery<any>({
     queryKey: ['quotation', quotationId],
@@ -79,6 +100,9 @@ export default function NewInvoicePage() {
       }
       if (quotationData.vat_rate !== undefined) {
         setVatRate(Number(quotationData.vat_rate));
+      }
+      if (quotationData.nhil_rate !== undefined) {
+        setNhilRate(Number(quotationData.nhil_rate));
       }
       if (quotationData.discount_amount !== undefined) {
         setDiscountAmount(Number(quotationData.discount_amount));
@@ -149,7 +173,8 @@ export default function NewInvoicePage() {
   const subtotal = items.reduce((s, i) => s + Number(i.total_price), 0);
   const subtotalAfterDiscount = Math.max(0, subtotal - Number(discountAmount));
   const vatAmount = (subtotalAfterDiscount * vatRate) / 100;
-  const total = subtotalAfterDiscount + vatAmount;
+  const nhilAmount = (subtotalAfterDiscount * nhilRate) / 100;
+  const total = subtotalAfterDiscount + vatAmount + nhilAmount;
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
 
   const selectedCustomer = customers.find(c => c.id === customerId);
@@ -167,6 +192,8 @@ export default function NewInvoicePage() {
     subtotal,
     vat_rate: vatRate,
     vat_amount: vatAmount,
+    nhil_rate: nhilRate,
+    nhil_amount: nhilAmount,
     amount: subtotal,
     total_amount: total,
     balance_due: total,
@@ -189,6 +216,8 @@ export default function NewInvoicePage() {
       subtotal,
       vat_rate: vatRate,
       vat_amount: vatAmount,
+      nhil_rate: nhilRate,
+      nhil_amount: nhilAmount,
       discount_amount: discountAmount,
       total_amount: total,
       due_date: dueDate || null,
@@ -250,12 +279,16 @@ export default function NewInvoicePage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Due Date</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest">Due Date (Fixed: 2 Weeks)</label>
+                  <span className="text-[11px] text-slate-400 font-medium">Auto-set to 14 days</span>
+                </div>
                 <input
                   type="date"
                   value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className={inputClass}
+                  readOnly
+                  disabled
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-slate-100 text-slate-600 cursor-not-allowed outline-none select-none"
                 />
               </div>
             </div>
@@ -396,15 +429,15 @@ export default function NewInvoicePage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-500 font-medium">VAT (%)</span>
-                    <input
-                      type="number"
-                      value={vatRate}
-                      min={0}
-                      max={100}
-                      onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
-                      className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-sm bg-white focus:ring-1 focus:ring-blue-500 outline-none text-center font-semibold"
-                    />
+                    <span className="text-slate-500 font-medium">NHIL ({nhilRate}%)</span>
+                    <span className="text-xs text-slate-400 font-normal">(Fixed)</span>
+                  </div>
+                  <span className="font-bold text-[#001F3F]">{fmt(nhilAmount)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 font-medium">VAT ({vatRate}%)</span>
+                    <span className="text-xs text-slate-400 font-normal">(Fixed)</span>
                   </div>
                   <span className="font-bold text-[#001F3F]">{fmt(vatAmount)}</span>
                 </div>

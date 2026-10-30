@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
@@ -28,6 +28,7 @@ export default function NewQuotationPage() {
   const [customerId, setCustomerId] = useState('');
   const [items, setItems] = useState<LineItem[]>([{ ...emptyItem }]);
   const [vatRate, setVatRate] = useState(15);
+  const [nhilRate, setNhilRate] = useState(5);
   const [discountAmount, setDiscountAmount] = useState(0);
   // Default valid until (due/expiry date) to 2 weeks (14 days) from today
   const [validUntil, setValidUntil] = useState(() => {
@@ -45,6 +46,26 @@ export default function NewQuotationPage() {
       return res.json();
     },
   });
+
+  const { data: appSettings } = useQuery<any>({
+    queryKey: ['settings'],
+    queryFn: async () => {
+      const res = await fetch('/api/settings');
+      if (!res.ok) throw new Error('Failed');
+      return res.json();
+    },
+  });
+
+  useEffect(() => {
+    if (appSettings) {
+      if (appSettings.vat_rate !== undefined) {
+        setVatRate(Number(appSettings.vat_rate));
+      }
+      if (appSettings.nhil_rate !== undefined) {
+        setNhilRate(Number(appSettings.nhil_rate));
+      }
+    }
+  }, [appSettings]);
 
   const { data: quotations = [] } = useQuery<any[]>({
     queryKey: ['quotations'],
@@ -85,7 +106,8 @@ export default function NewQuotationPage() {
   const subtotal = items.reduce((s, i) => s + Number(i.total_price), 0);
   const subtotalAfterDiscount = Math.max(0, subtotal - Number(discountAmount));
   const vatAmount = (subtotalAfterDiscount * vatRate) / 100;
-  const total = subtotalAfterDiscount + vatAmount;
+  const nhilAmount = (subtotalAfterDiscount * nhilRate) / 100;
+  const total = subtotalAfterDiscount + vatAmount + nhilAmount;
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -105,6 +127,8 @@ export default function NewQuotationPage() {
       subtotal,
       vat_rate: vatRate,
       vat_amount: vatAmount,
+      nhil_rate: nhilRate,
+      nhil_amount: nhilAmount,
       discount_amount: discountAmount,
       total_amount: total,
       valid_until: validUntil || null,
@@ -157,12 +181,16 @@ export default function NewQuotationPage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Valid Until</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest">Valid Until (Fixed: 2 Weeks)</label>
+                  <span className="text-[11px] text-slate-400 font-medium">Auto-set to 14 days</span>
+                </div>
                 <input
                   type="date"
                   value={validUntil}
-                  onChange={(e) => setValidUntil(e.target.value)}
-                  className={inputClass}
+                  readOnly
+                  disabled
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-slate-100 text-slate-600 cursor-not-allowed outline-none select-none"
                 />
               </div>
             </div>
@@ -285,15 +313,15 @@ export default function NewQuotationPage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-500 font-medium">VAT (%)</span>
-                    <input
-                      type="number"
-                      value={vatRate}
-                      min={0}
-                      max={100}
-                      onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
-                      className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-sm text-center font-semibold focus:ring-1 focus:ring-blue-500 outline-none"
-                    />
+                    <span className="text-slate-500 font-medium">NHIL ({nhilRate}%)</span>
+                    <span className="text-xs text-slate-400 font-normal">(Fixed)</span>
+                  </div>
+                  <span className="font-bold text-[#001F3F]">{fmt(nhilAmount)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 font-medium">VAT ({vatRate}%)</span>
+                    <span className="text-xs text-slate-400 font-normal">(Fixed)</span>
                   </div>
                   <span className="font-bold text-[#001F3F]">{fmt(vatAmount)}</span>
                 </div>

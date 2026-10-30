@@ -45,6 +45,8 @@ export async function POST(request: Request) {
       subtotal,
       vat_rate,
       vat_amount,
+      nhil_rate,
+      nhil_amount,
       discount_amount,
       total_amount,
       notes,
@@ -57,8 +59,8 @@ export async function POST(request: Request) {
     const quotation_number = `QT-2026-${String(Number(count) + 1).padStart(3, '0')}`;
 
     const [quotation] = await sql`
-      INSERT INTO quotations (customer_id, quotation_number, subtotal, vat_rate, vat_amount, discount_amount, total_amount, notes, valid_until)
-      VALUES (${customer_id}, ${quotation_number}, ${subtotal}, ${vat_rate ?? 7.5}, ${vat_amount}, ${discount_amount ?? 0}, ${total_amount}, ${notes ?? null}, ${valid_until ?? null})
+      INSERT INTO quotations (customer_id, quotation_number, subtotal, vat_rate, vat_amount, nhil_rate, nhil_amount, discount_amount, total_amount, notes, valid_until)
+      VALUES (${customer_id}, ${quotation_number}, ${subtotal}, ${vat_rate ?? 15.0}, ${vat_amount}, ${nhil_rate ?? 5.0}, ${nhil_amount ?? 0}, ${discount_amount ?? 0}, ${total_amount}, ${notes ?? null}, ${valid_until ?? null})
       RETURNING *
     `;
 
@@ -109,7 +111,7 @@ export async function PUT(request: Request) {
     const authResult = await requireStaffOrAdmin();
     if (authResult instanceof Response) return authResult;
     const body = await request.json();
-    const { id, customer_id, subtotal, vat_rate, vat_amount, discount_amount, total_amount, notes, valid_until, items } = body;
+    const { id, customer_id, subtotal, vat_rate, vat_amount, nhil_rate, nhil_amount, discount_amount, total_amount, notes, valid_until, items } = body;
     if (!id) return Response.json({ error: 'ID required' }, { status: 400 });
 
     const [updated] = await sql`
@@ -118,6 +120,8 @@ export async function PUT(request: Request) {
           subtotal = COALESCE(${subtotal}, subtotal),
           vat_rate = COALESCE(${vat_rate}, vat_rate),
           vat_amount = COALESCE(${vat_amount}, vat_amount),
+          nhil_rate = COALESCE(${nhil_rate}, nhil_rate),
+          nhil_amount = COALESCE(${nhil_amount}, nhil_amount),
           discount_amount = COALESCE(${discount_amount}, discount_amount),
           total_amount = COALESCE(${total_amount}, total_amount),
           notes = COALESCE(${notes}, notes),

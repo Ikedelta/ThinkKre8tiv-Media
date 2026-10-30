@@ -32,6 +32,7 @@ export default function EditInvoicePage() {
   const [customerId, setCustomerId] = useState('');
   const [items, setItems] = useState<LineItem[]>([{ ...emptyItem }]);
   const [vatRate, setVatRate] = useState(15);
+  const [nhilRate, setNhilRate] = useState(5);
   const [discountAmount, setDiscountAmount] = useState(0);
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
@@ -67,7 +68,8 @@ export default function EditInvoicePage() {
   useEffect(() => {
     if (invoice) {
       setCustomerId(invoice.customer_id || '');
-      setVatRate(Number(invoice.vat_rate) || 0);
+      setVatRate(invoice.vat_rate !== undefined && invoice.vat_rate !== null ? Number(invoice.vat_rate) : 15);
+      setNhilRate(invoice.nhil_rate !== undefined && invoice.nhil_rate !== null ? Number(invoice.nhil_rate) : 5);
       setDiscountAmount(Number(invoice.discount_amount) || 0);
       setDueDate(invoice.due_date ? invoice.due_date.split('T')[0] : '');
       setNotes(invoice.notes || '');
@@ -123,7 +125,8 @@ export default function EditInvoicePage() {
   const subtotal = items.reduce((s, i) => s + Number(i.total_price), 0);
   const subtotalAfterDiscount = Math.max(0, subtotal - Number(discountAmount));
   const vatAmount = (subtotalAfterDiscount * vatRate) / 100;
-  const total = subtotalAfterDiscount + vatAmount;
+  const nhilAmount = (subtotalAfterDiscount * nhilRate) / 100;
+  const total = subtotalAfterDiscount + vatAmount + nhilAmount;
   const fmt = (n: number) => `GH₵${Number(n).toLocaleString()}`;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -141,6 +144,8 @@ export default function EditInvoicePage() {
       subtotal,
       vat_rate: vatRate,
       vat_amount: vatAmount,
+      nhil_rate: nhilRate,
+      nhil_amount: nhilAmount,
       discount_amount: discountAmount,
       total_amount: total,
       due_date: dueDate || null,
@@ -197,12 +202,16 @@ export default function EditInvoicePage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Due Date</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-widest">Due Date (Fixed: 2 Weeks)</label>
+                  <span className="text-[11px] text-slate-400 font-medium">Auto-set to 14 days</span>
+                </div>
                 <input
                   type="date"
                   value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className={inputClass}
+                  readOnly
+                  disabled
+                  className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-slate-100 text-slate-600 cursor-not-allowed outline-none select-none"
                 />
               </div>
             </div>
@@ -343,15 +352,15 @@ export default function EditInvoicePage() {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-500 font-medium">VAT (%)</span>
-                    <input
-                      type="number"
-                      value={vatRate}
-                      min={0}
-                      max={100}
-                      onChange={(e) => setVatRate(parseFloat(e.target.value) || 0)}
-                      className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-sm bg-white focus:ring-1 focus:ring-blue-500 outline-none text-center font-semibold"
-                    />
+                    <span className="text-slate-500 font-medium">NHIL ({nhilRate}%)</span>
+                    <span className="text-xs text-slate-400 font-normal">(Fixed)</span>
+                  </div>
+                  <span className="font-bold text-[#001F3F]">{fmt(nhilAmount)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 font-medium">VAT ({vatRate}%)</span>
+                    <span className="text-xs text-slate-400 font-normal">(Fixed)</span>
                   </div>
                   <span className="font-bold text-[#001F3F]">{fmt(vatAmount)}</span>
                 </div>

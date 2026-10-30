@@ -63,6 +63,8 @@ export async function POST(request: Request) {
       subtotal,
       vat_rate,
       vat_amount,
+      nhil_rate,
+      nhil_amount,
       discount_amount,
       total_amount,
       due_date,
@@ -101,10 +103,10 @@ export async function POST(request: Request) {
 
     const [invoice] = await sql`
       INSERT INTO invoices (
-        customer_id, invoice_number, subtotal, vat_rate, vat_amount,
+        customer_id, invoice_number, subtotal, vat_rate, vat_amount, nhil_rate, nhil_amount,
         discount_amount, total_amount, balance_due, due_date, notes, approval_status, created_by
       ) VALUES (
-        ${finalCustomerId}, ${invoice_number}, ${subtotal}, ${vat_rate ?? 15.0}, ${vat_amount},
+        ${finalCustomerId}, ${invoice_number}, ${subtotal}, ${vat_rate ?? 15.0}, ${vat_amount}, ${nhil_rate ?? 5.0}, ${nhil_amount ?? 0},
         ${discount_amount ?? 0}, ${total_amount}, ${total_amount}, ${due_date}, ${notes ?? null}, ${initialApproval}, ${creatorName}
       ) RETURNING *
     `;
@@ -151,6 +153,8 @@ export async function PUT(request: Request) {
       subtotal,
       vat_rate,
       vat_amount,
+      nhil_rate,
+      nhil_amount,
       discount_amount,
       total_amount,
       due_date,
@@ -215,6 +219,8 @@ export async function PUT(request: Request) {
           subtotal = COALESCE(${subtotal}, subtotal),
           vat_rate = COALESCE(${vat_rate}, vat_rate),
           vat_amount = COALESCE(${vat_amount}, vat_amount),
+          nhil_rate = COALESCE(${nhil_rate}, nhil_rate),
+          nhil_amount = COALESCE(${nhil_amount}, nhil_amount),
           discount_amount = COALESCE(${discount_amount}, discount_amount),
           total_amount = COALESCE(${total_amount}, total_amount),
           balance_due = ${calculatedBalanceDue},
