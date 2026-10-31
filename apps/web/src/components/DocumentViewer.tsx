@@ -334,17 +334,25 @@ export function DocumentViewer({
                     <span className="font-bold">This Payment:</span>
                     <span className="font-mono font-bold text-sm">{fmt(document.amount)}</span>
                   </div>
-                  {document.invoice_balance_due !== undefined && (
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
-                      <span className="font-bold text-slate-900">Remaining Balance:</span>
-                      <span className={cn(
-                        "font-mono font-black text-sm",
-                        Number(document.invoice_balance_due) > 0 ? "text-[#D22630]" : "text-emerald-700"
-                      )}>
-                        {fmt(document.invoice_balance_due)}
-                      </span>
-                    </div>
-                  )}
+                  {(() => {
+                    const totalBilled = Number(document.invoice_total_amount || 0);
+                    const paidUpTo = document.running_paid_up_to_receipt !== undefined 
+                      ? Number(document.running_paid_up_to_receipt) 
+                      : (totalBilled - Number(document.invoice_balance_due || 0));
+                    const remainingBalance = Math.max(0, totalBilled - paidUpTo);
+
+                    return (
+                      <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+                        <span className="font-bold text-slate-900">Remaining Balance:</span>
+                        <span className={cn(
+                          "font-mono font-black text-sm",
+                          remainingBalance > 0 ? "text-[#D22630]" : "text-emerald-700"
+                        )}>
+                          {fmt(remainingBalance)}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </>
               ) : (
                 <>
