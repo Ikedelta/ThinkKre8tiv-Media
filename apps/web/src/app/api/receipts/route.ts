@@ -101,26 +101,6 @@ export async function POST(request: Request) {
       RETURNING *
     `;
 
-    // Recalculate invoice balance accurately (Invoice Total - Total Approved Payments)
-    const [invoiceRecord] = await sql`SELECT total_amount FROM invoices WHERE id = ${finalInvoiceId}`;
-    if (invoiceRecord) {
-      const [sumRecord] = await sql`
-        SELECT COALESCE(SUM(amount), 0) as total_paid
-        FROM payments
-        WHERE invoice_id = ${finalInvoiceId}
-      `;
-      const totalPaid = parseFloat(sumRecord?.total_paid || 0);
-      const totalAmt = parseFloat(invoiceRecord.total_amount || 0);
-      const newBalance = Math.max(0, totalAmt - totalPaid);
-      const newStatus = newBalance <= 0 ? 'paid' : totalPaid > 0 ? 'partial' : 'unpaid';
-
-      await sql`
-        UPDATE invoices
-        SET balance_due = ${newBalance}, status = ${newStatus}, updated_at = NOW()
-        WHERE id = ${finalInvoiceId}
-      `;
-    }
-
     // Check user session
     const session = await auth.api.getSession({ headers: await headers() });
     const userRole = (session?.user as any)?.role;
@@ -133,6 +113,26 @@ export async function POST(request: Request) {
       VALUES (${finalInvoiceId}, ${finalCustomerId}, ${payment.id}, ${receipt_number}, ${amount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, ${initialStatus}, ${userName})
       RETURNING *
     `;
+
+    // Recalculate invoice balance accurately ONLY from APPROVED receipts
+    const [invoiceRecord] = await sql`SELECT total_amount FROM invoices WHERE id = ${finalInvoiceId}`;
+    if (invoiceRecord) {
+      const [sumRecord] = await sql`
+        SELECT COALESCE(SUM(amount), 0) as total_paid
+        FROM receipts
+        WHERE invoice_id = ${finalInvoiceId} AND approval_status = 'approved'
+      `;
+      const totalPaid = parseFloat(sumRecord?.total_paid || 0);
+      const totalAmt = parseFloat(invoiceRecord.total_amount || 0);
+      const newBalance = Math.max(0, totalAmt - totalPaid);
+      const newStatus = newBalance <= 0 ? 'paid' : totalPaid > 0 ? 'partial' : 'unpaid';
+
+      await sql`
+        UPDATE invoices
+        SET balance_due = ${newBalance}, status = ${newStatus}, updated_at = NOW()
+        WHERE id = ${finalInvoiceId}
+      `;
+    }
 
     return Response.json(receipt);
   } catch (error: any) {
@@ -185,20 +185,24 @@ export async function PUT(request: Request) {
         RETURNING *
       `;
 
-      // If approved, update invoice balance
-      if (approval_status === 'approved') {
-        const [invoice] = await sql`SELECT * FROM invoices WHERE id = ${receipt.invoice_id}`;
-        if (invoice) {
-          const currentAmountPaid = parseFloat(invoice.total_amount) - parseFloat(invoice.balance_due);
-          const newAmountPaid = currentAmountPaid + parseFloat(receipt.amount);
-          const newBalance = parseFloat(invoice.total_amount) - newAmountPaid;
-          const newStatus = newBalance <= 0 ? 'paid' : newAmountPaid > 0 ? 'partial' : 'unpaid';
-          await sql`
-            UPDATE invoices
-            SET balance_due = ${Math.max(newBalance, 0)}, status = ${newStatus}, updated_at = NOW()
-            WHERE id = ${receipt.invoice_id}
-          `;
-        }
+      // If approval status changes, recalculate invoice balance from all approved receipts
+      const [invoiceRecord] = await sql`SELECT total_amount FROM invoices WHERE id = ${receipt.invoice_id}`;
+      if (invoiceRecord) {
+        const [sumRecord] = await sql`
+          SELECT COALESCE(SUM(amount), 0) as total_paid
+          FROM receipts
+          WHERE invoice_id = ${receipt.invoice_id} AND approval_status = 'approved'
+        `;
+        const totalPaid = parseFloat(sumRecord?.total_paid || 0);
+        const totalAmt = parseFloat(invoiceRecord.total_amount || 0);
+        const newBalance = Math.max(0, totalAmt - totalPaid);
+        const newStatus = newBalance <= 0 ? 'paid' : totalPaid > 0 ? 'partial' : 'unpaid';
+
+        await sql`
+          UPDATE invoices
+          SET balance_due = ${newBalance}, status = ${newStatus}, updated_at = NOW()
+          WHERE id = ${receipt.invoice_id}
+        `;
       }
       return Response.json(updated);
     }
@@ -283,8 +287,8 @@ export async function DELETE(request: Request) {
       if (invoiceRecord) {
         const [sumRecord] = await sql`
           SELECT COALESCE(SUM(amount), 0) as total_paid
-          FROM payments
-          WHERE invoice_id = ${receipt.invoice_id}
+          FROM receipts
+          WHERE invoice_id = ${receipt.invoice_id} AND approval_status = 'approved'
         `;
         const totalPaid = parseFloat(sumRecord?.total_paid || 0);
         const totalAmt = parseFloat(invoiceRecord.total_amount || 0);

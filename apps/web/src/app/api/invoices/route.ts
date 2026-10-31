@@ -202,11 +202,11 @@ export async function PUT(request: Request) {
       }
     }
 
-    // Compute already paid amount from payments/approved receipts
+    // Compute already paid amount from approved receipts
     const [paidRecord] = await sql`
       SELECT COALESCE(SUM(amount), 0) as total_paid
-      FROM payments
-      WHERE invoice_id = ${id}
+      FROM receipts
+      WHERE invoice_id = ${id} AND approval_status = 'approved'
     `;
     const totalPaid = parseFloat(paidRecord?.total_paid || 0);
     const newTotal = parseFloat(total_amount !== undefined ? total_amount : (subtotal || 0));

@@ -52,21 +52,7 @@ export async function POST(request: Request) {
       RETURNING *
     `;
 
-    // 3. Update the invoice balance and status
-    const currentAmountPaid = parseFloat(invoice.total_amount) - parseFloat(invoice.balance_due);
-    const newAmountPaid = currentAmountPaid + payAmount;
-    const newBalance = parseFloat(invoice.total_amount) - newAmountPaid;
-    
-    // Status logic: if balance is 0 or less, it's paid. If newAmountPaid is > 0 and balance > 0, it's partial.
-    const newStatus = newBalance <= 0 ? 'paid' : newAmountPaid > 0 ? 'partial' : 'unpaid';
-
-    await sql`
-      UPDATE invoices
-      SET balance_due = ${Math.max(newBalance, 0)}, status = ${newStatus}, updated_at = NOW()
-      WHERE id = ${invoice_id}
-    `;
-
-    // 4. Insert receipt record with approval_status tied to user role
+    // 3. Insert receipt record with approval_status tied to user role
     const session = await auth.api.getSession({ headers: await headers() });
     const userRole = (session?.user as any)?.role;
     const userName = session?.user?.name || 'Staff';
@@ -78,6 +64,23 @@ export async function POST(request: Request) {
     await sql`
       INSERT INTO receipts (invoice_id, customer_id, payment_id, receipt_number, amount, payment_method, payment_date, notes, approval_status, created_by)
       VALUES (${invoice_id}, ${invoice.customer_id}, ${payment.id}, ${receipt_number}, ${payAmount}, ${payment_method ?? 'bank_transfer'}, ${payment_date ?? new Date().toISOString()}, ${notes ?? null}, ${initialStatus}, ${userName})
+    `;
+
+    // 4. Update the invoice balance and status ONLY from approved receipts/payments
+    const [approvedSumRecord] = await sql`
+      SELECT COALESCE(SUM(amount), 0) as total_approved
+      FROM receipts
+      WHERE invoice_id = ${invoice_id} AND approval_status = 'approved'
+    `;
+    const totalApprovedPaid = parseFloat(approvedSumRecord?.total_approved || 0);
+    const invoiceTotal = parseFloat(invoice.total_amount || 0);
+    const newBalance = Math.max(0, invoiceTotal - totalApprovedPaid);
+    const newStatus = newBalance <= 0 ? 'paid' : totalApprovedPaid > 0 ? 'partial' : 'unpaid';
+
+    await sql`
+      UPDATE invoices
+      SET balance_due = ${newBalance}, status = ${newStatus}, updated_at = NOW()
+      WHERE id = ${invoice_id}
     `;
 
     await logActivity({
