@@ -248,9 +248,17 @@ export default function ComprehensiveCmsPage() {
         throw new Error(errJson?.error || `Upload failed with status ${res.status}`);
       }
       const data = await res.json();
-      if (data.url) {
-        updateField(itemId, 'image_url', data.url);
-        toast.success('Image uploaded successfully! Click "Save Changes" to publish.');
+      const newUrl = data.url || data.public_url;
+      if (newUrl) {
+        updateField(itemId, 'image_url', newUrl);
+        // Also auto-save immediately to database so users never lose uploaded images if they don't click Save
+        await updateMutation.mutateAsync({
+          id: itemId,
+          image_url: newUrl,
+          section: activeSection
+        });
+        queryClient.invalidateQueries({ queryKey: ['cms'] });
+        toast.success('Image uploaded and saved to live website!');
       }
     } catch (err: any) {
       console.error(err);
