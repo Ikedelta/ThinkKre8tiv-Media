@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Save,
@@ -122,7 +122,7 @@ export default function ComprehensiveCmsPage() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
-  const { data: items = [], isLoading, refetch } = useQuery<CmsItem[]>({
+  const { data: rawItems, isLoading, refetch } = useQuery<CmsItem[]>({
     queryKey: ['cms'],
     queryFn: async () => {
       const res = await fetch('/api/cms');
@@ -131,9 +131,13 @@ export default function ComprehensiveCmsPage() {
     },
   });
 
+  const items = useMemo(() => rawItems || [], [rawItems]);
+
   useEffect(() => {
-    const sectionItems = items.filter((i) => i.section === activeSection);
-    setFormData(sectionItems);
+    if (items.length > 0) {
+      const sectionItems = items.filter((i) => i.section === activeSection);
+      setFormData(sectionItems);
+    }
   }, [items, activeSection]);
 
   const deleteMutation = useMutation({
