@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Printer, Menu, X, ChevronRight } from 'lucide-react';
+import { Printer, Menu, X, ChevronRight, Megaphone, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -18,6 +19,23 @@ export default function PublicNav() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  // Fetch dynamic announcement banner from CMS
+  const { data: cmsItems } = useQuery<any[]>({
+    queryKey: ['cms'],
+    queryFn: async () => {
+      const res = await fetch('/api/cms');
+      if (!res.ok) return [];
+      return res.json();
+    },
+    staleTime: 60 * 1000,
+  });
+
+  const announcementItem = cmsItems?.find(
+    (item) => item.section === 'announcement' || item.id === 'announcement_bar'
+  );
+  const announcementText = announcementItem?.content || announcementItem?.title;
+  const isAnnouncementActive = announcementItem?.is_active !== false && !!announcementText;
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 15);
@@ -27,12 +45,28 @@ export default function PublicNav() {
   }, []);
 
   return (
-    <nav className={cn(
-      "fixed w-full top-0 left-0 z-50 transition-all duration-200",
-      isScrolled 
-        ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xs border-b border-slate-200 dark:border-slate-800 py-2 sm:py-2.5" 
-        : "bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm border-b border-slate-200/60 dark:border-slate-800/60 py-2.5 sm:py-3"
-    )}>
+    <header className="fixed w-full top-0 left-0 z-50">
+      {/* Dynamic Top Announcement Banner Strip */}
+      {isAnnouncementActive && (
+        <div className="bg-[#0F172A] text-slate-200 border-b border-slate-800 text-[11px] sm:text-xs py-1.5 px-4 font-medium transition-all">
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-center">
+            <span className="inline-flex items-center gap-1 bg-[#D22630] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded tracking-wider shrink-0">
+              <Sparkles size={10} /> Notice
+            </span>
+            <span className="truncate max-w-4xl text-slate-300">
+              {announcementText}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Main Navigation Bar */}
+      <nav className={cn(
+        "w-full transition-all duration-200",
+        isScrolled 
+          ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xs border-b border-slate-200 dark:border-slate-800 py-2 sm:py-2.5" 
+          : "bg-white/90 dark:bg-slate-950/90 backdrop-blur-sm border-b border-slate-200/60 dark:border-slate-800/60 py-2.5 sm:py-3"
+      )}>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-12 sm:h-13">
@@ -145,5 +179,6 @@ export default function PublicNav() {
         </>
       )}
     </nav>
+    </header>
   );
 }
