@@ -42,76 +42,86 @@ interface CmsItem {
   is_active: boolean;
 }
 
-const sectionConfig: Record<string, { label: string; desc: string; icon: any; color: string; badge: string }> = {
+const sectionConfig: Record<string, { label: string; desc: string; icon: any; color: string; badge: string; pageGroup: string }> = {
   hero: {
-    label: 'Hero & Mission',
-    desc: 'The executive main headline and corporate value proposition at the top of your homepage.',
+    label: 'Main Headline & Pitch',
+    desc: 'The large introductory headline and short mission pitch at the top of your homepage.',
     icon: Sparkles,
     color: 'text-amber-500',
-    badge: 'Homepage Top'
+    badge: 'Homepage',
+    pageGroup: 'Home Page'
   },
   hero_slides: {
-    label: 'Hero Carousel Slides',
-    desc: 'Sliding photography banner on the hero section with category badges, titles, and descriptions.',
+    label: 'Hero Photo Slider',
+    desc: 'The sliding photo banners on the home page with titles, tags, and background imagery.',
     icon: Layers,
     color: 'text-[#D22630]',
-    badge: 'Hero Slider'
+    badge: 'Homepage',
+    pageGroup: 'Home Page'
   },
   partners: {
-    label: 'Partners & Clients',
-    desc: 'Upload client company logos, set brand names and industries to slide seamlessly across the marquee.',
+    label: 'Client & Partner Logos',
+    desc: 'Upload customer and corporate partner logos to slide across your website marquee.',
     icon: Building2,
     color: 'text-teal-500',
-    badge: 'Sliding Logos'
-  },
-  ceo: {
-    label: 'Executive Statement',
-    desc: 'Managing Director / CEO profile photograph, quotation, and corporate philosophy message.',
-    icon: User,
-    color: 'text-indigo-500',
-    badge: 'Leadership'
-  },
-  about: {
-    label: 'Corporate Heritage',
-    desc: 'Company backstory, founding narrative, and factory establishment paragraphs on the About page.',
-    icon: Award,
-    color: 'text-emerald-500',
-    badge: 'About Page'
+    badge: 'Homepage',
+    pageGroup: 'Home Page'
   },
   services: {
-    label: 'Services & 3D Signage',
-    desc: 'Upload images, update titles, and customize service catalog cards including 3D signage.',
+    label: 'Our Services & Signage',
+    desc: 'Customize service offerings, 3D signs, print catalog cards, and illustrative photos.',
     icon: Layers,
     color: 'text-rose-500',
-    badge: 'Services Page'
+    badge: 'Services Page',
+    pageGroup: 'Services Page'
   },
   expertise: {
-    label: 'Featured Projects & Works',
-    desc: 'Showcase real client printouts, custom packaging jobs, and delivered corporate branding projects.',
+    label: 'Featured Client Projects',
+    desc: 'Showcase completed printouts, custom apparel, and real packaging delivered to clients.',
     icon: CheckCircle2,
     color: 'text-violet-500',
-    badge: 'Recent Works'
+    badge: 'Portfolio',
+    pageGroup: 'Home Page'
+  },
+  about: {
+    label: 'About Company Story',
+    desc: 'The founding narrative, factory establishment backstory, and mission statement.',
+    icon: Award,
+    color: 'text-emerald-500',
+    badge: 'About Page',
+    pageGroup: 'About Page'
+  },
+  ceo: {
+    label: 'CEO & Leadership Message',
+    desc: 'The Managing Director’s photo, executive quote, and corporate philosophy message.',
+    icon: User,
+    color: 'text-indigo-500',
+    badge: 'About / Home',
+    pageGroup: 'About Page'
   },
   carousel: {
-    label: 'Production Showcase',
-    desc: 'Factory floor highlights, high-volume presses, custom boxes, and bespoke brand merchandise.',
+    label: 'Workshop & Factory Showcase',
+    desc: 'Photos of your Heidelberg offset presses, laser machines, and factory floor.',
     icon: ImageIcon,
     color: 'text-blue-500',
-    badge: 'Media Assets'
+    badge: 'Media Gallery',
+    pageGroup: 'Home Page'
   },
   contact: {
-    label: 'Contact & Press Facility',
-    desc: 'Official direct phone numbers, email addresses, and factory location in Accra.',
+    label: 'Contact Information',
+    desc: 'Official phone numbers, email addresses, and Osu Accra factory complex location.',
     icon: Phone,
     color: 'text-purple-500',
-    badge: 'Contact Details'
+    badge: 'Contact Page',
+    pageGroup: 'Contact Page'
   },
   announcement: {
-    label: 'Alerts & Banner',
-    desc: 'Top notification strip and announcement messages across website headers.',
+    label: 'Top Announcement Banner',
+    desc: 'The announcement strip shown across website headers (promotions, holiday hours, etc.).',
     icon: BellRing,
     color: 'text-amber-600',
-    badge: 'Header Banner'
+    badge: 'All Pages',
+    pageGroup: 'Global Site'
   }
 };
 
@@ -299,66 +309,77 @@ export default function ComprehensiveCmsPage() {
       {/* Main Grid: Ultra-Modern Clean Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
-        {/* Left Navigation Sidebar */}
+        {/* Left Navigation Sidebar - Organized By Page Groups */}
         <div className="lg:col-span-4 space-y-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 px-3 py-2">
-              Website Sections
-            </p>
-            <div className="space-y-1">
-              {Object.entries(sectionConfig).map(([key, config]) => {
-                const Icon = config.icon;
-                const isActive = activeSection === key;
-                const count = items.filter(i => i.section === key).length;
+            <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-2">
+              <p className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                Choose Page to Edit
+              </p>
+              <p className="text-[11px] text-slate-400">Select any section below to edit its text and photos</p>
+            </div>
+
+            <div className="space-y-4">
+              {['Home Page', 'Services Page', 'About Page', 'Contact Page', 'Global Site'].map((group) => {
+                const groupSections = Object.entries(sectionConfig).filter(([_, cfg]) => cfg.pageGroup === group);
+                if (groupSections.length === 0) return null;
 
                 return (
-                  <button
-                    key={key}
-                    onClick={() => setActiveSection(key)}
-                    className={cn(
-                      "w-full flex items-center justify-between p-3 rounded-xl text-left transition-all cursor-pointer group",
-                      isActive
-                        ? "bg-[#0F172A] text-white shadow-xs"
-                        : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
-                    )}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={cn(
-                        "p-2 rounded-lg transition-colors",
-                        isActive ? "bg-white/10 text-white" : "bg-slate-100 dark:bg-slate-800",
-                        !isActive && config.color
-                      )}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-                      <div className="truncate">
-                        <p className="text-sm font-bold truncate leading-tight">{config.label}</p>
-                        <p className={cn(
-                          "text-xs truncate mt-0.5",
-                          isActive ? "text-slate-300" : "text-slate-400"
-                        )}>
-                          {config.badge}
-                        </p>
-                      </div>
-                    </div>
-
-                    <span className={cn(
-                      "text-xs font-mono font-bold px-2 py-0.5 rounded-full ml-2 shrink-0",
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-500"
-                    )}>
-                      {count}
+                  <div key={group} className="space-y-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 block">
+                      {group}
                     </span>
-                  </button>
+                    {groupSections.map(([key, config]) => {
+                      const Icon = config.icon;
+                      const isActive = activeSection === key;
+                      const count = items.filter(i => i.section === key).length;
+
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => setActiveSection(key)}
+                          className={cn(
+                            "w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all cursor-pointer group",
+                            isActive
+                              ? "bg-[#0F172A] text-white shadow-xs"
+                              : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
+                          )}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={cn(
+                              "p-1.5 rounded-lg transition-colors shrink-0",
+                              isActive ? "bg-white/10 text-white" : "bg-slate-100 dark:bg-slate-800",
+                              !isActive && config.color
+                            )}>
+                              <Icon className="w-4 h-4" />
+                            </div>
+                            <div className="truncate">
+                              <p className="text-xs sm:text-sm font-bold truncate leading-tight">{config.label}</p>
+                            </div>
+                          </div>
+
+                          <span className={cn(
+                            "text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md ml-2 shrink-0",
+                            isActive
+                              ? "bg-white/20 text-white"
+                              : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                          )}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 );
               })}
             </div>
           </div>
 
           <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 space-y-1">
-            <p className="font-bold text-slate-700 dark:text-slate-300">💡 Instant Website Sync</p>
-            <p className="leading-relaxed">
-              Upload photos or edit text, then click &quot;Save Changes&quot; to update your live website immediately.
+            <p className="font-bold text-slate-800 dark:text-slate-200">✨ Simple 2-Step Process</p>
+            <p className="leading-relaxed text-[11px] text-slate-500">
+              1. Type your changes or click &quot;Upload Photo&quot;.<br/>
+              2. Click <strong>Save Changes</strong> to update the live site instantly.
             </p>
           </div>
         </div>
