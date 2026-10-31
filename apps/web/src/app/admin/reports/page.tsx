@@ -259,7 +259,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Professional Print Report Template (Visible only when Printing) */}
-      <div className="hidden print:block font-sans text-slate-900 bg-white p-2">
+      <div className="hidden print:block font-sans text-slate-900 bg-white p-10 max-w-[210mm] mx-auto box-border">
         <div className="border-b-2 border-slate-900 pb-4 mb-5">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-3.5">
