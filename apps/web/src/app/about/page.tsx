@@ -155,25 +155,59 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Corporate Statistics Banner */}
-      <section className="py-16 bg-[#001F3F] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-white/10">
-            <div className="space-y-1 pt-4 md:pt-0">
-              <p className="text-3xl sm:text-4xl font-black text-amber-300">12+</p>
-              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">Years in Operation</p>
-            </div>
-            <div className="space-y-1 pt-4 md:pt-0">
-              <p className="text-3xl sm:text-4xl font-black text-white">5,000+</p>
-              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">Projects Completed</p>
-            </div>
-            <div className="space-y-1 pt-4 md:pt-0">
-              <p className="text-3xl sm:text-4xl font-black text-amber-300">99.8%</p>
-              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">On-Time Turnaround</p>
-            </div>
-            <div className="space-y-1 pt-4 md:pt-0">
-              <p className="text-3xl sm:text-4xl font-black text-white">100%</p>
-              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">Accra Factory Output</p>
+      {/* Interactive Experience & Facility Video/Showcase Ribbon */}
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#D22630_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="rounded-3xl bg-gradient-to-br from-slate-800/90 via-slate-850 to-slate-900 border border-slate-700/80 p-8 sm:p-12 shadow-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-bold uppercase tracking-wider">
+                  <Sparkles size={13} /> Accra Integrated Production Facility
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Experience Industrial Printing Without Boundaries
+                </h3>
+                <p className="text-sm text-slate-300 leading-relaxed max-w-xl font-normal">
+                  Whether you require 10,000 custom laminated gift boxes for an annual summit or 3D architectural signage for your regional headquarters, our factory floor handles every stage from digital pre-press to final courier delivery.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <Link href="/services">
+                    <button className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-2">
+                      Explore All Capabilities <ArrowRight size={14} />
+                    </button>
+                  </Link>
+                  <Link href="/contact">
+                    <button className="bg-white/10 hover:bg-white/20 text-white text-xs font-bold uppercase tracking-wider px-6 py-3 rounded-xl border border-white/20 transition-all cursor-pointer">
+                      Schedule Factory Visit
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+                <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm space-y-1">
+                  <p className="text-2xl sm:text-3xl font-black text-amber-400 font-mono">12+ Yrs</p>
+                  <p className="text-xs font-bold text-white">Proven Track Record</p>
+                  <p className="text-[11px] text-slate-400">Serving enterprise brands across Ghana & West Africa.</p>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm space-y-1">
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">5,000+</p>
+                  <p className="text-xs font-bold text-white">Executed Projects</p>
+                  <p className="text-[11px] text-slate-400">From luxury packaging to fleet wraps.</p>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm space-y-1">
+                  <p className="text-2xl sm:text-3xl font-black text-blue-400 font-mono">99.8%</p>
+                  <p className="text-xs font-bold text-white">On-Time Accuracy</p>
+                  <p className="text-[11px] text-slate-400">Heidelberg automated offset reliability.</p>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-5 rounded-2xl backdrop-blur-sm space-y-1">
+                  <p className="text-2xl sm:text-3xl font-black text-purple-400 font-mono">100%</p>
+                  <p className="text-xs font-bold text-white">Accra Local Output</p>
+                  <p className="text-[11px] text-slate-400">Zero sub-contracting delay risk.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
