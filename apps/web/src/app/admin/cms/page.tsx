@@ -281,7 +281,7 @@ export default function ComprehensiveCmsPage() {
   return (
     <div className="space-y-8 max-w-[1440px] mx-auto pb-16 font-sans">
       
-      {/* Top Banner Header: Matching Dashboard Typography Exactly */}
+      {/* Top Banner Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
@@ -314,115 +314,70 @@ export default function ComprehensiveCmsPage() {
         </div>
       </div>
 
-      {/* Main Grid: Ultra-Modern Clean Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left Navigation Sidebar - Organized By Page Groups */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-xs">
-            <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-2">
-              <p className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                Choose Page to Edit
-              </p>
-              <p className="text-[11px] text-slate-400">Select any section below to edit its text and photos</p>
-            </div>
+      {/* Modern Horizontal Navigation Tabs */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2 shadow-xs space-y-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {Object.entries(sectionConfig).map(([key, config]) => {
+            const Icon = config.icon;
+            const isActive = activeSection === key;
+            const count = items.filter(i => i.section === key).length;
 
-            <div className="space-y-4">
-              {['Home Page', 'Services Page', 'About Page', 'Contact Page', 'Global Site'].map((group) => {
-                const groupSections = Object.entries(sectionConfig).filter(([_, cfg]) => cfg.pageGroup === group);
-                if (groupSections.length === 0) return null;
-
-                return (
-                  <div key={group} className="space-y-1">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-3 block">
-                      {group}
-                    </span>
-                    {groupSections.map(([key, config]) => {
-                      const Icon = config.icon;
-                      const isActive = activeSection === key;
-                      const count = items.filter(i => i.section === key).length;
-
-                      return (
-                        <button
-                          key={key}
-                          onClick={() => setActiveSection(key)}
-                          className={cn(
-                            "w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-all cursor-pointer group",
-                            isActive
-                              ? "bg-[#0F172A] text-white shadow-xs"
-                              : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
-                          )}
-                        >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <div className={cn(
-                              "p-1.5 rounded-lg transition-colors shrink-0",
-                              isActive ? "bg-white/10 text-white" : "bg-slate-100 dark:bg-slate-800",
-                              !isActive && config.color
-                            )}>
-                              <Icon className="w-4 h-4" />
-                            </div>
-                            <div className="truncate">
-                              <p className="text-xs sm:text-sm font-bold truncate leading-tight">{config.label}</p>
-                            </div>
-                          </div>
-
-                          <span className={cn(
-                            "text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md ml-2 shrink-0",
-                            isActive
-                              ? "bg-white/20 text-white"
-                              : "bg-slate-100 dark:bg-slate-800 text-slate-400"
-                          )}>
-                            {count}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 space-y-1">
-            <p className="font-bold text-slate-800 dark:text-slate-200">✨ Simple 2-Step Process</p>
-            <p className="leading-relaxed text-[11px] text-slate-500">
-              1. Type your changes or click &quot;Upload Photo&quot;.<br/>
-              2. Click <strong>Save Changes</strong> to update the live site instantly.
-            </p>
-          </div>
-        </div>
-
-        {/* Right Content Editor Panel */}
-        <div className="lg:col-span-8 space-y-6">
-          <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs rounded-2xl overflow-hidden">
-            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <CurrentIcon className={cn("w-5 h-5", currentSection.color)} />
-                  <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
-                    {currentSection.label}
-                  </CardTitle>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1">{currentSection.desc}</p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {['hero_slides', 'carousel', 'expertise', 'partners'].includes(activeSection) && (
-                  <Button
-                    size="sm"
-                    onClick={handleAddNewSlide}
-                    className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold gap-1.5 h-9 px-4 shadow-xs cursor-pointer"
-                  >
-                    <Plus size={14} /> {activeSection === 'partners' ? 'Add Client Logo' : 'Add Item'}
-                  </Button>
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveSection(key)}
+                className={cn(
+                  "flex items-center gap-2 px-3.5 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition-all cursor-pointer shrink-0",
+                  isActive
+                    ? "bg-[#0F172A] text-white shadow-sm"
+                    : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
                 )}
-                <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
-                  {currentSection.badge}
+              >
+                <Icon className={cn("w-4 h-4", !isActive && config.color)} />
+                <span>{config.label}</span>
+                <span className={cn(
+                  "text-[10px] font-mono px-1.5 py-0.5 rounded-md",
+                  isActive ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                )}>
+                  {count}
                 </span>
-              </div>
-            </CardHeader>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-            <CardContent className="p-6 space-y-6">
+      {/* Content Editor Panel */}
+      <div className="space-y-6">
+        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs rounded-2xl overflow-hidden">
+          <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <CurrentIcon className={cn("w-5 h-5", currentSection.color)} />
+                <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
+                  {currentSection.label}
+                </CardTitle>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">{currentSection.desc}</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {['hero_slides', 'carousel', 'expertise', 'partners'].includes(activeSection) && (
+                <Button
+                  size="sm"
+                  onClick={handleAddNewSlide}
+                  className="bg-[#D22630] hover:bg-[#b81d26] text-white text-xs font-bold gap-1.5 h-9 px-4 shadow-xs cursor-pointer"
+                >
+                  <Plus size={14} /> {activeSection === 'partners' ? 'Add Client Logo' : 'Add Item'}
+                </Button>
+              )}
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                {currentSection.badge}
+              </span>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-6 space-y-6">
               {isLoading ? (
                 <div className="py-16 text-center space-y-3">
                   <Loader2 className="w-8 h-8 animate-spin text-[#D22630] mx-auto" />
@@ -690,8 +645,6 @@ export default function ComprehensiveCmsPage() {
             </CardContent>
           </Card>
         </div>
-
-      </div>
 
     </div>
   );

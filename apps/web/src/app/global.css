@@ -175,6 +175,17 @@
     input, button, textarea, select {
         font-family: inherit;
     }
+
+    /* Remove browser default stepper spin buttons on number inputs across the entire application */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
 }
 
 @keyframes gradient-x {
