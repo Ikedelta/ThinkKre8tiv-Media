@@ -237,7 +237,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto pb-12 font-sans">
       {/* Top Header & Export Action */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 print:hidden">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Financial & Operational Reports
@@ -247,7 +247,7 @@ export default function ReportsPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 print:hidden">
+        <div className="flex items-center gap-3">
           <Button
             onClick={() => window.print()}
             variant="outline"
@@ -258,9 +258,9 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* Professional Print Report Template */}
-      <div className="hidden print:block mb-6">
-        <div className="border-b-2 border-slate-900 pb-5 mb-5">
+      {/* Professional Print Report Template (Visible only when Printing) */}
+      <div className="hidden print:block font-sans text-slate-900 bg-white p-2">
+        <div className="border-b-2 border-slate-900 pb-4 mb-5">
           <div className="flex justify-between items-start">
             <div className="flex items-center gap-3.5">
               <div className="w-14 h-14 bg-white rounded-xl border border-slate-200 p-2 shrink-0 flex items-center justify-center">
@@ -280,8 +280,8 @@ export default function ReportsPage() {
             </div>
 
             <div className="text-right">
-              <span className="inline-block bg-slate-900 text-white text-[9px] font-black uppercase px-2.5 py-1 rounded tracking-widest mb-1.5">
-                EXECUTIVE REPORT
+              <span className="inline-block bg-slate-900 text-white text-[9px] font-black uppercase px-2.5 py-1 rounded tracking-widest mb-1">
+                EXECUTIVE AUDIT REPORT
               </span>
               <p className="text-xs font-bold text-slate-800">
                 Period: <span className="text-[#D22630] font-black">{selectedRange === 'custom' && appliedCustom ? `${appliedCustom.start} to ${appliedCustom.end}` : rangeButtons.find((btn) => btn.id === selectedRange)?.label || selectedRange}</span>
@@ -293,41 +293,132 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* Executive Summary Grid for Print */}
-        <div className="grid grid-cols-5 gap-2.5 mb-6">
-          <div className="border border-slate-200 bg-slate-50/70 p-3 rounded-lg text-center">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 block mb-0.5">Total Billed</span>
+        {/* Executive KPI Summary Cards */}
+        <div className="grid grid-cols-5 gap-3 mb-6">
+          <div className="border border-slate-300 bg-slate-50/80 p-3 rounded-lg text-center">
+            <span className="text-[9px] font-black uppercase tracking-wider text-slate-600 block mb-0.5">Total Billed</span>
             <span className="text-sm font-black text-slate-900 font-mono">{fmt(rev?.total_billed ?? 0)}</span>
-            <span className="text-[9px] text-slate-400 block mt-0.5">{rev?.total_invoices ?? 0} invoices</span>
+            <span className="text-[9px] text-slate-500 block mt-0.5">{rev?.total_invoices ?? 0} invoices</span>
           </div>
-          <div className="border border-emerald-200 bg-emerald-50/60 p-3 rounded-lg text-center">
+          <div className="border border-emerald-300 bg-emerald-50/70 p-3 rounded-lg text-center">
             <span className="text-[9px] font-black uppercase tracking-wider text-emerald-800 block mb-0.5">Total Collected</span>
             <span className="text-sm font-black text-emerald-900 font-mono">{fmt(pay?.total_collected ?? rev?.total_revenue ?? 0)}</span>
             <span className="text-[9px] text-emerald-700 block mt-0.5">{pay?.total_payments ?? rev?.paid_invoices ?? 0} settlements</span>
           </div>
-          <div className="border border-amber-200 bg-amber-50/60 p-3 rounded-lg text-center">
+          <div className="border border-amber-300 bg-amber-50/70 p-3 rounded-lg text-center">
             <span className="text-[9px] font-black uppercase tracking-wider text-amber-800 block mb-0.5">Receivables Due</span>
             <span className="text-sm font-black text-amber-900 font-mono">{fmt(rev?.total_outstanding ?? 0)}</span>
             <span className="text-[9px] text-amber-700 block mt-0.5">Outstanding</span>
           </div>
-          <div className="border border-rose-200 bg-rose-50/60 p-3 rounded-lg text-center">
+          <div className="border border-rose-300 bg-rose-50/70 p-3 rounded-lg text-center">
             <span className="text-[9px] font-black uppercase tracking-wider text-rose-800 block mb-0.5">Total Expenses</span>
             <span className="text-sm font-black text-rose-900 font-mono">{fmt(exp?.total_expenses ?? 0)}</span>
-            <span className="text-[9px] text-rose-700 block mt-0.5">{exp?.total_records ?? 0} records</span>
+            <span className="text-[9px] text-rose-700 block mt-0.5">{exp?.total_records ?? 0} disbursements</span>
           </div>
-          <div className={cn("border p-3 rounded-lg text-center", isProfitable ? "border-blue-200 bg-blue-50/60" : "border-rose-200 bg-rose-50/60")}>
-            <span className="text-[9px] font-black uppercase tracking-wider block mb-0.5 text-slate-600">Net Profit</span>
+          <div className={cn("border p-3 rounded-lg text-center", isProfitable ? "border-blue-300 bg-blue-50/70" : "border-rose-300 bg-rose-50/70")}>
+            <span className="text-[9px] font-black uppercase tracking-wider block mb-0.5 text-slate-700">Net Profit</span>
             <span className={cn("text-sm font-black font-mono", isProfitable ? "text-blue-900" : "text-rose-900")}>
               {fmt(Math.abs(profitGross))}
             </span>
-            <span className="text-[9px] text-slate-500 block mt-0.5">{isProfitable ? `+${data?.profit?.netMarginPct || 0}% margin` : 'Deficit'}</span>
+            <span className="text-[9px] text-slate-600 block mt-0.5">{isProfitable ? `+${data?.profit?.netMarginPct || 0}% margin` : 'Deficit'}</span>
           </div>
         </div>
 
-        {/* Print Sign-off Bar */}
-        <div className="border-t border-slate-300 pt-3 flex justify-between items-center text-[10px] text-slate-500">
-          <span>Think Kre8tiv Media ERP &bull; Confidential Business Financial Record</span>
-          <span className="font-semibold text-slate-700">Audit Verified &bull; Page 1 of 1</span>
+        {/* Itemized Audit Breakdown for Print */}
+        <div className="space-y-5">
+          {/* Recent Invoices Table */}
+          <div>
+            <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-300">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                Invoices &amp; Receivables Audit ({data?.detailedInvoices?.length || 0} records)
+              </h3>
+              <span className="text-[10px] text-slate-500 font-medium">Currency: GHS (GH₵)</span>
+            </div>
+            <table className="w-full text-left text-[10px] border border-slate-200">
+              <thead className="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th className="px-2.5 py-1.5">Invoice #</th>
+                  <th className="px-2.5 py-1.5">Customer Name</th>
+                  <th className="px-2.5 py-1.5">Date</th>
+                  <th className="px-2.5 py-1.5 text-right">Total Amount</th>
+                  <th className="px-2.5 py-1.5 text-right">Balance Due</th>
+                  <th className="px-2.5 py-1.5 text-center">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {(data?.detailedInvoices ?? []).length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-2.5 py-4 text-center text-slate-400">
+                      No invoices recorded for this period
+                    </td>
+                  </tr>
+                ) : (
+                  (data?.detailedInvoices ?? []).slice(0, 15).map((inv) => (
+                    <tr key={inv.id}>
+                      <td className="px-2.5 py-1.5 font-bold">{inv.invoice_number}</td>
+                      <td className="px-2.5 py-1.5">{inv.customer_name}</td>
+                      <td className="px-2.5 py-1.5 text-slate-600">{new Date(inv.created_at).toLocaleDateString()}</td>
+                      <td className="px-2.5 py-1.5 text-right font-bold">{fmt(inv.total_amount)}</td>
+                      <td className="px-2.5 py-1.5 text-right font-bold text-rose-700">{fmt(inv.balance_due)}</td>
+                      <td className="px-2.5 py-1.5 text-center uppercase font-bold text-[9px]">{inv.status}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Expenses Table */}
+          <div>
+            <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-300">
+              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                Operational Expenses Audit ({data?.detailedExpenses?.length || 0} disbursements)
+              </h3>
+            </div>
+            <table className="w-full text-left text-[10px] border border-slate-200">
+              <thead className="bg-slate-100 text-slate-700 font-bold uppercase tracking-wider border-b border-slate-200">
+                <tr>
+                  <th className="px-2.5 py-1.5">Date</th>
+                  <th className="px-2.5 py-1.5">Description / Purpose</th>
+                  <th className="px-2.5 py-1.5">Payment Method</th>
+                  <th className="px-2.5 py-1.5 text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {(data?.detailedExpenses ?? []).length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-2.5 py-4 text-center text-slate-400">
+                      No operational expenses recorded for this period
+                    </td>
+                  </tr>
+                ) : (
+                  (data?.detailedExpenses ?? []).slice(0, 10).map((expense) => (
+                    <tr key={expense.id}>
+                      <td className="px-2.5 py-1.5 text-slate-600">{new Date(expense.date || expense.created_at).toLocaleDateString()}</td>
+                      <td className="px-2.5 py-1.5 font-medium">{expense.description || 'General Disbursement'}</td>
+                      <td className="px-2.5 py-1.5 uppercase text-[9px] text-slate-600">{expense.payment_method?.replace('_', ' ') || 'Cash / Bank'}</td>
+                      <td className="px-2.5 py-1.5 text-right font-bold text-rose-700">{fmt(expense.amount)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Verification & Signatures */}
+        <div className="mt-8 pt-4 border-t border-slate-300 flex justify-between items-end text-[10px]">
+          <div>
+            <p className="font-bold text-slate-800">OFFICIAL AUDIT VERIFICATION</p>
+            <p className="text-slate-500">Think Kre8tiv Media ERP &bull; Confidential Business Financial Record</p>
+            <p className="text-slate-400 mt-1">Audit Verified &bull; Authorized by Tech 34 Systems</p>
+          </div>
+          <div className="text-right">
+            <div className="w-40 border-b border-slate-800 pb-1 mb-1">
+              <span className="font-serif italic font-bold text-slate-800">Think Kre8tiv Management</span>
+            </div>
+            <span className="text-[9px] text-slate-500 uppercase tracking-wider">Authorized Signature &amp; Stamp</span>
+          </div>
         </div>
       </div>
 
@@ -386,7 +477,7 @@ export default function ReportsPage() {
       </Card>
 
       {/* KPI Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 print:grid-cols-5 print:gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 print:hidden">
         {summaryCards.map((card) => (
           <Card key={card.label} className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs hover:shadow-sm transition-all rounded-xl print:shadow-none print:break-inside-avoid">
             <CardContent className="p-4 sm:p-5">
@@ -444,7 +535,7 @@ export default function ReportsPage() {
 
       {/* TAB 1: Visual Analytics */}
       {activeTab === 'analytics' && (
-        <div className="space-y-6">
+        <div className="space-y-6 print:hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Revenue Trend Bar Chart */}
             <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl">
@@ -616,7 +707,7 @@ export default function ReportsPage() {
 
       {/* TAB 2: Detailed Invoices Table */}
       {activeTab === 'invoices' && (
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl overflow-hidden">
+        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl overflow-hidden print:hidden">
           <CardHeader className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Itemized Invoices in Selected Duration
@@ -694,7 +785,7 @@ export default function ReportsPage() {
 
       {/* TAB 3: Itemized Expenses Table */}
       {activeTab === 'expenses' && (
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl overflow-hidden">
+        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-xl overflow-hidden print:hidden">
           <CardHeader className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Itemized Expenses in Selected Duration

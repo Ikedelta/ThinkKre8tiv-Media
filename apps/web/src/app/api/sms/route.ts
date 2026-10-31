@@ -76,7 +76,12 @@ export async function POST(request: Request) {
 
     const [settings] =
       await sql`SELECT sms_balance, sms_api_key, sms_sender_id FROM app_settings WHERE id = 'default'`;
-    const creditsNeeded = recipients.length;
+
+    // Calculate credits per recipient based on standard GSM length
+    // Standard SMS is 160 characters, multi-part concatenations are 153 chars per segment
+    const msgLen = message.length;
+    const creditsPerRecipient = msgLen <= 160 ? 1 : Math.ceil(msgLen / 153);
+    const creditsNeeded = recipients.length * creditsPerRecipient;
 
     const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY || settings?.sms_api_key;
     const arkeselSenderId = process.env.ARKESEL_SMS_SENDER_ID || settings?.sms_sender_id || 'ThinkKre8';
@@ -117,25 +122,30 @@ export async function POST(request: Request) {
       return Response.json({ error: `Failed to send SMS via Arkesel. Details: ${errorData}` }, { status: 502 });
     }
 
-    // Log each SMS
+    // Log each SMS with accurate points/credits calculated
     for (const r of recipients) {
       await sql`
         INSERT INTO sms_logs (recipient_name, recipient_phone, message, status, sent_by, credits_used)
-        VALUES (${r.name ?? null}, ${r.phone}, ${message}, 'sent', ${session.user.name}, 1)
+        VALUES (${r.name ?? null}, ${r.phone}, ${message}, 'sent', ${session.user.name}, ${creditsPerRecipient})
       `;
     }
 
     // Deduct credits
     await sql`
-      UPDATE app_settings SET sms_balance = sms_balance - ${creditsNeeded} WHERE id = 'default'
+      UPDATE app_settings SET sms_balance = GREATEST(0, sms_balance - ${creditsNeeded}) WHERE id = 'default'
     `;
 
     await sql`
       INSERT INTO activity_logs (user_name, action, resource, details)
-      VALUES (${session.user.name}, 'Sent SMS', 'sms', ${`Sent to ${creditsNeeded} recipient(s)`})
+      VALUES (${session.user.name}, 'Sent SMS', 'sms', ${`Sent ${creditsNeeded} credit(s) to ${recipients.length} recipient(s)`})
     `;
 
-    return Response.json({ success: true, sent: creditsNeeded });
+    return Response.json({ 
+      success: true, 
+      sent: recipients.length, 
+      creditsUsed: creditsNeeded,
+      creditsPerRecipient 
+    });
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'Failed to send SMS' }, { status: 500 });
