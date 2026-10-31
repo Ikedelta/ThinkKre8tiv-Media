@@ -110,38 +110,38 @@ export function DocumentViewer({
   const renderSharedDocumentTemplate = () => (
     <div
       className={cn(
-        "document-viewer-a4 bg-white text-slate-900 shadow-2xl w-full max-w-[760px] relative flex flex-col shrink-0 print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 rounded-2xl print:rounded-none overflow-hidden border border-slate-200/90 print:border-none",
+        "document-viewer-a4 bg-white text-slate-900 shadow-2xl w-full max-w-[760px] min-h-[1050px] relative flex flex-col shrink-0 print:shadow-none print:w-full print:max-w-none print:min-w-0 print:min-h-0 print:m-0 rounded-2xl print:rounded-none overflow-hidden border border-slate-200/90 print:border-none",
         inline ? "mx-auto" : "my-auto"
       )}
       style={{ fontFamily: 'var(--font-montserrat), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
     >
       {/* Top Voucher Stub Accent Header */}
-      <div className={cn("bg-gradient-to-r text-white p-5 sm:p-6 relative overflow-hidden print:p-6", themeStyles.headerGradient)}>
+      <div className={cn("bg-gradient-to-r text-white p-6 sm:p-7 relative overflow-hidden print:p-7", themeStyles.headerGradient)}>
         <div className="absolute -right-12 -top-12 w-48 h-48 bg-white/10 rounded-full blur-xl pointer-events-none" />
         
         <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-14 h-14 bg-white rounded-xl p-2 shrink-0 shadow-lg flex items-center justify-center">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-white rounded-xl p-2 shrink-0 shadow-lg flex items-center justify-center">
               <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-lg sm:text-xl font-black tracking-tight text-white uppercase">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">
                   THINK <span className={isReceipt ? "text-emerald-300" : "text-amber-300"}>KRE8TIV</span>
                 </span>
-                <span className={cn("text-[8px] font-bold uppercase px-1.5 py-0.5 rounded tracking-wider border", themeStyles.badgeBg)}>
+                <span className={cn("text-[9px] font-bold uppercase px-2 py-0.5 rounded tracking-wider border", themeStyles.badgeBg)}>
                   {themeStyles.badgeText}
                 </span>
               </div>
-              <p className="text-[10px] font-medium text-slate-200">
+              <p className="text-xs font-medium text-slate-200 mt-0.5">
                 Accra OSU, Haramani Sport &bull; +233 24 468 1391
               </p>
             </div>
           </div>
 
-          <div className="text-left sm:text-right bg-black/25 border border-white/20 rounded-xl p-2.5 sm:px-3.5 sm:py-2">
-            <p className="text-[9px] font-bold uppercase tracking-widest text-slate-300">{themeStyles.voucherLabel}</p>
-            <p className="text-base font-mono font-black text-white">{docNumber}</p>
+          <div className="text-left sm:text-right bg-black/25 border border-white/20 rounded-xl px-4 py-2.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">{themeStyles.voucherLabel}</p>
+            <p className="text-lg font-mono font-black text-white">{docNumber}</p>
           </div>
         </div>
       </div>
@@ -158,11 +158,11 @@ export function DocumentViewer({
       </div>
 
       {/* Main Body */}
-      <div className="p-6 sm:p-8 relative flex-1 flex flex-col justify-between bg-white space-y-5">
+      <div className="p-6 sm:p-9 relative flex-1 flex flex-col justify-between bg-white space-y-7 print:p-8">
         
         {/* Verification Shield Watermark */}
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none z-0">
-          <BadgeCheck className="w-[300px] h-[300px] text-slate-900" />
+          <BadgeCheck className="w-[340px] h-[340px] text-slate-900" />
         </div>
 
         {isPaid && isInvoice && (
@@ -173,138 +173,140 @@ export function DocumentViewer({
           </div>
         )}
 
-        <div className="relative z-10 space-y-5">
+        <div className="relative z-10 space-y-7 flex-1 flex flex-col justify-between">
           
-          {/* Main Top Summary Card */}
-          <div className={cn("border rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs", themeStyles.bannerBg)}>
-            <div className="space-y-1">
-              <span className={cn("text-xs font-black uppercase tracking-wider flex items-center gap-1.5", themeStyles.bannerTitle)}>
-                <CheckCircle2 size={16} className={themeStyles.bannerIcon} />
-                <span>{themeStyles.bannerTitleText}</span>
-              </span>
-              <p className={cn("text-xs", themeStyles.bannerSubtext)}>
-                Date:{' '}
-                <strong>{docDate ? new Date(docDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</strong>
-                {document.due_date && isInvoice && (
-                  <span> &bull; Due: <strong className="text-[#D22630]">{new Date(document.due_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong></span>
-                )}
-              </p>
-            </div>
-            <div className="text-left sm:text-right">
-              <span className={cn("text-[10px] font-bold uppercase tracking-wider block", themeStyles.bannerTotalLabel)}>
-                {isReceipt ? 'Total Amount Paid' : 'Total Amount Due'}
-              </span>
-              <span className={cn("text-2xl sm:text-3xl font-black font-mono", themeStyles.bannerTotalValue)}>
-                {fmt(isReceipt ? document.amount : (document.total_amount || document.amount))}
-              </span>
-            </div>
-          </div>
-
-          {/* Clean Client & Transaction Details Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/70 rounded-xl p-4 border border-slate-200">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
-                {isReceipt ? 'Received From' : 'Billed To'}
-              </span>
-              <h4 className="text-sm font-bold text-slate-900 leading-snug">
-                {document.customer_name || 'Customer / Client'}
-              </h4>
-              {document.customer_company && (
-                <p className="text-xs text-slate-600 font-semibold mt-0.5 flex items-center gap-1">
-                  <Building2 size={12} className="text-slate-400" />
-                  <span>{document.customer_company}</span>
+          <div className="space-y-6">
+            {/* Main Top Summary Card */}
+            <div className={cn("border rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs", themeStyles.bannerBg)}>
+              <div className="space-y-1.5">
+                <span className={cn("text-sm font-black uppercase tracking-wider flex items-center gap-2", themeStyles.bannerTitle)}>
+                  <CheckCircle2 size={18} className={themeStyles.bannerIcon} />
+                  <span>{themeStyles.bannerTitleText}</span>
+                </span>
+                <p className={cn("text-xs", themeStyles.bannerSubtext)}>
+                  Date:{' '}
+                  <strong>{docDate ? new Date(docDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</strong>
+                  {document.due_date && isInvoice && (
+                    <span> &bull; Due: <strong className="text-[#D22630]">{new Date(document.due_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</strong></span>
+                  )}
                 </p>
-              )}
-              <div className="text-xs text-slate-500 font-medium space-y-0.5 pt-1">
-                {document.customer_phone && <p>Tel: {document.customer_phone}</p>}
-                {document.customer_email && <p>Email: {document.customer_email}</p>}
+              </div>
+              <div className="text-left sm:text-right">
+                <span className={cn("text-[11px] font-bold uppercase tracking-wider block", themeStyles.bannerTotalLabel)}>
+                  {isReceipt ? 'Total Amount Paid' : 'Total Amount Due'}
+                </span>
+                <span className={cn("text-3xl sm:text-4xl font-black font-mono tracking-tight", themeStyles.bannerTotalValue)}>
+                  {fmt(isReceipt ? document.amount : (document.total_amount || document.amount))}
+                </span>
               </div>
             </div>
 
-            <div className="space-y-2 sm:border-l sm:border-slate-200 sm:pl-5 flex flex-col justify-center">
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-slate-500">{isReceipt ? 'Payment Method:' : 'Payment Channel:'}</span>
-                <span className="font-bold text-slate-900 capitalize px-2.5 py-0.5 bg-white border border-slate-200 rounded-md text-xs">
-                  {paymentMethod.replace('_', ' ')}
+            {/* Clean Client & Transaction Details Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 bg-slate-50/70 rounded-2xl p-5 border border-slate-200">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+                  {isReceipt ? 'Received From' : 'Billed To'}
                 </span>
-              </div>
-              {document.invoice_number && isReceipt && (
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-semibold text-slate-500">Invoice Ref:</span>
-                  <span className="font-mono font-bold text-emerald-800">{document.invoice_number}</span>
+                <h4 className="text-base font-bold text-slate-900 leading-snug">
+                  {document.customer_name || 'Customer / Client'}
+                </h4>
+                {document.customer_company && (
+                  <p className="text-xs text-slate-600 font-semibold mt-0.5 flex items-center gap-1.5">
+                    <Building2 size={13} className="text-slate-400" />
+                    <span>{document.customer_company}</span>
+                  </p>
+                )}
+                <div className="text-xs text-slate-500 font-medium space-y-0.5 pt-1.5">
+                  {document.customer_phone && <p>Tel: {document.customer_phone}</p>}
+                  {document.customer_email && <p>Email: {document.customer_email}</p>}
                 </div>
-              )}
-              <div className="flex justify-between items-center text-xs">
-                <span className="font-semibold text-slate-500">Status:</span>
-                <span className={cn("font-bold text-xs", isPaid || isReceipt ? "text-emerald-700" : "text-[#D22630]")}>
-                  {isReceipt ? 'Payment Cleared' : isPaid ? 'Paid in Full' : 'Payment Due'}
-                </span>
+              </div>
+
+              <div className="space-y-3 sm:border-l sm:border-slate-200 sm:pl-6 flex flex-col justify-center">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-slate-500">{isReceipt ? 'Payment Method:' : 'Payment Channel:'}</span>
+                  <span className="font-bold text-slate-900 capitalize px-3 py-1 bg-white border border-slate-200 rounded-lg text-xs shadow-2xs">
+                    {paymentMethod.replace('_', ' ')}
+                  </span>
+                </div>
+                {document.invoice_number && isReceipt && (
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-semibold text-slate-500">Invoice Ref:</span>
+                    <span className="font-mono font-bold text-emerald-800 text-sm">{document.invoice_number}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-semibold text-slate-500">Status:</span>
+                  <span className={cn("font-bold text-xs uppercase tracking-wider", isPaid || isReceipt ? "text-emerald-700" : "text-[#D22630]")}>
+                    {isReceipt ? 'Payment Cleared' : isPaid ? 'Paid in Full' : 'Payment Due'}
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Particulars Table */}
-          <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-xs">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="bg-slate-100/90 text-slate-800 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
-                  <th className="py-3 px-4">Description</th>
-                  <th className="py-3 px-3 text-center w-20">Qty</th>
-                  <th className="py-3 px-4 text-right w-28">Rate</th>
-                  <th className="py-3 px-4 text-right w-32">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {document.items && document.items.length > 0 ? (
-                  document.items.map((item: any, i: number) => (
-                    <tr key={i} className="hover:bg-slate-50/60 transition-colors">
-                      <td className="py-3 px-4">
-                        <p className="font-bold text-slate-900 leading-snug">{item.description}</p>
-                        {item.notes && <p className="text-[11px] text-slate-500 mt-0.5">{item.notes}</p>}
+            {/* Particulars Table */}
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-xs">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-slate-100/90 text-slate-800 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
+                    <th className="py-3.5 px-5">Description</th>
+                    <th className="py-3.5 px-3 text-center w-20">Qty</th>
+                    <th className="py-3.5 px-4 text-right w-32">Rate</th>
+                    <th className="py-3.5 px-5 text-right w-36">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {document.items && document.items.length > 0 ? (
+                    document.items.map((item: any, i: number) => (
+                      <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                        <td className="py-4 px-5">
+                          <p className="font-bold text-slate-900 text-sm leading-snug">{item.description}</p>
+                          {item.notes && <p className="text-xs text-slate-500 mt-1">{item.notes}</p>}
+                        </td>
+                        <td className="py-4 px-3 text-center font-medium text-slate-700 text-xs">{item.quantity}</td>
+                        <td className="py-4 px-4 text-right font-medium text-slate-600 text-xs">{fmt(item.unit_price)}</td>
+                        <td className="py-4 px-5 text-right font-bold text-slate-900 font-mono text-sm">
+                          {fmt(item.total_price || (item.quantity * item.unit_price))}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="py-5 px-5">
+                        <p className="font-bold text-slate-900 text-sm">
+                          {isReceipt
+                            ? `Payment towards ${document.invoice_number ? `Invoice #${document.invoice_number}` : 'Commercial Printing Services'}`
+                            : 'Commercial Printing & Brand Fabrication Services'}
+                        </p>
+                        {document.notes && (
+                          <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+                            {document.notes}
+                          </p>
+                        )}
                       </td>
-                      <td className="py-3 px-3 text-center font-medium text-slate-700">{item.quantity}</td>
-                      <td className="py-3 px-4 text-right font-medium text-slate-600">{fmt(item.unit_price)}</td>
-                      <td className="py-3 px-4 text-right font-bold text-slate-900 font-mono">
-                        {fmt(item.total_price || (item.quantity * item.unit_price))}
+                      <td className="py-5 px-3 text-center font-medium text-slate-700 text-xs">1</td>
+                      <td className="py-5 px-4 text-right font-medium text-slate-600 text-xs">{fmt(document.amount || document.total_amount)}</td>
+                      <td className="py-5 px-5 text-right font-black font-mono text-sm text-slate-900">
+                        {fmt(document.amount || document.total_amount)}
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="py-3.5 px-4">
-                      <p className="font-bold text-slate-900 text-xs">
-                        {isReceipt
-                          ? `Payment towards ${document.invoice_number ? `Invoice #${document.invoice_number}` : 'Commercial Printing Services'}`
-                          : 'Commercial Printing & Brand Fabrication Services'}
-                      </p>
-                      {document.notes && (
-                        <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                          {document.notes}
-                        </p>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-3 text-center font-medium text-slate-700 text-xs">1</td>
-                    <td className="py-3.5 px-4 text-right font-medium text-slate-600 text-xs">{fmt(document.amount || document.total_amount)}</td>
-                    <td className="py-3.5 px-4 text-right font-black font-mono text-sm text-slate-900">
-                      {fmt(document.amount || document.total_amount)}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Account Summary & Payment Totals */}
-          <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-12 gap-5 pt-2">
             {/* Payment Details Block */}
-            <div className="sm:col-span-6 bg-slate-50/70 rounded-xl p-3.5 border border-slate-200 space-y-2 text-xs">
-              <div className="flex items-center gap-1.5 border-b border-slate-200 pb-1.5">
-                <CreditCard size={13} className={isReceipt ? "text-emerald-700" : "text-[#D22630]"} />
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-900">
+            <div className="sm:col-span-6 bg-slate-50/70 rounded-2xl p-4 sm:p-5 border border-slate-200 space-y-2.5 text-xs">
+              <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2">
+                <CreditCard size={15} className={isReceipt ? "text-emerald-700" : "text-[#D22630]"} />
+                <span className="text-[11px] font-black uppercase tracking-wider text-slate-900">
                   Payment Channels
                 </span>
               </div>
-              <div className="text-xs space-y-1.5 text-slate-600 font-medium">
+              <div className="text-xs space-y-2 text-slate-600 font-medium pt-1">
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400 text-[10px] uppercase font-bold">Bank:</span>
                   <span className="font-bold text-slate-800">Stanbic Bank / GCB Bank</span>
@@ -315,13 +317,13 @@ export function DocumentViewer({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-slate-400 text-[10px] uppercase font-bold">MOMO:</span>
-                  <span className="font-bold text-emerald-700">024 468 1391</span>
+                  <span className="font-bold text-emerald-700 font-mono text-xs">024 468 1391</span>
                 </div>
               </div>
             </div>
 
             {/* Calculations Breakdown */}
-            <div className="sm:col-span-6 bg-slate-50/70 p-3.5 rounded-xl border border-slate-200 space-y-1.5 text-xs flex flex-col justify-center">
+            <div className="sm:col-span-6 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-2.5 text-xs flex flex-col justify-center">
               {isReceipt ? (
                 <>
                   {document.invoice_total_amount && (
@@ -332,7 +334,7 @@ export function DocumentViewer({
                   )}
                   <div className="flex justify-between items-center text-emerald-700 text-xs py-0.5">
                     <span className="font-bold">This Payment:</span>
-                    <span className="font-mono font-bold text-sm">{fmt(document.amount)}</span>
+                    <span className="font-mono font-bold text-base">{fmt(document.amount)}</span>
                   </div>
                   {(() => {
                     const totalBilled = Number(document.invoice_total_amount || 0);
@@ -342,10 +344,10 @@ export function DocumentViewer({
                     const remainingBalance = Math.max(0, totalBilled - paidUpTo);
 
                     return (
-                      <div className="flex justify-between items-center pt-2 border-t border-slate-200 text-xs">
+                      <div className="flex justify-between items-center pt-2.5 border-t border-slate-200 text-xs">
                         <span className="font-bold text-slate-900">Remaining Balance:</span>
                         <span className={cn(
-                          "font-mono font-black text-sm",
+                          "font-mono font-black text-base",
                           remainingBalance > 0 ? "text-[#D22630]" : "text-emerald-700"
                         )}>
                           {fmt(remainingBalance)}
@@ -380,9 +382,9 @@ export function DocumentViewer({
                       <span className="font-mono font-bold">-{fmt(document.discount_amount)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between items-center py-1.5 border-y border-slate-900 text-slate-950">
+                  <div className="flex justify-between items-center py-2 border-y border-slate-900 text-slate-950">
                     <span className="text-xs font-black uppercase tracking-wider">Total</span>
-                    <span className="text-base font-black font-mono">{fmt(document.total_amount || document.amount)}</span>
+                    <span className="text-lg font-black font-mono">{fmt(document.total_amount || document.amount)}</span>
                   </div>
                   {document.amount_paid !== undefined && Number(document.amount_paid) > 0 && (
                     <div className="flex justify-between items-center text-slate-600 text-xs">
@@ -391,10 +393,10 @@ export function DocumentViewer({
                     </div>
                   )}
                   {document.balance_due !== undefined && (
-                    <div className="flex justify-between items-center py-1.5 bg-white px-2.5 rounded-lg border border-slate-200">
+                    <div className="flex justify-between items-center py-2 bg-white px-3 rounded-xl border border-slate-200">
                       <span className="text-[11px] font-black uppercase tracking-wider text-slate-800">Balance Due</span>
                       <span className={cn(
-                        "text-sm font-black font-mono",
+                        "text-base font-black font-mono",
                         Number(document.balance_due) > 0 ? "text-[#D22630]" : "text-emerald-700"
                       )}>
                         {fmt(document.balance_due)}
@@ -409,13 +411,13 @@ export function DocumentViewer({
         </div>
 
         {/* Footer Sign-off & Verification */}
-        <div className="relative z-10 pt-4 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 text-xs text-slate-500">
-          <div className="space-y-0.5 max-w-sm">
-            <div className={cn("flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider", isReceipt ? "text-emerald-800" : "text-[#D22630]")}>
-              <ShieldCheck size={13} className={isReceipt ? "text-emerald-600" : "text-[#D22630]"} />
+        <div className="relative z-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 text-xs text-slate-500">
+          <div className="space-y-1 max-w-sm">
+            <div className={cn("flex items-center gap-1.5 font-bold text-[11px] uppercase tracking-wider", isReceipt ? "text-emerald-800" : "text-[#D22630]")}>
+              <ShieldCheck size={14} className={isReceipt ? "text-emerald-600" : "text-[#D22630]"} />
               <span>Official Verification Stamp</span>
             </div>
-            <p className="text-[10px] text-slate-400 leading-relaxed">
+            <p className="text-[11px] text-slate-400 leading-relaxed">
               Official transaction document generated by Think Kre8tiv Media Cloud ERP.
             </p>
             <p className="text-[9px] text-slate-400/50 pt-0.5">
@@ -423,16 +425,16 @@ export function DocumentViewer({
             </p>
           </div>
 
-          <div className="flex flex-col sm:items-end text-left sm:text-right space-y-0.5">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+          <div className="flex flex-col sm:items-end text-left sm:text-right space-y-1">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Authorized Signature
             </span>
-            <div className="h-7 flex items-center">
-              <span className={cn("font-serif italic text-sm font-bold border-b pb-0.5", isReceipt ? "text-emerald-900 border-emerald-800" : "text-red-950 border-red-900")}>
+            <div className="h-8 flex items-center">
+              <span className={cn("font-serif italic text-base font-bold border-b-2 pb-0.5", isReceipt ? "text-emerald-900 border-emerald-800" : "text-red-950 border-red-900")}>
                 Think Kre8tiv Accounts
               </span>
             </div>
-            <span className="text-[8px] text-slate-400/40">
+            <span className="text-[9px] text-slate-400/50">
               Verified by Tech 34 Systems
             </span>
           </div>
