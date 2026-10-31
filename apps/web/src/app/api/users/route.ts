@@ -36,8 +36,10 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Name, email and password are required' }, { status: 400 });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Check if email already exists
-    const existing = await sql`SELECT id FROM "user" WHERE email = ${email} LIMIT 1`;
+    const existing = await sql`SELECT id FROM "user" WHERE LOWER(email) = ${normalizedEmail} LIMIT 1`;
     if (existing.length > 0) {
       return Response.json({ error: 'A user with this email already exists' }, { status: 400 });
     }
@@ -51,7 +53,7 @@ export async function POST(request: Request) {
     // Insert into user table
     await sql`
       INSERT INTO "user" (id, name, email, "emailVerified", role, phone, position, is_active, "createdAt", "updatedAt")
-      VALUES (${gen_id}, ${name}, ${email}, false, ${role ?? 'staff'}, ${phone ?? null}, ${position ?? null}, true, NOW(), NOW())
+      VALUES (${gen_id}, ${name}, ${normalizedEmail}, false, ${role ?? 'staff'}, ${phone ?? null}, ${position ?? null}, true, NOW(), NOW())
     `;
 
     // Insert into account table (credential provider)

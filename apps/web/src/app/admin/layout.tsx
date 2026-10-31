@@ -309,6 +309,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               )}
             </button>
 
+            {/* Top SMS Credit Balance Indicator */}
+            {isAdmin && (
+              <div 
+                onClick={() => refetchSms()}
+                title="Click to refresh SMS balance"
+                className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 hover:bg-amber-100/70 transition-all text-xs font-semibold shadow-2xs"
+              >
+                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                <span className="text-[10px] uppercase font-black tracking-wider text-amber-700 dark:text-amber-400">SMS:</span>
+                <span className="font-mono font-black text-xs text-amber-900 dark:text-amber-200">
+                  {smsData?.balance ?? '...'}
+                </span>
+                <span className="text-[10px] text-amber-600/80 dark:text-amber-400 font-medium">pts</span>
+              </div>
+            )}
+
             <Link
               href="/"
               className="text-xs font-semibold transition-colors text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hidden md:inline"

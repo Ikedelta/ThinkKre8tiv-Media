@@ -39,7 +39,7 @@ function SignInForm() {
 		setError(null);
 
 		const { error: signInError } = await authClient.signIn.email({
-			email,
+			email: email.trim().toLowerCase(),
 			password,
 		});
 

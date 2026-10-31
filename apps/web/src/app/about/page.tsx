@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Zap, Shield, Award, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Award, CheckCircle2, Factory, Printer, Users, Target, Clock, Sparkles } from 'lucide-react';
 import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 
@@ -106,7 +106,78 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Core Values & Pillars Section */}
+      <section className="py-20 bg-slate-50 dark:bg-slate-900/50 border-y border-slate-200/80 dark:border-slate-800/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+            <div className="inline-flex items-center gap-1.5 text-primary text-xs font-bold uppercase tracking-widest">
+              <Sparkles size={14} /> Our Core Foundation
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Crafted with Precision. Delivered with Integrity.
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              Every print run and fabricated installation embodies the highest standards of industrial precision, color accuracy, and business reliability.
+            </p>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-950/40 text-primary flex items-center justify-center font-bold">
+                <Factory size={24} />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Heidelberg Offset Presses</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                High-capacity industrial machinery ensuring laser-sharp registration, pantone matching, and rapid turnarounds for corporate volumes.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center font-bold">
+                <Shield size={24} />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Strict Quality Assurance</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Multi-stage pre-press checks, material density inspection, and precision finishing protect your brand reputation on every batch.
+              </p>
+            </div>
+
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 flex items-center justify-center font-bold">
+                <Clock size={24} />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Real-Time Client Portals</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Transparent billing, instant SMS updates, live receipt verification, and automated workflows from estimate approval to dispatch.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Corporate Statistics Banner */}
+      <section className="py-16 bg-[#001F3F] text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-white/10">
+            <div className="space-y-1 pt-4 md:pt-0">
+              <p className="text-3xl sm:text-4xl font-black text-amber-300">12+</p>
+              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">Years in Operation</p>
+            </div>
+            <div className="space-y-1 pt-4 md:pt-0">
+              <p className="text-3xl sm:text-4xl font-black text-white">5,000+</p>
+              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">Projects Completed</p>
+            </div>
+            <div className="space-y-1 pt-4 md:pt-0">
+              <p className="text-3xl sm:text-4xl font-black text-amber-300">99.8%</p>
+              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">On-Time Turnaround</p>
+            </div>
+            <div className="space-y-1 pt-4 md:pt-0">
+              <p className="text-3xl sm:text-4xl font-black text-white">100%</p>
+              <p className="text-xs uppercase tracking-wider font-semibold text-slate-300">Accra Factory Output</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <PublicFooter />
     </div>
