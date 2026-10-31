@@ -79,6 +79,7 @@ const navSections: NavSection[] = [
       { name: 'Services Catalog', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
       { name: 'Website CMS', href: '/admin/cms', icon: Globe, requiresAdmin: true },
       { name: 'Staff', href: '/admin/users', icon: UserCog, requiresAdmin: true },
+      { name: 'SMS Delivery Logs', href: '/admin/sms-logs', icon: MessageSquare, requiresAdmin: true },
       { name: 'Settings', href: '/admin/settings', icon: Settings, requiresAdmin: true },
       { name: 'Audit & System Logs', href: '/admin/audit-logs', icon: Shield, requiresAdmin: true },
     ]
