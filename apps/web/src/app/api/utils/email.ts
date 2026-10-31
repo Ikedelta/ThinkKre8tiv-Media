@@ -1,68 +1,138 @@
+import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
 import sql from '@/app/api/utils/sql';
 
+export interface EmailAttachment {
+  filename: string;
+  content: string | Buffer;
+  path?: string;
+}
+
 export interface EmailOptions {
-  to: string;
+  to: string | string[];
   subject: string;
   html: string;
   text?: string;
+  replyTo?: string | string[];
+  idempotencyKey?: string;
+  attachments?: EmailAttachment[];
+  tags?: Array<{ name: string; value: string }>;
 }
 
-export async function sendEmail({ to, subject, html, text }: EmailOptions) {
+export interface SendEmailResult {
+  success: boolean;
+  messageId?: string;
+  error?: string;
+}
+
+/**
+ * Dispatches an email using Resend Node.js SDK (or SMTP fallback if configured).
+ * Strictly complies with Resend guardrails:
+ * - Reads RESEND_API_KEY from environment or settings
+ * - Uses camelCase parameters (replyTo, idempotencyKey)
+ * - Directly handles { data, error } returned by resend.emails.send()
+ * - Formats sender as "Sender Name <sender@domain.com>"
+ */
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+  replyTo,
+  idempotencyKey,
+  attachments,
+  tags,
+}: EmailOptions): Promise<SendEmailResult> {
+  // 1. Fetch email settings from database
+  let settings: any = null;
   try {
-    // 1. Fetch SMTP settings from database
-    const [settings] = await sql`
+    const [row] = await sql`
       SELECT 
+        resend_api_key,
         smtp_host,
         smtp_port,
         smtp_user,
         smtp_password,
         smtp_from_name,
         smtp_from_email,
-        company_name
+        company_name,
+        company_email
       FROM app_settings 
       WHERE id = 'default'
+      LIMIT 1
     `;
+    settings = row;
+  } catch (dbErr) {
+    console.error('Failed to query email settings from database:', dbErr);
+  }
 
-    // 2. Fallback to process.env if not set in DB
-    const host = settings?.smtp_host || process.env.SMTP_HOST;
-    const port = Number(settings?.smtp_port || process.env.SMTP_PORT || 587);
-    const user = settings?.smtp_user || process.env.SMTP_USER;
-    const pass = settings?.smtp_password || process.env.SMTP_PASSWORD;
-    const fromName = settings?.smtp_from_name || settings?.company_name || 'Think Kre8tiv Media';
-    const fromEmail = settings?.smtp_from_email || settings?.company_email || process.env.SMTP_FROM || user;
+  // 2. Resolve credentials & sender details
+  const resendApiKey = process.env.RESEND_API_KEY || settings?.resend_api_key;
+  const fromName = settings?.smtp_from_name || settings?.company_name || 'Think Kre8tiv Media';
+  const fromEmail = settings?.smtp_from_email || settings?.company_email || process.env.RESEND_FROM_EMAIL || 'notifications@thinkkre8tivmedia.com';
+  const fromFormatted = `"${fromName.replace(/"/g, '')}" <${fromEmail}>`;
 
-    if (!host || !user || !pass) {
-      console.warn('⚠️ SMTP settings not configured. Email will not be sent to:', to);
-      return { success: false, error: 'SMTP settings not configured' };
-    }
+  // 3. Primary Path: Resend Node.js SDK
+  if (resendApiKey) {
+    const resend = new Resend(resendApiKey);
 
-    // 3. Configure Transporter
-    const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465, // true for 465, false for other ports
-      auth: {
-        user,
-        pass,
-      },
-    });
-
-    // 4. Send Email
-    const info = await transporter.sendMail({
-      from: `"${fromName}" <${fromEmail}>`,
+    const emailPayload: any = {
+      from: fromFormatted,
       to,
       subject,
-      text: text || html.replace(/<[^>]*>/g, ''),
       html,
-    });
+    };
 
-    console.log('✅ Email sent successfully to:', to, 'Message ID:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (err: any) {
-    console.error('❌ Failed to send email:', err);
-    return { success: false, error: err.message };
+    if (text) emailPayload.text = text;
+    if (replyTo) emailPayload.replyTo = replyTo;
+    if (idempotencyKey) emailPayload.idempotencyKey = idempotencyKey;
+    if (attachments && attachments.length > 0) emailPayload.attachments = attachments;
+    if (tags && tags.length > 0) emailPayload.tags = tags;
+
+    const { data, error } = await resend.emails.send(emailPayload);
+
+    if (error) {
+      console.error('Resend delivery failed:', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('✅ Email sent via Resend. ID:', data?.id);
+    return { success: true, messageId: data?.id };
   }
+
+  // 4. Fallback Path: Standard SMTP Transporter (if Resend key not set, but SMTP is configured)
+  const host = settings?.smtp_host || process.env.SMTP_HOST;
+  const port = Number(settings?.smtp_port || process.env.SMTP_PORT || 587);
+  const user = settings?.smtp_user || process.env.SMTP_USER;
+  const pass = settings?.smtp_password || process.env.SMTP_PASSWORD;
+
+  if (host && user && pass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        host,
+        port,
+        secure: port === 465,
+        auth: { user, pass },
+      });
+
+      const info = await transporter.sendMail({
+        from: fromFormatted,
+        to,
+        subject,
+        text: text || html.replace(/<[^>]*>/g, ''),
+        html,
+      });
+
+      console.log('✅ Email sent via SMTP fallback to:', to, 'Message ID:', info.messageId);
+      return { success: true, messageId: info.messageId };
+    } catch (smtpErr: any) {
+      console.error('SMTP fallback failed:', smtpErr);
+      return { success: false, error: smtpErr.message };
+    }
+  }
+
+  console.warn('⚠️ No email service configured (missing RESEND_API_KEY and SMTP credentials).');
+  return { success: false, error: 'Email service not configured. Please set RESEND_API_KEY in settings.' };
 }
 
 export function generateUserWelcomeEmail({

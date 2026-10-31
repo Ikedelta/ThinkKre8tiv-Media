@@ -21,6 +21,7 @@ interface Settings {
   receipt_prefix: string;
   sms_api_key: string;
   sms_sender_id: string;
+  resend_api_key?: string;
   smtp_host?: string;
   smtp_port?: number;
   smtp_user?: string;
@@ -49,6 +50,7 @@ const defaultSettings: Settings = {
   receipt_prefix: 'TK-RCT',
   sms_api_key: '',
   sms_sender_id: 'ThinkKr8',
+  resend_api_key: '',
   smtp_host: '',
   smtp_port: 587,
   smtp_user: '',
@@ -301,59 +303,35 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* SMTP Email Configuration */}
+      {/* SMTP & Resend Email Configuration */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
           <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
-            <Globe size={16} className="text-emerald-600" /> Email &amp; SMTP Settings (User Invitation &amp; Alerts)
+            <Globe size={16} className="text-emerald-600" /> Resend &amp; Email Dispatch (Staff Invitations &amp; System Alerts)
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4 space-y-4">
           <p className="text-xs text-slate-500 font-normal leading-relaxed">
-            Configure your corporate SMTP credentials (e.g. Google Workspace, Webmail, or transactional mailer). When an admin adds a user, an official onboarding invitation will be sent automatically.
+            Configure Resend or custom SMTP to power invitations, document dispatches, and alerts. When an API key is entered, the system routes directly through the official Resend SDK.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="sm:col-span-2">
-              <label className={labelClass}>SMTP Host</label>
-              <input
-                value={form.smtp_host || ''}
-                onChange={(e) => update('smtp_host', e.target.value)}
-                className={inputClass}
-                placeholder="e.g. smtp.gmail.com or mail.thinkkre8tivmedia.com"
-              />
-            </div>
-            <div>
-              <label className={labelClass}>SMTP Port</label>
-              <input
-                type="number"
-                value={form.smtp_port || 587}
-                onChange={(e) => update('smtp_port', parseInt(e.target.value) || 587)}
-                className={inputClass}
-                placeholder="587 or 465"
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>SMTP Username / Email</label>
-              <input
-                value={form.smtp_user || ''}
-                onChange={(e) => update('smtp_user', e.target.value)}
-                className={inputClass}
-                placeholder="notifications@thinkkre8tivmedia.com"
-              />
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-slate-800 uppercase tracking-wider block">
+                Resend API Key (Recommended)
+              </label>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Fast &amp; Reliable</span>
             </div>
-            <div>
-              <label className={labelClass}>SMTP Password / App Password</label>
-              <input
-                type="password"
-                value={form.smtp_password || ''}
-                onChange={(e) => update('smtp_password', e.target.value)}
-                className={inputClass}
-                placeholder="••••••••••••••••"
-              />
-            </div>
+            <input
+              type="password"
+              value={form.resend_api_key || ''}
+              onChange={(e) => update('resend_api_key', e.target.value)}
+              className={inputClass}
+              placeholder="re_1234567890abcdef..."
+            />
+            <p className="text-[11px] text-slate-500">
+              Create an API key in your <a href="https://resend.com/api-keys" target="_blank" rel="noreferrer" className="text-blue-600 underline font-semibold">Resend Dashboard</a>.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -372,10 +350,62 @@ export default function SettingsPage() {
                 value={form.smtp_from_email || ''}
                 onChange={(e) => update('smtp_from_email', e.target.value)}
                 className={inputClass}
-                placeholder="no-reply@thinkkre8tivmedia.com"
+                placeholder="notifications@thinkkre8tivmedia.com"
               />
+              <p className="text-[10px] text-slate-400 mt-1">Must be on your verified Resend domain</p>
             </div>
           </div>
+
+          <details className="mt-2 text-xs text-slate-500 border-t border-slate-100 pt-3">
+            <summary className="cursor-pointer font-bold text-slate-700 hover:text-blue-600 mb-3">
+              Optional: Custom SMTP Server Fallback (if not using Resend)
+            </summary>
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                  <label className={labelClass}>SMTP Host</label>
+                  <input
+                    value={form.smtp_host || ''}
+                    onChange={(e) => update('smtp_host', e.target.value)}
+                    className={inputClass}
+                    placeholder="e.g. smtp.gmail.com"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>SMTP Port</label>
+                  <input
+                    type="number"
+                    value={form.smtp_port || 587}
+                    onChange={(e) => update('smtp_port', parseInt(e.target.value) || 587)}
+                    className={inputClass}
+                    placeholder="587 or 465"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>SMTP Username / Email</label>
+                  <input
+                    value={form.smtp_user || ''}
+                    onChange={(e) => update('smtp_user', e.target.value)}
+                    className={inputClass}
+                    placeholder="notifications@thinkkre8tivmedia.com"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>SMTP Password / App Password</label>
+                  <input
+                    type="password"
+                    value={form.smtp_password || ''}
+                    onChange={(e) => update('smtp_password', e.target.value)}
+                    className={inputClass}
+                    placeholder="••••••••••••••••"
+                  />
+                </div>
+              </div>
+            </div>
+          </details>
         </CardContent>
       </Card>
 
