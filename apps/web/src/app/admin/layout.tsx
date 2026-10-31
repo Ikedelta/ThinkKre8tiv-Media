@@ -241,29 +241,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-4 border-t flex-shrink-0 flex flex-col gap-3 border-slate-100 dark:border-slate-800">
-          {/* SMS Credits - Admin Only */}
-          {isAdmin && (
-            <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xs font-bold tracking-wider uppercase text-slate-400 dark:text-slate-500">
-                    SMS Credits
-                  </h3>
-                  <span className="text-lg font-black leading-none text-slate-800 dark:text-white">
-                    {smsData?.balance ?? '...'} <span className="text-[11px] font-medium text-slate-500">pts</span>
-                  </span>
-                </div>
-                <button 
-                  onClick={() => refetchSms()}
-                  className="text-[#E04D1B] hover:text-orange-400 text-xs font-bold transition-colors"
-                >
-                  Refresh
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Sidebar Footer */}
       </aside>
 
       {/* Main Content Area */}

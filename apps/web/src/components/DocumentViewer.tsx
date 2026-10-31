@@ -73,36 +73,36 @@ export function DocumentViewer({
   // Dynamic Theme Palette: Emerald for Receipts, Crimson Red (#D22630) for Invoices & Quotations
   const themeStyles = isReceipt
     ? {
-        headerGradient: 'from-emerald-800 via-emerald-700 to-teal-800',
-        badgeBg: 'bg-emerald-950/60 text-emerald-200 border-emerald-500/30',
+        headerGradient: 'from-emerald-950 via-emerald-800 to-teal-950',
+        badgeBg: 'bg-emerald-950 text-emerald-100 border-emerald-400',
         badgeText: 'OFFICIAL RECEIPT',
         voucherLabel: 'Receipt Voucher',
-        bannerBg: 'bg-emerald-50/80 border-emerald-200',
-        bannerIcon: 'text-emerald-600',
-        bannerTitle: 'text-emerald-800',
+        bannerBg: 'bg-emerald-50/90 border-emerald-300',
+        bannerIcon: 'text-emerald-800',
+        bannerTitle: 'text-emerald-950 font-black',
         bannerTitleText: 'Payment Cleared & Confirmed',
-        bannerSubtext: 'text-emerald-700',
-        bannerTotalLabel: 'text-emerald-700',
-        bannerTotalValue: 'text-emerald-900',
-        accentBadge: 'text-emerald-700',
-        stampColor: 'text-emerald-600',
-        stampBorder: 'border-emerald-800',
+        bannerSubtext: 'text-emerald-900 font-bold',
+        bannerTotalLabel: 'text-emerald-900',
+        bannerTotalValue: 'text-emerald-950',
+        accentBadge: 'text-emerald-900',
+        stampColor: 'text-emerald-800',
+        stampBorder: 'border-emerald-900',
       }
     : {
-        headerGradient: 'from-[#B71C1C] via-[#D22630] to-[#880E4F]',
-        badgeBg: 'bg-red-950/70 text-red-200 border-red-400/30',
+        headerGradient: 'from-[#600000] via-[#B71C1C] to-[#880E4F]',
+        badgeBg: 'bg-red-950 text-red-100 border-red-400',
         badgeText: isInvoice ? 'COMMERCIAL INVOICE' : 'OFFICIAL ESTIMATE',
         voucherLabel: isInvoice ? 'Invoice Reference' : 'Estimate Reference',
-        bannerBg: 'bg-red-50/80 border-red-200',
-        bannerIcon: isPaid ? 'text-emerald-600' : 'text-[#D22630]',
-        bannerTitle: isPaid ? 'text-emerald-800' : 'text-red-900',
+        bannerBg: 'bg-red-50/90 border-red-300',
+        bannerIcon: isPaid ? 'text-emerald-800' : 'text-[#B71C1C]',
+        bannerTitle: isPaid ? 'text-emerald-950 font-black' : 'text-red-950 font-black',
         bannerTitleText: isPaid ? 'Invoice Settled (Paid Full)' : 'Invoice Billing & Settlement Due',
-        bannerSubtext: isPaid ? 'text-emerald-700' : 'text-red-700',
-        bannerTotalLabel: isPaid ? 'text-emerald-700' : 'text-red-700',
-        bannerTotalValue: isPaid ? 'text-emerald-900' : 'text-red-950',
-        accentBadge: 'text-red-700',
-        stampColor: 'text-[#D22630]',
-        stampBorder: 'border-red-800',
+        bannerSubtext: isPaid ? 'text-emerald-900 font-bold' : 'text-red-900 font-bold',
+        bannerTotalLabel: isPaid ? 'text-emerald-900' : 'text-red-900',
+        bannerTotalValue: isPaid ? 'text-emerald-950' : 'text-red-950',
+        accentBadge: isPaid ? 'text-emerald-900' : 'text-red-900',
+        stampColor: isPaid ? 'text-emerald-800' : 'text-[#B71C1C]',
+        stampBorder: isPaid ? 'border-emerald-900' : 'border-red-900',
       };
 
   const renderSharedDocumentTemplate = () => (
@@ -493,8 +493,8 @@ export function DocumentViewer({
         </div>
       </div>
 
-      <div className="flex-1 w-full overflow-y-auto p-4 sm:p-6 md:p-8 flex justify-center items-start">
-        <div className="w-full max-w-[640px] my-auto py-2 scale-[0.82] sm:scale-[0.86] md:scale-[0.90] origin-top transition-transform">
+      <div className="flex-1 w-full overflow-y-auto p-4 sm:p-6 md:p-8 flex justify-center items-start print:p-0 print:m-0 print:overflow-visible print:block">
+        <div className="document-preview-wrapper w-full max-w-[640px] my-auto py-2 scale-[0.82] sm:scale-[0.86] md:scale-[0.90] origin-top transition-transform print:max-w-none print:w-full print:scale-100 print:m-0 print:p-0">
           {content}
         </div>
       </div>
