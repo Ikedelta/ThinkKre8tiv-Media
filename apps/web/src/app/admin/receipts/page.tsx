@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, Printer, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Trash2, Plus, Download } from 'lucide-react';
+import { Search, Printer, ChevronLeft, ChevronRight, CheckCircle2, XCircle, Trash2, Plus, Download, Mail } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useConfirm } from '@/components/providers/ConfirmProvider';
 import { DocumentViewer } from '@/components/DocumentViewer';
+import { SendDocumentModal } from '@/components/SendDocumentModal';
 import { exportToCsv } from '@/lib/export-csv';
 
 interface Receipt {
@@ -37,6 +38,7 @@ export default function ReceiptsPage() {
   const [sortBy, setSortBy] = useState('date-desc');
   const [page, setPage] = useState(1);
   const [selectedReceiptId, setSelectedReceiptId] = useState<string | null>(null);
+  const [sendModalDoc, setSendModalDoc] = useState<any | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
 
@@ -307,6 +309,14 @@ export default function ReceiptsPage() {
                           >
                             <Printer size={14} />
                           </button>
+
+                          <button
+                            onClick={() => setSendModalDoc(receipt)}
+                            className="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md transition-colors shadow-sm font-medium"
+                            title="Send via Email / SMS"
+                          >
+                            <Mail size={14} />
+                          </button>
                           
                           {isPending && (session?.user as any)?.role === 'admin' && (
                             <button
@@ -484,11 +494,21 @@ export default function ReceiptsPage() {
           type="receipt"
           document={receiptDetails}
           onClose={() => setSelectedReceiptId(null)}
+          onSendDocument={() => setSendModalDoc(receiptDetails)}
           onApprove={(id, status) => {
             approveMutation.mutate({ id, approval_status: status });
             setSelectedReceiptId(null);
           }}
           isAdmin={(session?.user as any)?.role === 'admin'}
+        />
+      )}
+
+      {sendModalDoc && (
+        <SendDocumentModal
+          isOpen={!!sendModalDoc}
+          documentType="receipt"
+          document={sendModalDoc}
+          onClose={() => setSendModalDoc(null)}
         />
       )}
     </div>

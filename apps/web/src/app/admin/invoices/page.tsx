@@ -21,6 +21,7 @@ import {
   Banknote,
   Receipt,
   Download,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
 import { DocumentViewer } from '@/components/DocumentViewer';
+import { SendDocumentModal } from '@/components/SendDocumentModal';
 import { RecordPaymentModal } from '@/components/RecordPaymentModal';
 import { exportToCsv } from '@/lib/export-csv';
 
@@ -66,6 +68,7 @@ function InvoicesPageContent() {
   const [page, setPage] = useState(1);
   const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [sendModalDoc, setSendModalDoc] = useState<any | null>(null);
   const [paymentInvoice, setPaymentInvoice] = useState<Invoice | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
@@ -560,6 +563,13 @@ function InvoicesPageContent() {
                               </button>
                             </>
                           )}
+                          <button
+                            onClick={() => setSendModalDoc(invoice)}
+                            className="p-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 rounded-md transition-colors shadow-sm font-medium"
+                            title="Send via Email / SMS"
+                          >
+                            <Mail size={14} />
+                          </button>
                           {invoice.approval_status === 'approved' ? (
                             <button
                               onClick={() => setSelectedInvoiceId(invoice.id)}
@@ -854,9 +864,19 @@ function InvoicesPageContent() {
             approveMutation.mutate({ id, approval_status: status });
             setSelectedInvoiceId(null);
           }}
+          onSendDocument={() => setSendModalDoc(invoiceDetails)}
           onSendSMS={() => handleSendSMS(invoiceDetails)}
           isAdmin={(session?.user as any)?.role === 'admin'}
           isSMSPending={smsMutation.isPending}
+        />
+      )}
+
+      {sendModalDoc && (
+        <SendDocumentModal
+          isOpen={!!sendModalDoc}
+          documentType="invoice"
+          document={sendModalDoc}
+          onClose={() => setSendModalDoc(null)}
         />
       )}
 

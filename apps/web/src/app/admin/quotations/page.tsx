@@ -6,11 +6,12 @@ import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText, Edit2, AlertCircle, Eye, Plus } from 'lucide-react';
+import { Search, ChevronDown, Trash2, CheckCircle2, Play, Check, Send, DownloadCloud, FileText, Edit2, AlertCircle, Eye, Plus, Mail } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
 import { DocumentViewer } from '@/components/DocumentViewer';
+import { SendDocumentModal } from '@/components/SendDocumentModal';
 
 interface Quotation {
   id: string;
@@ -36,6 +37,7 @@ function QuotationsPageContent() {
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedQuotationId, setSelectedQuotationId] = useState<string | null>(null);
+  const [sendModalDoc, setSendModalDoc] = useState<any | null>(null);
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
   const searchParams = useSearchParams();
@@ -245,6 +247,14 @@ function QuotationsPageContent() {
                             <Eye size={15} />
                           </button>
 
+                          <button
+                            onClick={() => setSendModalDoc(job)}
+                            className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 rounded-md transition-colors shadow-sm font-medium"
+                            title="Send via Email / SMS"
+                          >
+                            <Mail size={15} />
+                          </button>
+
                           {job.status === 'draft' && (
                             <button
                               onClick={() => updateStatusMutation.mutate({ id: job.id, status: 'sent' })}
@@ -430,6 +440,7 @@ function QuotationsPageContent() {
             type="quotation"
             document={quotationDetails}
             onClose={() => setSelectedQuotationId(null)}
+            onSendDocument={() => setSendModalDoc(quotationDetails)}
             isAdmin={(session?.user as any)?.role === 'admin'}
           />
         ) : (
@@ -446,6 +457,18 @@ function QuotationsPageContent() {
             </div>
           </div>
         )
+      )}
+
+      {sendModalDoc && (
+        <SendDocumentModal
+          isOpen={!!sendModalDoc}
+          documentType="quotation"
+          document={sendModalDoc}
+          onClose={() => setSendModalDoc(null)}
+          onSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['quotations'] });
+          }}
+        />
       )}
     </div>
   );

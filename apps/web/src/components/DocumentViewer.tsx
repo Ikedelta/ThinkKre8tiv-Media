@@ -29,6 +29,7 @@ export interface DocumentViewerProps {
   onApprove?: (id: string, status: string) => void;
   onEdit?: () => void;
   onSendSMS?: () => void;
+  onSendDocument?: () => void;
   isAdmin?: boolean;
   isSMSPending?: boolean;
   inline?: boolean;
@@ -41,6 +42,7 @@ export function DocumentViewer({
   onApprove, 
   onEdit, 
   onSendSMS, 
+  onSendDocument,
   isAdmin = false, 
   isSMSPending = false, 
   inline = false 
@@ -470,11 +472,15 @@ export function DocumentViewer({
               <Edit2 size={14} className="mr-1.5" /> Edit
             </Button>
           )}
-          {onSendSMS && (
+          {onSendDocument ? (
+            <Button onClick={onSendDocument} className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs h-8 flex-1 sm:flex-none shadow-sm">
+              <Mail size={14} className="mr-1.5" /> Send Email / SMS
+            </Button>
+          ) : onSendSMS ? (
             <Button onClick={onSendSMS} className="bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs h-8 flex-1 sm:flex-none" disabled={isSMSPending}>
               <MessageSquare size={14} className="mr-1.5" /> Send SMS
             </Button>
-          )}
+          ) : null}
           {/* Allow printing / export for estimates, approved invoices/receipts, or inline editor preview */}
           {(isQuotation || document.approval_status === 'approved' || inline) ? (
             <Button onClick={() => window.print()} className="bg-gradient-to-r from-[#D22630] to-amber-500 text-white font-bold text-xs h-8 shadow-sm flex-1 sm:flex-none">
