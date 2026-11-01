@@ -69,6 +69,7 @@ const navSections: NavSection[] = [
     title: 'Accounting',
     items: [
       { name: 'Expenses', href: '/admin/expenses', icon: CreditCard },
+      { name: 'Inventory & Materials', href: '/admin/inventory', icon: Package },
       { name: 'Suppliers (Vendors)', href: '/admin/suppliers', icon: Building2 },
       { name: 'Reports', href: '/admin/reports', icon: BarChart3, requiresAdmin: true },
     ]
