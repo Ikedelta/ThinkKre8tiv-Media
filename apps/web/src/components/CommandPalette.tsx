@@ -23,6 +23,10 @@ import {
   ArrowRight,
   Sparkles,
   Command,
+  Package,
+  Settings,
+  ArrowLeft,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -212,6 +216,17 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
       },
     },
     {
+      id: 'nav-inventory',
+      title: 'Inventory & Materials',
+      subtitle: 'Stock levels, units, barcodes & Excel import',
+      category: 'Navigation',
+      icon: Package,
+      onSelect: () => {
+        router.push('/admin/inventory');
+        onClose();
+      },
+    },
+    {
       id: 'nav-suppliers',
       title: 'Suppliers & Vendors',
       subtitle: 'Raw substrate & paper suppliers',
@@ -284,6 +299,18 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
         badge: 'Admin',
         onSelect: () => {
           router.push('/admin/cms');
+          onClose();
+        },
+      },
+      {
+        id: 'nav-settings',
+        title: 'System & Company Settings',
+        subtitle: 'Logo, signature, SMS alerts & receipts',
+        category: 'Navigation',
+        icon: Settings,
+        badge: 'Admin',
+        onSelect: () => {
+          router.push('/admin/settings');
           onClose();
         },
       }
@@ -376,14 +403,25 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 px-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-20 px-3 sm:px-4 bg-slate-950/65 backdrop-blur-xs animate-in fade-in duration-150"
+    >
       <div
-        className="w-full max-w-2xl bg-white dark:bg-[#111827] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col font-sans transition-all animate-in zoom-in-95 duration-150"
+        className="w-full max-w-2xl bg-white dark:bg-[#111827] rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-800 overflow-hidden flex flex-col font-sans transition-all animate-in zoom-in-95 duration-150 max-h-[88vh] sm:max-h-[82vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Search Input Bar */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-100 dark:border-slate-800">
-          <Search size={18} className="text-slate-400 shrink-0" />
+        {/* Search Input Bar with Back / Close Button */}
+        <div className="flex items-center gap-2.5 sm:gap-3 px-3.5 sm:px-4 py-3 sm:py-3.5 border-b border-slate-100 dark:border-slate-800">
+          <button
+            type="button"
+            onClick={onClose}
+            title="Go back / Close"
+            className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shrink-0"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <Search size={18} className="text-slate-400 shrink-0 hidden sm:block" />
           <input
             ref={inputRef}
             type="text"
@@ -393,15 +431,32 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
               setSelectedIndex(0);
             }}
             placeholder="Type a command, client name, invoice number..."
-            className="flex-1 bg-transparent text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+            className="flex-1 bg-transparent text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 outline-none min-w-0"
           />
-          <kbd className="px-2 py-0.5 text-[10px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700">
+          {query ? (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery('');
+                inputRef.current?.focus();
+              }}
+              className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              title="Clear search"
+            >
+              <X size={15} />
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-2 py-0.5 text-[10px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+          >
             ESC
-          </kbd>
+          </button>
         </div>
 
         {/* Results List */}
-        <div className="max-h-96 overflow-y-auto p-2 space-y-1">
+        <div className="flex-1 overflow-y-auto p-2 space-y-1 overscroll-contain">
           {allItems.length === 0 ? (
             <div className="py-12 text-center text-sm text-slate-400">
               No matching commands or records found for "{query}"
@@ -415,46 +470,46 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
                   onClick={item.onSelect}
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={cn(
-                    'flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition-colors',
+                    'flex items-center justify-between px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl cursor-pointer transition-colors',
                     isSelected
                       ? 'bg-slate-100 dark:bg-slate-800/90 text-slate-900 dark:text-white'
                       : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/40'
                   )}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                     <div
                       className={cn(
-                        'p-2 rounded-lg shrink-0 transition-colors',
+                        'w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors',
                         isSelected
                           ? 'bg-[#E04D1B] text-white shadow-xs'
                           : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                       )}
                     >
-                      <item.icon size={15} />
+                      <item.icon size={16} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold truncate leading-tight">
+                      <p className="text-xs sm:text-[13px] font-bold truncate leading-tight">
                         {item.title}
                       </p>
                       {item.subtitle && (
-                        <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                        <p className="text-[10px] sm:text-[11px] text-slate-400 dark:text-slate-500 truncate mt-0.5">
                           {item.subtitle}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0 ml-3">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-2">
                     {item.badge && (
                       <span className="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                         {item.badge}
                       </span>
                     )}
-                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold hidden sm:inline">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold hidden md:inline">
                       {item.category}
                     </span>
                     {isSelected && (
-                      <ArrowRight size={13} className="text-[#E04D1B]" />
+                      <ArrowRight size={13} className="text-[#E04D1B] hidden xs:block" />
                     )}
                   </div>
                 </div>
@@ -463,10 +518,10 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
           )}
         </div>
 
-        {/* Footer shortcuts */}
-        <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 flex items-center justify-between text-[11px] text-slate-400">
-          <div className="flex items-center gap-3">
-            <span>
+        {/* Footer shortcuts & Back Action */}
+        <div className="px-3.5 sm:px-4 py-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/40 flex items-center justify-between text-[11px] text-slate-400">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="hidden sm:inline">
               <kbd className="px-1 py-0.5 bg-white dark:bg-slate-800 border rounded text-[9px]">↑</kbd>{' '}
               <kbd className="px-1 py-0.5 bg-white dark:bg-slate-800 border rounded text-[9px]">↓</kbd> to navigate
             </span>
@@ -474,6 +529,14 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
               <kbd className="px-1 py-0.5 bg-white dark:bg-slate-800 border rounded text-[9px]">↵</kbd> to select
             </span>
           </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"
+          >
+            <ArrowLeft size={12} />
+            <span>Go Back</span>
+          </button>
         </div>
       </div>
     </div>
