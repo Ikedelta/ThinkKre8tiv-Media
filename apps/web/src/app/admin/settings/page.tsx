@@ -89,7 +89,14 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (settings && !loaded) {
-      setForm({ ...defaultSettings, ...settings });
+      // Ensure all fields fallback to empty strings instead of null
+      const sanitized: any = { ...defaultSettings };
+      for (const key of Object.keys(defaultSettings) as (keyof Settings)[]) {
+        if (settings[key] !== undefined && settings[key] !== null) {
+          sanitized[key] = settings[key];
+        }
+      }
+      setForm(sanitized);
       setLoaded(true);
     }
   }, [settings, loaded]);
@@ -415,7 +422,7 @@ export default function SettingsPage() {
           <div>
             <label className={labelClass}>Website Tagline</label>
             <input
-              value={form.website_tagline}
+              value={form.website_tagline || ''}
               onChange={(e) => update('website_tagline', e.target.value)}
               className={inputClass}
             />
@@ -423,7 +430,7 @@ export default function SettingsPage() {
           <div>
             <label className={labelClass}>About Us Text</label>
             <textarea
-              value={form.website_about}
+              value={form.website_about || ''}
               onChange={(e) => update('website_about', e.target.value)}
               rows={3}
               className={`${inputClass} resize-none`}
@@ -439,7 +446,7 @@ export default function SettingsPage() {
               <div key={key}>
                 <label className={labelClass}>{label}</label>
                 <input
-                  value={form[key as keyof Settings] as string}
+                  value={(form[key as keyof Settings] as string) || ''}
                   onChange={(e) => update(key as keyof Settings, e.target.value)}
                   className={inputClass}
                   placeholder="https://..."
