@@ -29,13 +29,23 @@ import {
   Search,
   Lock,
   ChevronRight,
+  ChevronDown,
   Sparkles,
   Pin,
   PinOff,
+  User,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { CommandPalette } from '@/components/CommandPalette';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface NavItem {
   name: string;
@@ -311,9 +321,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Sidebar Footer User Card */}
         <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 overflow-hidden">
-          <div className={cn("flex items-center gap-2.5", isExpanded ? "justify-between" : "justify-center")}>
+          <Link
+            href="/admin/profile"
+            className={cn(
+              "flex items-center gap-2.5 rounded-xl p-1.5 hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-colors",
+              isExpanded ? "justify-between" : "justify-center"
+            )}
+            title="View Profile"
+          >
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-300 shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-300 shrink-0">
                 {(session?.user?.name || 'U').charAt(0).toUpperCase()}
               </div>
               <div
@@ -330,20 +347,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </span>
               </div>
             </div>
-
-            {isExpanded && (
-              <button
-                onClick={() => {
-                  authClient.signOut();
-                  router.push('/account/signin');
-                }}
-                title="Sign Out"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors shrink-0"
-              >
-                <LogOut size={16} />
-              </button>
-            )}
-          </div>
+          </Link>
         </div>
       </aside>
 
@@ -411,6 +415,93 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <span className="text-[10px] text-amber-600 font-semibold">pts</span>
               </div>
             )}
+
+            {/* User Profile & Account Dropdown at Top Right */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center gap-2.5 p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-left focus:outline-hidden"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                    {(session?.user?.name || 'U').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="hidden sm:flex flex-col text-left leading-tight">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px]">
+                      {session?.user?.name || 'Administrator'}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
+                      {isAdmin ? 'System Admin' : 'Staff Officer'}
+                    </span>
+                  </div>
+                  <ChevronDown size={14} className="text-slate-400 hidden sm:block ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md">
+                <DropdownMenuLabel className="p-2 font-normal">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-bold text-sm shrink-0">
+                      {(session?.user?.name || 'U').charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                        {session?.user?.name}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        {session?.user?.email}
+                      </p>
+                      <span className="inline-block mt-0.5 text-[9px] uppercase font-black px-1.5 py-0.5 rounded-sm bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 w-fit">
+                        {isAdmin ? 'System Admin' : 'Staff Officer'}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator className="my-1.5" />
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/admin/profile"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                  >
+                    <User size={16} className="text-slate-400" />
+                    <span>My Profile & Security</span>
+                  </Link>
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/admin/settings"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                    >
+                      <Settings size={16} className="text-slate-400" />
+                      <span>Company & System Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {isAdmin && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/admin/users"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+                    >
+                      <UserCog size={16} className="text-slate-400" />
+                      <span>Manage Staff Users</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator className="my-1.5" />
+                <DropdownMenuItem
+                  onClick={() => {
+                    authClient.signOut().finally(() => {
+                      router.push('/account/signin');
+                    });
+                  }}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
+                >
+                  <LogOut size={16} className="text-rose-600 dark:text-rose-400" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
