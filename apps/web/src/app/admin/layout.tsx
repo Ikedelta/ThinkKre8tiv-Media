@@ -190,42 +190,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           // Mobile state
           isSidebarOpen ? 'translate-x-0 w-68' : '-translate-x-full lg:translate-x-0',
           // Desktop smart expandable drawer state
-          isExpanded ? 'lg:w-68' : 'lg:w-18'
+          isExpanded ? 'lg:w-68' : 'lg:w-20'
         )}
       >
         {/* Top Header & Brand */}
-        <div className="h-16 px-4 flex items-center justify-between border-b flex-shrink-0 border-slate-100 dark:border-slate-800/80 overflow-hidden">
-          <Link href="/admin" className="flex items-center gap-3 overflow-hidden">
-            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+        <div className="h-16 px-3 flex items-center justify-between border-b flex-shrink-0 border-slate-100 dark:border-slate-800/80 relative">
+          <Link href="/admin" className="flex items-center gap-3 min-w-0">
+            <div className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 p-1.5 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
               <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-full h-full object-contain" />
             </div>
             <div
               className={cn(
-                'flex flex-col whitespace-nowrap transition-opacity duration-200',
-                isExpanded ? 'opacity-100' : 'opacity-0 lg:hidden'
+                'flex flex-col whitespace-nowrap transition-all duration-200 overflow-hidden',
+                isExpanded ? 'opacity-100 max-w-[150px]' : 'opacity-0 max-w-0 pointer-events-none'
               )}
             >
-              <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white uppercase leading-tight">
+              <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white uppercase leading-tight truncate">
                 THINK <span className="text-[#D22630]">KRE8TIV</span>
               </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate">
                 ERP Cloud OS
               </span>
             </div>
           </Link>
 
           {/* Desktop Pin/Collapse Toggle & Mobile Close */}
-          <div className="flex items-center">
-            <button
-              onClick={togglePin}
-              title={isPinned ? 'Unpin Sidebar (Enable hover drawer)' : 'Pin Sidebar Open'}
-              className={cn(
-                'hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors',
-                !isExpanded && 'hidden'
-              )}
-            >
-              {isPinned ? <PinOff size={15} className="text-[#D22630]" /> : <Pin size={15} />}
-            </button>
+          <div className="flex items-center shrink-0">
+            {isExpanded && (
+              <button
+                onClick={togglePin}
+                title={isPinned ? 'Unpin Sidebar (Enable hover drawer)' : 'Pin Sidebar Open'}
+                className="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              >
+                {isPinned ? <PinOff size={15} className="text-[#D22630]" /> : <Pin size={15} />}
+              </button>
+            )}
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
@@ -236,21 +235,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Navigation Sections */}
-        <nav className="flex-1 px-2.5 py-4 space-y-5 overflow-y-auto overflow-x-hidden scrollbar-none">
+        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto overflow-x-hidden scrollbar-none">
           {navSections.map((section, idx) => {
             const visibleItems = section.items.filter((item) => !item.requiresAdmin || isAdmin);
             if (visibleItems.length === 0) return null;
 
             return (
               <div key={idx} className="space-y-1">
-                {/* Section Title (hidden in compact icon mode, visible on drawer expand) */}
+                {/* Section Title */}
                 <div
                   className={cn(
-                    'px-3 mb-1.5 flex items-center justify-between transition-all duration-200 whitespace-nowrap',
-                    isExpanded ? 'opacity-100' : 'opacity-0 lg:hidden'
+                    'px-2 mb-1 flex items-center justify-between transition-all duration-200 whitespace-nowrap overflow-hidden',
+                    isExpanded ? 'opacity-100 max-h-6' : 'opacity-0 max-h-0 pointer-events-none'
                   )}
                 >
-                  <h3 className="text-[10px] font-black tracking-widest uppercase text-slate-400 dark:text-slate-500">
+                  <h3 className="text-[10px] font-black tracking-widest uppercase text-slate-400 dark:text-slate-500 truncate">
                     {section.title}
                   </h3>
                 </div>
@@ -268,7 +267,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         onClick={() => setIsSidebarOpen(false)}
                         title={!isExpanded ? item.name : undefined}
                         className={cn(
-                          'flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-150 group relative',
+                          'flex items-center rounded-xl transition-all duration-150 group relative',
+                          isExpanded ? 'gap-3 px-2.5 py-2' : 'justify-center p-2',
                           isActive
                             ? 'bg-[#0F172A] text-white dark:bg-white dark:text-slate-900 shadow-xs'
                             : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white'
@@ -277,20 +277,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         {/* Calm, Clean Monochromatic Icon Badge */}
                         <div
                           className={cn(
-                            'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                            'w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors',
                             isActive
                               ? 'text-white dark:text-slate-900'
-                              : 'text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white bg-slate-100/70 dark:bg-slate-850'
+                              : 'text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white bg-slate-100/70 dark:bg-slate-800'
                           )}
                         >
-                          <item.icon size={16} />
+                          <item.icon size={18} />
                         </div>
 
-                        {/* Label (Fades gracefully when drawer collapses) */}
+                        {/* Label (Hidden in icon mode, visible on drawer expand) */}
                         <span
                           className={cn(
-                            'text-xs font-semibold whitespace-nowrap transition-all duration-200',
-                            isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 lg:hidden',
+                            'text-xs font-semibold whitespace-nowrap transition-all duration-200 overflow-hidden',
+                            isExpanded ? 'opacity-100 max-w-[150px]' : 'opacity-0 max-w-0 pointer-events-none hidden',
                             isActive ? 'font-bold' : 'text-slate-700 dark:text-slate-300'
                           )}
                         >
@@ -311,39 +311,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Sidebar Footer User Card */}
         <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 overflow-hidden">
-          <div className="flex items-center justify-between gap-2.5">
+          <div className={cn("flex items-center gap-2.5", isExpanded ? "justify-between" : "justify-center")}>
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-300 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-300 shrink-0">
                 {(session?.user?.name || 'U').charAt(0).toUpperCase()}
               </div>
               <div
                 className={cn(
-                  'overflow-hidden whitespace-nowrap transition-opacity duration-200',
-                  isExpanded ? 'opacity-100' : 'opacity-0 lg:hidden'
+                  'overflow-hidden whitespace-nowrap transition-all duration-200',
+                  isExpanded ? 'opacity-100 max-w-[130px]' : 'opacity-0 max-w-0 pointer-events-none hidden'
                 )}
               >
                 <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
                   {session?.user?.name}
                 </p>
-                <span className="text-[10px] uppercase font-bold text-emerald-600 block">
+                <span className="text-[10px] uppercase font-bold text-emerald-600 block truncate">
                   {isAdmin ? 'System Admin' : 'Staff Officer'}
                 </span>
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                authClient.signOut();
-                router.push('/account/signin');
-              }}
-              title="Sign Out"
-              className={cn(
-                'p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors shrink-0',
-                !isExpanded && 'lg:hidden'
-              )}
-            >
-              <LogOut size={15} />
-            </button>
+            {isExpanded && (
+              <button
+                onClick={() => {
+                  authClient.signOut();
+                  router.push('/account/signin');
+                }}
+                title="Sign Out"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors shrink-0"
+              >
+                <LogOut size={16} />
+              </button>
+            )}
           </div>
         </div>
       </aside>
@@ -352,7 +351,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div
         className={cn(
           'flex-1 flex flex-col overflow-hidden min-w-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] print:overflow-visible print:h-auto print:block',
-          isPinned ? 'lg:pl-68' : 'lg:pl-18'
+          isPinned ? 'lg:pl-68' : 'lg:pl-20'
         )}
       >
         <header className="h-16 border-b flex items-center justify-between px-4 md:px-6 z-40 flex-shrink-0 transition-colors duration-300 print:hidden bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-slate-200/80 dark:border-slate-800">
