@@ -41,7 +41,6 @@ interface NavItem {
   name: string;
   href: string;
   icon: React.ElementType;
-  color: string; // Vibrant accent color for icons
   requiresAdmin?: boolean;
 }
 
@@ -54,36 +53,36 @@ const navSections: NavSection[] = [
   {
     title: 'Core Management',
     items: [
-      { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/40 border-rose-200/60' },
+      { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
     ],
   },
   {
     title: 'Sales & Revenue',
     items: [
-      { name: 'Customers', href: '/admin/customers', icon: Users, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200/60' },
-      { name: 'Estimates (Quotes)', href: '/admin/quotations', icon: FileSignature, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/40 border-amber-200/60' },
-      { name: 'Invoices', href: '/admin/invoices', icon: FileText, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/60' },
-      { name: 'Receipts', href: '/admin/receipts', icon: Receipt, color: 'text-teal-500 bg-teal-50 dark:bg-teal-950/40 border-teal-200/60' },
+      { name: 'Customers', href: '/admin/customers', icon: Users },
+      { name: 'Estimates (Quotes)', href: '/admin/quotations', icon: FileSignature },
+      { name: 'Invoices', href: '/admin/invoices', icon: FileText },
+      { name: 'Receipts', href: '/admin/receipts', icon: Receipt },
     ],
   },
   {
     title: 'Finance & Supply',
     items: [
-      { name: 'Expenses', href: '/admin/expenses', icon: CreditCard, color: 'text-orange-500 bg-orange-50 dark:bg-orange-950/40 border-orange-200/60' },
-      { name: 'Inventory & Materials', href: '/admin/inventory', icon: Package, color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/40 border-violet-200/60' },
-      { name: 'Suppliers (Vendors)', href: '/admin/suppliers', icon: Building2, color: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200/60' },
-      { name: 'Executive Reports', href: '/admin/reports', icon: BarChart3, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200/60', requiresAdmin: true },
+      { name: 'Expenses', href: '/admin/expenses', icon: CreditCard },
+      { name: 'Inventory & Materials', href: '/admin/inventory', icon: Package },
+      { name: 'Suppliers (Vendors)', href: '/admin/suppliers', icon: Building2 },
+      { name: 'Executive Reports', href: '/admin/reports', icon: BarChart3, requiresAdmin: true },
     ],
   },
   {
     title: 'System & Marketing',
     items: [
-      { name: 'Services Catalog', href: '/admin/services', icon: FileBarChart, color: 'text-pink-500 bg-pink-50 dark:bg-pink-950/40 border-pink-200/60', requiresAdmin: true },
-      { name: 'Website CMS', href: '/admin/cms', icon: Globe, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/40 border-purple-200/60', requiresAdmin: true },
-      { name: 'Staff Users', href: '/admin/users', icon: UserCog, color: 'text-sky-500 bg-sky-50 dark:bg-sky-950/40 border-sky-200/60', requiresAdmin: true },
-      { name: 'SMS & Broadcasts', href: '/admin/sms-logs', icon: MessageSquare, color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/40 border-amber-200/60', requiresAdmin: true },
-      { name: 'System Settings', href: '/admin/settings', icon: Settings, color: 'text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border-slate-200', requiresAdmin: true },
-      { name: 'Audit & System Logs', href: '/admin/audit-logs', icon: Shield, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/60', requiresAdmin: true },
+      { name: 'Services Catalog', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
+      { name: 'Website CMS', href: '/admin/cms', icon: Globe, requiresAdmin: true },
+      { name: 'Staff Users', href: '/admin/users', icon: UserCog, requiresAdmin: true },
+      { name: 'SMS & Broadcasts', href: '/admin/sms-logs', icon: MessageSquare, requiresAdmin: true },
+      { name: 'System Settings', href: '/admin/settings', icon: Settings, requiresAdmin: true },
+      { name: 'Audit & System Logs', href: '/admin/audit-logs', icon: Shield, requiresAdmin: true },
     ],
   },
 ];
@@ -271,16 +270,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         className={cn(
                           'flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-150 group relative',
                           isActive
-                            ? 'bg-[#D22630]/10 text-[#D22630] font-bold dark:bg-[#D22630]/20'
-                            : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white'
+                            ? 'bg-[#0F172A] text-white dark:bg-white dark:text-slate-900 shadow-xs'
+                            : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white'
                         )}
                       >
-                        {/* Colorful Icon Pill */}
+                        {/* Calm, Clean Monochromatic Icon Badge */}
                         <div
                           className={cn(
-                            'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-200 shadow-2xs group-hover:scale-105',
-                            item.color,
-                            isActive && 'ring-2 ring-[#D22630]/30 border-transparent shadow-xs'
+                            'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors',
+                            isActive
+                              ? 'text-white dark:text-slate-900'
+                              : 'text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white bg-slate-100/70 dark:bg-slate-850'
                           )}
                         >
                           <item.icon size={16} />
@@ -291,14 +291,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                           className={cn(
                             'text-xs font-semibold whitespace-nowrap transition-all duration-200',
                             isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 lg:hidden',
-                            isActive ? 'text-[#D22630] font-black' : 'text-slate-700 dark:text-slate-300'
+                            isActive ? 'font-bold' : 'text-slate-700 dark:text-slate-300'
                           )}
                         >
                           {item.name}
                         </span>
 
                         {isActive && isExpanded && (
-                          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#D22630] shrink-0" />
+                          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#E04D1B] shrink-0" />
                         )}
                       </Link>
                     );
