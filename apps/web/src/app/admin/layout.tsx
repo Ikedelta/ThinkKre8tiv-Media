@@ -328,37 +328,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             );
           })}
         </nav>
-
-        {/* Sidebar Footer User Card */}
-        <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 overflow-hidden">
-          <Link
-            href="/admin/profile"
-            className={cn(
-              "flex items-center gap-2.5 rounded-xl p-1.5 hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-colors",
-              isExpanded ? "justify-between" : "justify-center"
-            )}
-            title="View Profile"
-          >
-            <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-300 shrink-0">
-                {(session?.user?.name || 'U').charAt(0).toUpperCase()}
-              </div>
-              <div
-                className={cn(
-                  'overflow-hidden whitespace-nowrap transition-all duration-200',
-                  isExpanded ? 'opacity-100 max-w-[130px]' : 'opacity-0 max-w-0 pointer-events-none hidden'
-                )}
-              >
-                <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  {session?.user?.name}
-                </p>
-                <span className="text-[10px] uppercase font-bold text-emerald-600 block truncate">
-                  {isAdmin ? 'System Admin' : 'Staff Officer'}
-                </span>
-              </div>
-            </div>
-          </Link>
-        </div>
       </aside>
 
       {/* Main Content Area (Spacers adjust automatically with drawer width) */}
