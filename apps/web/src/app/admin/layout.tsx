@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
@@ -38,14 +38,6 @@ import {
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { CommandPalette } from '@/components/CommandPalette';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 interface NavItem {
   name: string;
@@ -104,6 +96,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -133,6 +127,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close profile menu when navigating
+  useEffect(() => {
+    setIsProfileOpen(false);
+  }, [pathname]);
 
   const isDark = mounted && (resolvedTheme === 'dark' || theme === 'dark');
 
@@ -416,92 +426,107 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             )}
 
-            {/* User Profile & Account Dropdown at Top Right */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className="flex items-center gap-2.5 p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-left focus:outline-hidden"
-                >
-                  <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                    {(session?.user?.name || 'U').charAt(0).toUpperCase()}
-                  </div>
-                  <div className="hidden sm:flex flex-col text-left leading-tight">
-                    <span className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px]">
-                      {session?.user?.name || 'Administrator'}
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
-                      {isAdmin ? 'System Admin' : 'Staff Officer'}
-                    </span>
-                  </div>
-                  <ChevronDown size={14} className="text-slate-400 hidden sm:block ml-0.5" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 p-2 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md">
-                <DropdownMenuLabel className="p-2 font-normal">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-bold text-sm shrink-0">
-                      {(session?.user?.name || 'U').charAt(0).toUpperCase()}
+            {/* User Profile & Account Dropdown at Top Right (Lightweight Custom Dropdown) */}
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsProfileOpen((prev) => !prev)}
+                className="flex items-center gap-2.5 p-1 sm:px-2.5 sm:py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-700 text-left focus:outline-hidden"
+              >
+                <div className="w-9 h-9 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                  {(session?.user?.name || 'U').charAt(0).toUpperCase()}
+                </div>
+                <div className="hidden sm:flex flex-col text-left leading-tight">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white truncate max-w-[120px]">
+                    {session?.user?.name || 'Administrator'}
+                  </span>
+                  <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
+                    {isAdmin ? 'System Admin' : 'Staff Officer'}
+                  </span>
+                </div>
+                <ChevronDown
+                  size={14}
+                  className={cn(
+                    'text-slate-400 hidden sm:block ml-0.5 transition-transform duration-200',
+                    isProfileOpen ? 'rotate-180' : ''
+                  )}
+                />
+              </button>
+
+              {isProfileOpen && (
+                <div className="absolute right-0 mt-2 w-64 p-2 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-[#111827] backdrop-blur-md z-50 animate-in fade-in-50 zoom-in-95 duration-150">
+                  <div className="p-2.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center font-bold text-sm shrink-0">
+                        {(session?.user?.name || 'U').charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
+                          {session?.user?.name}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          {session?.user?.email}
+                        </p>
+                        <span className="inline-block mt-0.5 text-[9px] uppercase font-black px-1.5 py-0.5 rounded-sm bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 w-fit">
+                          {isAdmin ? 'System Admin' : 'Staff Officer'}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-col min-w-0">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate">
-                        {session?.user?.name}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                        {session?.user?.email}
-                      </p>
-                      <span className="inline-block mt-0.5 text-[9px] uppercase font-black px-1.5 py-0.5 rounded-sm bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 w-fit">
-                        {isAdmin ? 'System Admin' : 'Staff Officer'}
-                      </span>
-                    </div>
                   </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator className="my-1.5" />
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/admin/profile"
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
+
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 my-1.5" />
+
+                  <div className="space-y-0.5">
+                    <Link
+                      href="/admin/profile"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    >
+                      <User size={16} className="text-slate-400" />
+                      <span>My Profile & Security</span>
+                    </Link>
+
+                    {isAdmin && (
+                      <Link
+                        href="/admin/settings"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <Settings size={16} className="text-slate-400" />
+                        <span>Company & System Settings</span>
+                      </Link>
+                    )}
+
+                    {isAdmin && (
+                      <Link
+                        href="/admin/users"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <UserCog size={16} className="text-slate-400" />
+                        <span>Manage Staff Users</span>
+                      </Link>
+                    )}
+                  </div>
+
+                  <div className="h-px bg-slate-100 dark:bg-slate-800 my-1.5" />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      authClient.signOut().finally(() => {
+                        router.push('/account/signin');
+                      });
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors text-left"
                   >
-                    <User size={16} className="text-slate-400" />
-                    <span>My Profile & Security</span>
-                  </Link>
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin/settings"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                    >
-                      <Settings size={16} className="text-slate-400" />
-                      <span>Company & System Settings</span>
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-                {isAdmin && (
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin/users"
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-                    >
-                      <UserCog size={16} className="text-slate-400" />
-                      <span>Manage Staff Users</span>
-                    </Link>
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator className="my-1.5" />
-                <DropdownMenuItem
-                  onClick={() => {
-                    authClient.signOut().finally(() => {
-                      router.push('/account/signin');
-                    });
-                  }}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer"
-                >
-                  <LogOut size={16} className="text-rose-600 dark:text-rose-400" />
-                  <span>Sign Out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                    <LogOut size={16} className="text-rose-600 dark:text-rose-400" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
