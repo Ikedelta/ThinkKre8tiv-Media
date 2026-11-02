@@ -139,6 +139,88 @@ export async function POST(request: Request) {
       return Response.json({ success: true, new_balance: newQty });
     }
 
+    // ACTION: BULK IMPORT FROM EXCEL
+    if (action === 'bulk_import') {
+      const { items: importItems } = body;
+      if (!Array.isArray(importItems) || importItems.length === 0) {
+        return Response.json({ error: 'No items provided for import' }, { status: 400 });
+      }
+
+      let importedCount = 0;
+      let updatedCount = 0;
+
+      for (const row of importItems) {
+        const rawSku = row.sku || row.SKU || row['Item Code'] || row['Item Code*'] || `MAT-${Math.floor(1000 + Math.random() * 9000)}`;
+        const rawName = row.name || row.Name || row['Item Name'] || row['Material Name'] || row['Description'];
+        if (!rawName) continue;
+
+        const cleanSku = String(rawSku).trim().toUpperCase();
+        const cleanName = String(rawName).trim();
+        const category = String(row.category || row.Category || 'signage_materials').trim().toLowerCase().replace(/\s+/g, '_');
+        const unit = String(row.unit || row.Unit || 'units').trim().toLowerCase();
+        const qty = Number(row.quantity_on_hand ?? row.quantity ?? row.Qty ?? row.Stock ?? 0);
+        const minLevel = Number(row.min_reorder_level ?? row.min_level ?? row['Min Alert'] ?? 5);
+        const costPrice = Number(row.cost_price ?? row.cost ?? row['Cost Price'] ?? 0);
+        const sellingPrice = Number(row.selling_price ?? row.price ?? row['Selling Price'] ?? 0);
+        const location = String(row.location || row.Location || row['Rack / Shelf'] || 'Accra Main Factory').trim();
+        const description = row.description || row.Notes || null;
+
+        // Upsert into inventory_items
+        const [existing] = await sql`SELECT id, quantity_on_hand FROM inventory_items WHERE UPPER(sku) = ${cleanSku}`;
+
+        if (existing) {
+          await sql`
+            UPDATE inventory_items
+            SET 
+              name = ${cleanName},
+              category = ${category},
+              unit = ${unit},
+              quantity_on_hand = ${qty >= 0 ? qty : existing.quantity_on_hand},
+              min_reorder_level = ${minLevel},
+              cost_price = ${costPrice},
+              selling_price = ${sellingPrice},
+              location = ${location},
+              description = ${description},
+              updated_at = NOW()
+            WHERE id = ${existing.id}
+          `;
+          updatedCount++;
+        } else {
+          const [inserted] = await sql`
+            INSERT INTO inventory_items (
+              sku, name, category, unit, quantity_on_hand, min_reorder_level, cost_price, selling_price, location, description
+            ) VALUES (
+              ${cleanSku}, ${cleanName}, ${category}, ${unit}, ${qty >= 0 ? qty : 0}, ${minLevel}, ${costPrice}, ${sellingPrice}, ${location}, ${description}
+            )
+            RETURNING id
+          `;
+
+          if (qty > 0) {
+            await sql`
+              INSERT INTO inventory_transactions (
+                item_id, type, quantity, unit_cost, balance_after, reference_number, notes, performed_by
+              ) VALUES (
+                ${inserted.id}, 'EXCEL_IMPORT', ${qty}, ${costPrice}, ${qty}, 'INITIAL_IMPORT', 'Imported via Excel spreadsheet', ${userDisplayName}
+              )
+            `;
+          }
+          importedCount++;
+        }
+      }
+
+      await sql`
+        INSERT INTO activity_logs (user_name, action, resource, details)
+        VALUES (${userDisplayName}, 'Excel Inventory Import', 'inventory', ${`Imported ${importedCount} new items, updated ${updatedCount} existing items`})
+      `;
+
+      return Response.json({
+        success: true,
+        imported: importedCount,
+        updated: updatedCount,
+        total: importedCount + updatedCount,
+      });
+    }
+
     // ACTION: CREATE NEW INVENTORY ITEM
     const {
       sku,

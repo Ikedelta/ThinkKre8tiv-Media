@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import * as XLSX from 'xlsx';
 import {
   Package,
   Plus,
@@ -25,6 +26,10 @@ import {
   Building2,
   Calendar,
   Sparkles,
+  Upload,
+  Download,
+  FileText,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -105,8 +110,14 @@ export default function InventoryPage() {
   // Modals
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isAdjustModalOpen, setIsAdjustModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [adjustingItem, setAdjustingItem] = useState<InventoryItem | null>(null);
+
+  // Excel Import state
+  const [importedRows, setImportedRows] = useState<any[]>([]);
+  const [isParsingExcel, setIsParsingExcel] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Item Form
   const [itemForm, setItemForm] = useState({
@@ -255,6 +266,110 @@ export default function InventoryPage() {
     },
   });
 
+  const importMutation = useMutation({
+    mutationFn: async (itemsToImport: any[]) => {
+      const res = await fetch('/api/inventory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'bulk_import',
+          items: itemsToImport,
+        }),
+      });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'Failed to import inventory spreadsheet');
+      return resData;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['inventory-data'] });
+      toast.success(`Successfully imported ${data.imported} new items and updated ${data.updated} items!`);
+      setIsImportModalOpen(false);
+      setImportedRows([]);
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Import failed');
+    },
+  });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsParsingExcel(true);
+    const reader = new FileReader();
+
+    reader.onload = (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        if (!data || data.length === 0) {
+          toast.error('The selected Excel sheet has no data rows.');
+          setIsParsingExcel(false);
+          return;
+        }
+
+        setImportedRows(data);
+        toast.success(`Parsed ${data.length} rows from Excel sheet!`);
+      } catch (err: any) {
+        toast.error(`Error reading Excel file: ${err.message}`);
+      } finally {
+        setIsParsingExcel(false);
+      }
+    };
+
+    reader.readAsBinaryString(file);
+  };
+
+  const handleDownloadSampleExcel = () => {
+    const sampleData = [
+      {
+        SKU: 'MAT-SAV-003',
+        'Material Name': 'Cast Vehicle Wrap Vinyl (1.52m x 50m)',
+        Category: 'signage_materials',
+        Unit: 'rolls',
+        Quantity: 10,
+        'Min Alert': 3,
+        'Cost Price': 650.00,
+        'Selling Price': 950.00,
+        Location: 'Roll Rack Bay 3',
+        Notes: 'Ultra conformable cast vinyl for vehicle fleet branding',
+      },
+      {
+        SKU: 'PAP-MAT-250',
+        'Material Name': 'Matt Coated Art Card 250gsm (A3+)',
+        Category: 'paper_stock',
+        Unit: 'reams',
+        Quantity: 25,
+        'Min Alert': 8,
+        'Cost Price': 280.00,
+        'Selling Price': 400.00,
+        Location: 'Paper Warehouse Shelf B',
+        Notes: 'Heavy matte paper for presentation folders and menus',
+      },
+      {
+        SKU: 'INK-UV-01',
+        'Material Name': 'UV Curable Black Ink (1 Liter Bottle)',
+        Category: 'inks_consumables',
+        Unit: 'bottles',
+        Quantity: 12,
+        'Min Alert': 4,
+        'Cost Price': 340.00,
+        'Selling Price': 480.00,
+        Location: 'Ink Safe Cabinet',
+        Notes: 'For flatbed direct substrate printer',
+      },
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'InventoryTemplate');
+    XLSX.writeFile(wb, 'ThinkKre8tiv_Inventory_Import_Template.xlsx');
+  };
+
   const handleOpenCreate = () => {
     setEditingItem(null);
     setItemForm({
@@ -337,6 +452,18 @@ export default function InventoryPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setImportedRows([]);
+              setIsImportModalOpen(true);
+            }}
+            className="text-xs h-9 font-bold gap-2 border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 bg-emerald-50/70 dark:bg-emerald-950/30 hover:bg-emerald-100"
+          >
+            <FileSpreadsheet size={15} className="text-emerald-600" /> Import Excel (.xlsx)
+          </Button>
+
           <Button
             variant="outline"
             size="sm"
@@ -1031,6 +1158,175 @@ export default function InventoryPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* MODAL 3: Bulk Import from Excel Spreadsheet */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/70 dark:bg-slate-800/40">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center">
+                  <FileSpreadsheet size={18} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+                    Import Inventory from Excel (.xlsx / .xls / .csv)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Upload your factory stock spreadsheet to bulk create or update items.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsImportModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 text-lg leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="p-6 space-y-5 text-xs">
+              {/* Template Download and Instructions */}
+              <div className="p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-950/20 dark:border-emerald-900/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <p className="font-bold text-emerald-900 dark:text-emerald-200 text-xs">
+                    Need the spreadsheet columns template?
+                  </p>
+                  <p className="text-[11px] text-emerald-800 dark:text-emerald-300">
+                    Download our formatted template with columns for SKU, Material Name, Category, Quantity, Cost, etc.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleDownloadSampleExcel}
+                  className="shrink-0 h-8 text-[11px] font-bold border-emerald-300 text-emerald-800 bg-white hover:bg-emerald-50 dark:bg-slate-900 dark:text-emerald-300 dark:border-emerald-700 gap-1.5"
+                >
+                  <Download size={13} /> Download Template (.xlsx)
+                </Button>
+              </div>
+
+              {/* Upload Dropzone */}
+              <div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept=".xlsx, .xls, .csv"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-2xl p-8 text-center cursor-pointer bg-slate-50/50 dark:bg-slate-800/30 transition-all group"
+                >
+                  {isParsingExcel ? (
+                    <div className="space-y-2">
+                      <Loader2 size={28} className="animate-spin text-emerald-600 mx-auto" />
+                      <p className="text-xs font-bold text-slate-700">Reading Excel spreadsheet...</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                        <Upload size={20} />
+                      </div>
+                      <p className="font-bold text-slate-800 dark:text-white text-xs">
+                        Click here to select an Excel spreadsheet from your computer
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Supports standard .xlsx, .xls, and .csv files
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Parsed Rows Preview */}
+              {importedRows.length > 0 && (
+                <div className="space-y-2.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-slate-800 dark:text-white">
+                      Spreadsheet Preview ({importedRows.length} rows ready)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setImportedRows([])}
+                      className="text-rose-600 hover:underline font-semibold text-[11px]"
+                    >
+                      Clear File
+                    </button>
+                  </div>
+
+                  <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+                    <table className="w-full text-[11px] text-left">
+                      <thead className="bg-slate-100 dark:bg-slate-800 text-slate-600 uppercase font-bold sticky top-0">
+                        <tr>
+                          <th className="px-3 py-1.5">SKU</th>
+                          <th className="px-3 py-1.5">Material Name</th>
+                          <th className="px-3 py-1.5 text-right">Qty</th>
+                          <th className="px-3 py-1.5 text-right">Cost (GH₵)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                        {importedRows.slice(0, 8).map((row, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50">
+                            <td className="px-3 py-1.5 font-mono font-bold text-[#D22630]">
+                              {row.SKU || row.sku || row['Item Code'] || `ROW-${idx + 1}`}
+                            </td>
+                            <td className="px-3 py-1.5 font-semibold text-slate-800 dark:text-slate-200">
+                              {row['Material Name'] || row.Name || row.name || row.Description || 'Item'}
+                            </td>
+                            <td className="px-3 py-1.5 text-right font-mono font-bold">
+                              {row.Quantity || row.quantity || row.Qty || 0}
+                            </td>
+                            <td className="px-3 py-1.5 text-right font-mono">
+                              GH₵{Number(row['Cost Price'] || row.cost || 0).toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {importedRows.length > 8 && (
+                    <p className="text-[10px] text-slate-400 text-center italic">
+                      + and {importedRows.length - 8} more rows will be imported
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2.5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsImportModalOpen(false)}
+                  className="h-9 text-xs font-semibold"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  disabled={importMutation.isPending || importedRows.length === 0}
+                  onClick={() => importMutation.mutate(importedRows)}
+                  className="h-9 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+                >
+                  {importMutation.isPending ? (
+                    <>
+                      <Loader2 size={13} className="animate-spin" />
+                      Importing {importedRows.length} items...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 size={14} />
+                      Import {importedRows.length} Items to Inventory
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -13,42 +13,40 @@ export async function GET(request: Request) {
     const arkeselApiKey = process.env.ARKESEL_SMS_API_KEY || settings?.sms_api_key;
     let liveBalance = settings?.sms_balance ?? 0;
 
-    // Fetch live balance directly from Arkesel Portal API asynchronously without delaying initial layout load
-    if (arkeselApiKey) {
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 600); // 600ms quick budget so UI never hangs
-
-        const arkeselRes = await fetch('https://sms.arkesel.com/api/v2/clients/balance-details', {
-          headers: {
-            'api-key': arkeselApiKey,
-            'Accept': 'application/json',
-          },
-          signal: controller.signal,
-          next: { revalidate: 120 },
-        });
-        clearTimeout(timeoutId);
-
-        if (arkeselRes.ok) {
-          const resData = await arkeselRes.json();
-          const fetchedBalance =
-            resData?.data?.sms_balance ??
-            resData?.data?.balance ??
-            resData?.sms_balance ??
-            resData?.balance;
-
-          if (fetchedBalance !== undefined && fetchedBalance !== null) {
-            liveBalance = Number(fetchedBalance);
-            sql`UPDATE app_settings SET sms_balance = ${liveBalance} WHERE id = 'default'`.catch(() => {});
-          }
-        }
-      } catch (liveErr) {
-        // Fall back instantly to cached local DB balance without blocking
-      }
-    }
-      
     if (action === 'balance') {
-      return Response.json({ balance: liveBalance });
+      // For instant response, return cached balance immediately
+      // Refresh balance in background without holding up the HTTP response
+      if (arkeselApiKey) {
+        (async () => {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 1500);
+            const arkeselRes = await fetch('https://sms.arkesel.com/api/v2/clients/balance-details', {
+              headers: {
+                'api-key': arkeselApiKey,
+                'Accept': 'application/json',
+              },
+              signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+            if (arkeselRes.ok) {
+              const resData = await arkeselRes.json();
+              const fetchedBalance =
+                resData?.data?.sms_balance ??
+                resData?.data?.balance ??
+                resData?.sms_balance ??
+                resData?.balance;
+              if (fetchedBalance !== undefined && fetchedBalance !== null) {
+                sql`UPDATE app_settings SET sms_balance = ${Number(fetchedBalance)} WHERE id = 'default'`.catch(() => {});
+              }
+            }
+          } catch (_) {}
+        })();
+      }
+
+      return Response.json({ balance: liveBalance }, {
+        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' }
+      });
     }
 
     const logs = await sql`SELECT * FROM sms_logs ORDER BY created_at DESC LIMIT 100`;
