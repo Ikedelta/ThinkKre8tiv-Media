@@ -21,17 +21,17 @@ import {
   UserCog,
   Shield,
   LogOut,
-  Briefcase,
-  ListTodo,
-  Truck,
   Package,
   BarChart3,
   Building2,
   Sun,
   Moon,
   Search,
-  Crown,
   Lock,
+  ChevronRight,
+  Sparkles,
+  Pin,
+  PinOff,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
@@ -41,6 +41,7 @@ interface NavItem {
   name: string;
   href: string;
   icon: React.ElementType;
+  color: string; // Vibrant accent color for icons
   requiresAdmin?: boolean;
 }
 
@@ -51,40 +52,40 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    title: 'Home',
+    title: 'Core Management',
     items: [
-      { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-    ]
+      { name: 'Dashboard', href: '/admin', icon: LayoutDashboard, color: 'text-rose-500 bg-rose-50 dark:bg-rose-950/40 border-rose-200/60' },
+    ],
   },
   {
-    title: 'Sales Pipeline',
+    title: 'Sales & Revenue',
     items: [
-      { name: 'Customers', href: '/admin/customers', icon: Users },
-      { name: 'Estimates', href: '/admin/quotations', icon: FileSignature },
-      { name: 'Invoices', href: '/admin/invoices', icon: FileText },
-      { name: 'Receipts', href: '/admin/receipts', icon: Receipt },
-    ]
+      { name: 'Customers', href: '/admin/customers', icon: Users, color: 'text-blue-500 bg-blue-50 dark:bg-blue-950/40 border-blue-200/60' },
+      { name: 'Estimates (Quotes)', href: '/admin/quotations', icon: FileSignature, color: 'text-amber-500 bg-amber-50 dark:bg-amber-950/40 border-amber-200/60' },
+      { name: 'Invoices', href: '/admin/invoices', icon: FileText, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/60' },
+      { name: 'Receipts', href: '/admin/receipts', icon: Receipt, color: 'text-teal-500 bg-teal-50 dark:bg-teal-950/40 border-teal-200/60' },
+    ],
   },
   {
-    title: 'Accounting',
+    title: 'Finance & Supply',
     items: [
-      { name: 'Expenses', href: '/admin/expenses', icon: CreditCard },
-      { name: 'Inventory & Materials', href: '/admin/inventory', icon: Package },
-      { name: 'Suppliers (Vendors)', href: '/admin/suppliers', icon: Building2 },
-      { name: 'Reports', href: '/admin/reports', icon: BarChart3, requiresAdmin: true },
-    ]
+      { name: 'Expenses', href: '/admin/expenses', icon: CreditCard, color: 'text-orange-500 bg-orange-50 dark:bg-orange-950/40 border-orange-200/60' },
+      { name: 'Inventory & Materials', href: '/admin/inventory', icon: Package, color: 'text-violet-500 bg-violet-50 dark:bg-violet-950/40 border-violet-200/60' },
+      { name: 'Suppliers (Vendors)', href: '/admin/suppliers', icon: Building2, color: 'text-cyan-500 bg-cyan-50 dark:bg-cyan-950/40 border-cyan-200/60' },
+      { name: 'Executive Reports', href: '/admin/reports', icon: BarChart3, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200/60', requiresAdmin: true },
+    ],
   },
   {
-    title: 'System Management',
+    title: 'System & Marketing',
     items: [
-      { name: 'Services Catalog', href: '/admin/services', icon: FileBarChart, requiresAdmin: true },
-      { name: 'Website CMS', href: '/admin/cms', icon: Globe, requiresAdmin: true },
-      { name: 'Staff', href: '/admin/users', icon: UserCog, requiresAdmin: true },
-      { name: 'SMS & Broadcasts', href: '/admin/sms-logs', icon: MessageSquare, requiresAdmin: true },
-      { name: 'Settings', href: '/admin/settings', icon: Settings, requiresAdmin: true },
-      { name: 'Audit & System Logs', href: '/admin/audit-logs', icon: Shield, requiresAdmin: true },
-    ]
-  }
+      { name: 'Services Catalog', href: '/admin/services', icon: FileBarChart, color: 'text-pink-500 bg-pink-50 dark:bg-pink-950/40 border-pink-200/60', requiresAdmin: true },
+      { name: 'Website CMS', href: '/admin/cms', icon: Globe, color: 'text-purple-500 bg-purple-50 dark:bg-purple-950/40 border-purple-200/60', requiresAdmin: true },
+      { name: 'Staff Users', href: '/admin/users', icon: UserCog, color: 'text-sky-500 bg-sky-50 dark:bg-sky-950/40 border-sky-200/60', requiresAdmin: true },
+      { name: 'SMS & Broadcasts', href: '/admin/sms-logs', icon: MessageSquare, color: 'text-amber-600 bg-amber-50 dark:bg-amber-950/40 border-amber-200/60', requiresAdmin: true },
+      { name: 'System Settings', href: '/admin/settings', icon: Settings, color: 'text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300 border-slate-200', requiresAdmin: true },
+      { name: 'Audit & System Logs', href: '/admin/audit-logs', icon: Shield, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/60', requiresAdmin: true },
+    ],
+  },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -92,14 +93,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const savedPin = localStorage.getItem('tk_nav_pinned');
+    if (savedPin === 'true') setIsPinned(true);
   }, []);
 
-  // Global Cmd+K / Ctrl+K keyboard shortcut for Command Palette
+  const togglePin = () => {
+    const nextPin = !isPinned;
+    setIsPinned(nextPin);
+    localStorage.setItem('tk_nav_pinned', String(nextPin));
+  };
+
+  // Drawer expansion state: expanded when pinned OR when hovered on desktop
+  const isExpanded = isPinned || isHovered;
+
+  // Global Cmd+K / Ctrl+K keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
@@ -128,7 +142,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     refetchOnWindowFocus: false,
   });
 
-  // Redirect to login if not authenticated or if deactivated
+  // Redirect to login if not authenticated or deactivated
   useEffect(() => {
     if (!isPending && typeof window !== 'undefined') {
       if (!session) {
@@ -146,9 +160,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   const currentPage =
-    navSections.flatMap(s => s.items).find(
-      (item) =>
-        item.href === pathname || (item.href !== '/admin' && pathname.startsWith(item.href))
+    navSections.flatMap((s) => s.items).find(
+      (item) => item.href === pathname || (item.href !== '/admin' && pathname.startsWith(item.href))
     )?.name || 'Admin';
 
   if (isPending || !session) {
@@ -160,54 +173,91 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-screen overflow-hidden font-sans transition-colors duration-300 print:h-auto print:overflow-visible print:block bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-slate-100">
+    <div className="flex h-screen overflow-hidden font-sans bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100">
+      {/* Mobile Drawer Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-sm print:hidden"
+          className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
+      {/* Intelligent Interactive Drawer Sidebar */}
       <aside
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         className={cn(
-          'fixed lg:relative inset-y-0 left-0 transition-all duration-300 ease-in-out flex flex-col z-50 w-64 border-r print:hidden bg-white dark:bg-[#111827] border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200',
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          'fixed inset-y-0 left-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col z-50 border-r print:hidden bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-slate-200/80 dark:border-slate-800 text-slate-700 dark:text-slate-200 shadow-xl lg:shadow-none',
+          // Mobile state
+          isSidebarOpen ? 'translate-x-0 w-68' : '-translate-x-full lg:translate-x-0',
+          // Desktop smart expandable drawer state
+          isExpanded ? 'lg:w-68' : 'lg:w-18'
         )}
       >
-        <div className="p-5 flex items-center justify-between border-b flex-shrink-0 border-slate-100 dark:border-slate-800">
-          <Link href="/" className="flex items-center space-x-2.5">
-            <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-8 h-8 object-contain" />
-            <span className="font-extrabold text-lg tracking-tight">
-              THINK <span className="text-primary font-bold">KRE8TIV</span>
-            </span>
+        {/* Top Header & Brand */}
+        <div className="h-16 px-4 flex items-center justify-between border-b flex-shrink-0 border-slate-100 dark:border-slate-800/80 overflow-hidden">
+          <Link href="/admin" className="flex items-center gap-3 overflow-hidden">
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+              <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-full h-full object-contain" />
+            </div>
+            <div
+              className={cn(
+                'flex flex-col whitespace-nowrap transition-opacity duration-200',
+                isExpanded ? 'opacity-100' : 'opacity-0 lg:hidden'
+              )}
+            >
+              <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white uppercase leading-tight">
+                THINK <span className="text-[#D22630]">KRE8TIV</span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                ERP Cloud OS
+              </span>
+            </div>
           </Link>
-          <button
-            onClick={() => setIsSidebarOpen(false)}
-            className="lg:hidden p-1.5 rounded-lg transition-colors text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400"
-          >
-            <X size={18} />
-          </button>
+
+          {/* Desktop Pin/Collapse Toggle & Mobile Close */}
+          <div className="flex items-center">
+            <button
+              onClick={togglePin}
+              title={isPinned ? 'Unpin Sidebar (Enable hover drawer)' : 'Pin Sidebar Open'}
+              className={cn(
+                'hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors',
+                !isExpanded && 'hidden'
+              )}
+            >
+              {isPinned ? <PinOff size={15} className="text-[#D22630]" /> : <Pin size={15} />}
+            </button>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
-        <nav className="flex-1 px-3.5 py-5 space-y-0.5 overflow-y-auto">
+        {/* Navigation Sections */}
+        <nav className="flex-1 px-2.5 py-4 space-y-5 overflow-y-auto overflow-x-hidden scrollbar-none">
           {navSections.map((section, idx) => {
-            const visibleItems = section.items.filter(item => !item.requiresAdmin || isAdmin);
+            const visibleItems = section.items.filter((item) => !item.requiresAdmin || isAdmin);
             if (visibleItems.length === 0) return null;
 
             return (
-              <div key={idx} className="mb-6">
-                <div className="px-3 mb-2 flex items-center justify-between">
-                  <h3 className="text-xs font-bold tracking-widest uppercase text-slate-400 dark:text-slate-500">
+              <div key={idx} className="space-y-1">
+                {/* Section Title (hidden in compact icon mode, visible on drawer expand) */}
+                <div
+                  className={cn(
+                    'px-3 mb-1.5 flex items-center justify-between transition-all duration-200 whitespace-nowrap',
+                    isExpanded ? 'opacity-100' : 'opacity-0 lg:hidden'
+                  )}
+                >
+                  <h3 className="text-[10px] font-black tracking-widest uppercase text-slate-400 dark:text-slate-500">
                     {section.title}
                   </h3>
-                  {section.items.some(i => i.requiresAdmin) && !isAdmin && (
-                    <span className="text-[9px] font-bold text-slate-400 flex items-center gap-0.5">
-                      <Lock size={9} /> Restricted
-                    </span>
-                  )}
                 </div>
-                <div className="space-y-0.5">
+
+                {/* Items */}
+                <div className="space-y-1">
                   {visibleItems.map((item) => {
                     const isActive =
                       pathname === item.href ||
@@ -217,22 +267,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         key={item.name}
                         href={item.href}
                         onClick={() => setIsSidebarOpen(false)}
+                        title={!isExpanded ? item.name : undefined}
                         className={cn(
-                          'flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 group relative text-sm',
+                          'flex items-center gap-3 px-2.5 py-2 rounded-xl transition-all duration-150 group relative',
                           isActive
-                            ? 'bg-primary/10 text-primary font-semibold'
-                            : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white'
+                            ? 'bg-[#D22630]/10 text-[#D22630] font-bold dark:bg-[#D22630]/20'
+                            : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-white'
                         )}
                       >
-                        <item.icon
-                          size={16}
+                        {/* Colorful Icon Pill */}
+                        <div
                           className={cn(
-                            isActive ? 'text-primary' : 'group-hover:text-primary transition-colors'
+                            'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-200 shadow-2xs group-hover:scale-105',
+                            item.color,
+                            isActive && 'ring-2 ring-[#D22630]/30 border-transparent shadow-xs'
                           )}
-                        />
-                        <span className="font-medium">{item.name}</span>
-                        {isActive && (
-                          <span className="absolute right-3 w-1.5 h-1.5 rounded-full bg-primary" />
+                        >
+                          <item.icon size={16} />
+                        </div>
+
+                        {/* Label (Fades gracefully when drawer collapses) */}
+                        <span
+                          className={cn(
+                            'text-xs font-semibold whitespace-nowrap transition-all duration-200',
+                            isExpanded ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2 lg:hidden',
+                            isActive ? 'text-[#D22630] font-black' : 'text-slate-700 dark:text-slate-300'
+                          )}
+                        >
+                          {item.name}
+                        </span>
+
+                        {isActive && isExpanded && (
+                          <span className="ml-auto w-1.5 h-1.5 rounded-full bg-[#D22630] shrink-0" />
                         )}
                       </Link>
                     );
@@ -243,28 +309,71 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Sidebar Footer */}
+        {/* Sidebar Footer User Card */}
+        <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/40 overflow-hidden">
+          <div className="flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <div className="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-800 flex items-center justify-center font-bold text-xs text-slate-700 dark:text-slate-300 shrink-0">
+                {(session?.user?.name || 'U').charAt(0).toUpperCase()}
+              </div>
+              <div
+                className={cn(
+                  'overflow-hidden whitespace-nowrap transition-opacity duration-200',
+                  isExpanded ? 'opacity-100' : 'opacity-0 lg:hidden'
+                )}
+              >
+                <p className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                  {session?.user?.name}
+                </p>
+                <span className="text-[10px] uppercase font-bold text-emerald-600 block">
+                  {isAdmin ? 'System Admin' : 'Staff Officer'}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                authClient.signOut();
+                router.push('/account/signin');
+              }}
+              title="Sign Out"
+              className={cn(
+                'p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors shrink-0',
+                !isExpanded && 'lg:hidden'
+              )}
+            >
+              <LogOut size={15} />
+            </button>
+          </div>
+        </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0 print:overflow-visible print:h-auto print:block">
-        <header className="h-16 border-b flex items-center justify-between px-4 md:px-6 z-40 flex-shrink-0 transition-colors duration-300 print:hidden bg-white dark:bg-[#111827] border-slate-200 dark:border-slate-800">
+      {/* Main Content Area (Spacers adjust automatically with drawer width) */}
+      <div
+        className={cn(
+          'flex-1 flex flex-col overflow-hidden min-w-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] print:overflow-visible print:h-auto print:block',
+          isPinned ? 'lg:pl-68' : 'lg:pl-18'
+        )}
+      >
+        <header className="h-16 border-b flex items-center justify-between px-4 md:px-6 z-40 flex-shrink-0 transition-colors duration-300 print:hidden bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-slate-200/80 dark:border-slate-800">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg transition-colors text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+              className="lg:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
             >
               <Menu size={20} />
             </button>
             <div>
-              <h2 className="font-bold text-base text-slate-800 dark:text-white leading-tight">{currentPage}</h2>
+              <h2 className="font-extrabold text-base text-slate-900 dark:text-white leading-tight">
+                {currentPage}
+              </h2>
             </div>
           </div>
 
-          {/* Enterprise Search & Command Center Trigger */}
+          {/* Quick Command Center Trigger */}
           <button
             onClick={() => setIsCommandOpen(true)}
-            className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 transition-all text-xs"
+            className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 transition-all text-xs"
             title="Search or jump to... (Cmd + K / Ctrl + K)"
           >
             <Search size={14} className="text-slate-400" />
@@ -273,14 +382,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               ⌘K
             </kbd>
           </button>
-          
+
           <div className="flex items-center gap-3">
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg border transition-all duration-300 flex items-center justify-center hover:scale-105 active:scale-95 bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-400 dark:hover:bg-slate-700 shadow-2xs"
-              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className="p-2 rounded-xl border transition-all duration-300 flex items-center justify-center hover:scale-105 active:scale-95 bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 dark:bg-slate-800 dark:border-slate-700 dark:text-amber-400 dark:hover:bg-slate-700 shadow-2xs"
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? (
                 <Sun className="w-4 h-4 text-amber-400 transition-transform duration-300 rotate-0" />
@@ -291,70 +399,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {/* Top SMS Credit Balance Indicator */}
             {isAdmin && (
-              <div 
+              <div
                 onClick={() => refetchSms()}
                 title="Click to refresh SMS balance"
-                className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 hover:bg-amber-100/70 transition-all text-xs font-semibold shadow-2xs"
+                className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 hover:bg-amber-100/70 transition-all text-xs font-semibold shadow-2xs"
               >
                 <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-[10px] uppercase font-black tracking-wider text-amber-700 dark:text-amber-400">SMS:</span>
-                <span className="font-mono font-black text-xs text-amber-900 dark:text-amber-200">
-                  {smsData?.balance ?? '...'}
+                <span className="text-[10px] uppercase font-black tracking-wider text-amber-700 dark:text-amber-400">
+                  SMS:
                 </span>
-                <span className="text-[10px] text-amber-600/80 dark:text-amber-400 font-medium">pts</span>
+                <span className="font-mono font-bold">{smsData?.balance ?? '—'}</span>
+                <span className="text-[10px] text-amber-600 font-semibold">pts</span>
               </div>
             )}
-
-            <Link
-              href="/"
-              className="text-xs font-semibold transition-colors text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 hidden md:inline"
-            >
-              ← Website
-            </Link>
-
-            {/* User Profile */}
-            <div className="flex items-center gap-3 border-l pl-4 ml-1 border-slate-200 dark:border-slate-800">
-              <Link href="/admin/profile" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity">
-                <div className="w-8 h-8 rounded-full bg-[#E04D1B] flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-2xs">
-                  {session.user?.name?.[0]?.toUpperCase() || 'A'}
-                </div>
-                <div className="hidden md:block">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-bold leading-none text-slate-800 dark:text-white">{session.user?.name || 'Admin User'}</p>
-                    {isAdmin ? (
-                      <span className="inline-flex items-center gap-0.5 text-[9px] font-extrabold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1 py-0.2 rounded border border-amber-200 dark:border-amber-900/60 uppercase">
-                        <Crown size={9} /> Admin
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-1 py-0.2 rounded border border-blue-200 dark:border-blue-900/60 uppercase">
-                        <Shield size={9} /> Staff
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{session.user?.email || 'admin@thinkkre8tivmedia.com'}</p>
-                </div>
-              </Link>
-              <button
-                onClick={async () => {
-                  await authClient.signOut();
-                  router.push('/account/signin');
-                }}
-                className="p-1.5 rounded-lg transition-colors shrink-0 text-slate-400 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-500/10 dark:hover:text-rose-500"
-                title="Log out"
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-3.5 sm:p-5 md:p-6 pb-20 md:pb-6 transition-colors duration-300 bg-[#F8FAFC] dark:bg-[#0B0F19] print:overflow-visible print:h-auto print:p-0 print:m-0 print:bg-white">
-          <div className="print:overflow-visible print:h-auto">
-            {children}
-          </div>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-5 md:p-6 pb-20 md:pb-6 transition-colors duration-300 bg-[#F8FAFC] dark:bg-[#0B0F19] print:overflow-visible print:h-auto print:p-0 print:m-0 print:bg-white">
+          <div className="print:overflow-visible print:h-auto">{children}</div>
         </main>
 
-        {/* Mobile App-Style Bottom Navigation Bar (Smart Floating Pill for iOS & Android) */}
+        {/* Mobile App-Style Bottom Navigation Bar */}
         <nav className="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-[#111827]/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 z-40 md:hidden flex items-center justify-around px-2 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-lg print:hidden">
           {[
             { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -363,7 +428,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             { name: 'Receipts', href: '/admin/receipts', icon: Receipt },
             { name: 'Menu', href: '#', icon: Menu, isMenuTrigger: true },
           ].map((item) => {
-            const isActive = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+            const isActive =
+              item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
             return (
               <button
                 key={item.name}
@@ -375,13 +441,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   }
                 }}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl transition-all active:scale-95",
+                  'flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl transition-all active:scale-95',
                   isActive && !item.isMenuTrigger
-                    ? "text-[#D22630] font-black"
-                    : "text-slate-500 dark:text-slate-400 font-medium"
+                    ? 'text-[#D22630] font-black'
+                    : 'text-slate-500 dark:text-slate-400 font-medium'
                 )}
               >
-                <item.icon size={18} className={cn(isActive && !item.isMenuTrigger ? "text-[#D22630]" : "")} />
+                <item.icon
+                  size={18}
+                  className={cn(isActive && !item.isMenuTrigger ? 'text-[#D22630]' : '')}
+                />
                 <span className="text-[10px] leading-tight tracking-tight">{item.name}</span>
               </button>
             );
