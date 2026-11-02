@@ -47,6 +47,9 @@ export async function PUT(request: Request) {
       social_instagram,
       social_twitter,
       social_linkedin,
+      authorized_signature_url,
+      alert_notification_phone,
+      alert_notification_email,
     } = body;
 
     await sql`
@@ -77,6 +80,9 @@ export async function PUT(request: Request) {
         social_instagram = ${social_instagram ?? null},
         social_twitter = ${social_twitter ?? null},
         social_linkedin = ${social_linkedin ?? null},
+        authorized_signature_url = ${authorized_signature_url ?? null},
+        alert_notification_phone = ${alert_notification_phone ?? null},
+        alert_notification_email = ${alert_notification_email ?? null},
         updated_at = NOW()
       WHERE id = 'default'
     `;

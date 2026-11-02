@@ -11,7 +11,12 @@ export async function GET(request: Request) {
     if (id) {
       const [[quotation], items] = await Promise.all([
         sql`
-          SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone, c.company as customer_company, c.address as customer_address
+          SELECT q.*, c.name as customer_name, c.email as customer_email, c.phone as customer_phone, c.company as customer_company, c.address as customer_address,
+                 (
+                   SELECT authorized_signature_url
+                   FROM app_settings
+                   WHERE id = 'default'
+                 ) as authorized_signature_url
           FROM quotations q
           LEFT JOIN customers c ON q.customer_id = c.id
           WHERE q.id = ${id}

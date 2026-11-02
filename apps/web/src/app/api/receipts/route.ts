@@ -25,7 +25,12 @@ export async function GET(request: Request) {
                  WHERE invoice_id = r.invoice_id
                    AND approval_status = 'approved'
                    AND created_at <= r.created_at
-               ) as running_paid_up_to_receipt
+               ) as running_paid_up_to_receipt,
+               (
+                 SELECT authorized_signature_url
+                 FROM app_settings
+                 WHERE id = 'default'
+               ) as authorized_signature_url
         FROM receipts r
         JOIN customers c ON r.customer_id = c.id
         JOIN invoices i ON r.invoice_id = i.id

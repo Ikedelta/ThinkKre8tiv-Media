@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Save, Building2, CreditCard, MessageSquare, Globe, Percent } from 'lucide-react';
+import { Save, Building2, CreditCard, MessageSquare, Globe, Percent, FileSignature, Bell, Upload, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -34,6 +34,9 @@ interface Settings {
   social_instagram: string;
   social_twitter: string;
   social_linkedin: string;
+  authorized_signature_url?: string;
+  alert_notification_phone?: string;
+  alert_notification_email?: string;
 }
 
 const defaultSettings: Settings = {
@@ -63,11 +66,16 @@ const defaultSettings: Settings = {
   social_instagram: '',
   social_twitter: '',
   social_linkedin: '',
+  authorized_signature_url: '',
+  alert_notification_phone: '',
+  alert_notification_email: '',
 };
 
 export default function SettingsPage() {
   const [form, setForm] = useState<Settings>(defaultSettings);
   const [loaded, setLoaded] = useState(false);
+  const [isUploadingSignature, setIsUploadingSignature] = useState(false);
+  const sigFileRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
 
   const { data: settings } = useQuery<Settings>({
@@ -265,6 +273,132 @@ export default function SettingsPage() {
                 className={inputClass}
                 placeholder="TK-RCT"
               />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Authorized Digital Signature */}
+      <Card className="border-none shadow-sm">
+        <CardHeader className="pb-0">
+          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+            <FileSignature size={16} className="text-emerald-600" /> Authorized Stamp & Digital Signature
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 space-y-4">
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Upload an official signature or stamp image. Once uploaded, it will automatically appear at the bottom of every approved receipt, invoice, and estimate.
+          </p>
+
+          <input
+            type="file"
+            ref={sigFileRef}
+            accept="image/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              try {
+                setIsUploadingSignature(true);
+                const res = await fetch(`/api/upload?filename=${encodeURIComponent(file.name)}`, {
+                  method: 'POST',
+                  body: file,
+                });
+                if (!res.ok) throw new Error('Upload failed');
+                const data = await res.json();
+                update('authorized_signature_url', data.url);
+                toast.success('Signature image uploaded! Click Save Settings below to apply.');
+              } catch (err: any) {
+                toast.error(err.message || 'Failed to upload signature');
+              } finally {
+                setIsUploadingSignature(false);
+              }
+            }}
+          />
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl border border-slate-200 bg-slate-50/60">
+            <div className="w-32 h-16 rounded-lg border border-dashed border-slate-300 bg-white flex items-center justify-center p-1.5 shrink-0">
+              {form.authorized_signature_url ? (
+                <img
+                  src={form.authorized_signature_url}
+                  alt="Current Authorized Signature"
+                  className="max-h-full max-w-full object-contain"
+                />
+              ) : (
+                <span className="text-[10px] text-slate-400 font-bold uppercase text-center">No Signature</span>
+              )}
+            </div>
+
+            <div className="space-y-1.5 flex-1">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isUploadingSignature}
+                  onClick={() => sigFileRef.current?.click()}
+                  className="text-xs font-bold gap-1.5 h-8 border-slate-300"
+                >
+                  {isUploadingSignature ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+                  {form.authorized_signature_url ? 'Replace Signature Image' : 'Upload Signature Image'}
+                </Button>
+
+                {form.authorized_signature_url && (
+                  <button
+                    type="button"
+                    onClick={() => update('authorized_signature_url', '')}
+                    className="text-xs text-rose-600 hover:underline font-semibold"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Recommended: Transparent PNG image of your handwritten signature or official corporate stamp.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* System Alert & Notification Dispatch Settings */}
+      <Card className="border-none shadow-sm">
+        <CardHeader className="pb-0">
+          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+            <Bell size={16} className="text-amber-500" /> Admin Notifications &amp; System Alerts
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-4 space-y-4">
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Specify the dedicated mobile phone number and email address to receive immediate administrative alerts whenever new customer inquiries arrive, invoices are settled, or system updates occur.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className={labelClass}>Alert Phone Number (SMS Alerts)</label>
+              <input
+                value={form.alert_notification_phone || ''}
+                onChange={(e) => update('alert_notification_phone', e.target.value)}
+                className={inputClass}
+                placeholder="e.g. 0244681391 or 233244681391"
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Will receive automated instant SMS alerts upon document events.
+              </span>
+            </div>
+
+            <div>
+              <label className={labelClass}>Alert Email Address (System Updates)</label>
+              <input
+                type="email"
+                value={form.alert_notification_email || ''}
+                onChange={(e) => update('alert_notification_email', e.target.value)}
+                className={inputClass}
+                placeholder="e.g. alerts@thinkkre8tiv.com or asantedarkoisaac360@gmail.com"
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Receives email notifications on payments, approvals, and dispatch logs.
+              </span>
             </div>
           </div>
         </CardContent>

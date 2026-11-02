@@ -17,7 +17,12 @@ export async function GET(request: Request) {
                  c.email as customer_email, 
                  c.phone as customer_phone, 
                  c.company as customer_company, 
-                 c.address as customer_address
+                 c.address as customer_address,
+                 (
+                   SELECT authorized_signature_url
+                   FROM app_settings
+                   WHERE id = 'default'
+                 ) as authorized_signature_url
           FROM invoices i
           JOIN customers c ON i.customer_id = c.id
           WHERE i.id = ${id}

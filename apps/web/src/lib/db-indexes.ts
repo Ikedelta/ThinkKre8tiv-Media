@@ -24,6 +24,9 @@ export async function ensureDatabaseIndexes() {
       ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS smtp_password TEXT;
       ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS smtp_from_name TEXT;
       ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS smtp_from_email TEXT;
+      ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS authorized_signature_url TEXT;
+      ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS alert_notification_phone TEXT;
+      ALTER TABLE app_settings ADD COLUMN IF NOT EXISTS alert_notification_email TEXT;
 
       -- High performance database lookup indexes
       CREATE INDEX IF NOT EXISTS idx_invoices_customer_id ON invoices(customer_id);
