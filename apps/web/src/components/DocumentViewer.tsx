@@ -5,7 +5,6 @@ import {
   Edit2,
   MessageSquare,
   Printer,
-  ShieldCheck,
   Building2,
   Phone,
   Mail,
