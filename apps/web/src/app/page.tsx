@@ -66,14 +66,16 @@ const HERO_SLIDES = [
 ];
 
 export default function HomePage() {
-  const { data: cmsContent } = useQuery({
+  const { data: cmsContent, isLoading: isCmsLoading } = useQuery({
     queryKey: ['cms'],
     queryFn: async () => {
       const res = await fetch('/api/cms', { cache: 'no-store' });
       return res.json();
     },
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   const heroHeadline = cmsContent?.find((c: any) => c.id === 'hero_headline')?.content || DEFAULT_SITEINFO.heroHeadline;
@@ -118,11 +120,18 @@ export default function HomePage() {
       })
     : HERO_SLIDES;
 
+  // Reset slide index if slides change or slide index is out of bounds
+  useEffect(() => {
+    if (heroSlideIndex >= heroSlides.length) {
+      setHeroSlideIndex(0);
+    }
+  }, [heroSlides.length, heroSlideIndex]);
+
   useEffect(() => {
     if (heroSlides.length <= 1) return;
     const timer = setInterval(() => {
       setHeroSlideIndex((prev) => (prev + 1) % heroSlides.length);
-    }, 4500);
+    }, 5000);
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 
@@ -215,13 +224,13 @@ export default function HomePage() {
 
             {/* Right Column: Sliding Hero Carousel */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 aspect-[4/3] sm:aspect-[4/3] lg:aspect-[4/3.4] xl:aspect-[4/3.3] max-h-[460px] group select-none">
+              <div className="relative rounded-2xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-800 bg-slate-900 aspect-[4/3] sm:aspect-[4/3] lg:aspect-[4/3.4] xl:aspect-[4/3.3] max-h-[460px] group select-none">
                 {/* Slides with Crossfade Animation */}
                 {heroSlides.map((slide: any, idx: number) => {
                   const isActive = idx === heroSlideIndex;
                   return (
                     <div
-                      key={slide.src + idx}
+                      key={slide.id || slide.src || idx}
                       className={cn(
                         'absolute inset-0 transition-opacity duration-700 ease-in-out',
                         isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
