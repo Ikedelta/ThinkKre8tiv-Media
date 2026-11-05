@@ -134,7 +134,7 @@ export default function EditCustomerPage() {
               {initials}
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                 {form.name || 'Edit Customer'}
               </h1>
               <p className="text-xs text-slate-500 font-medium">

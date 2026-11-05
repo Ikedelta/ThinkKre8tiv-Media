@@ -132,15 +132,15 @@ function QuotationsPageContent() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Estimates</p>
-          <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{estimates.length}</p>
+          <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{estimates.length}</p>
         </div>
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Draft Estimates</p>
-          <p className="text-3xl font-black text-blue-600 dark:text-blue-400">{newSubmissions}</p>
+          <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{newSubmissions}</p>
         </div>
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Sent to Customer</p>
-          <p className="text-3xl font-black text-yellow-600 dark:text-yellow-500">{sentQuotes}</p>
+          <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-500">{sentQuotes}</p>
         </div>
       </div>
 

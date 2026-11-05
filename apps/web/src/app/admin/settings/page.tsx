@@ -122,7 +122,7 @@ export default function SettingsPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const labelClass = 'text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5';
+  const labelClass = 'text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5';
   const inputClass =
     'w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none';
 
@@ -130,7 +130,7 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-3xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-montserrat font-black text-[#001F3F]">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#001F3F]">
             Settings
           </h1>
           <p className="text-slate-500 mt-1 text-sm">Configure your system preferences</p>
@@ -148,7 +148,7 @@ export default function SettingsPage() {
       {/* Company Info */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+          <CardTitle className="flex items-center gap-2 text-base font-bold text-[#001F3F]">
             <Building2 size={16} className="text-blue-600" /> Company Information
           </CardTitle>
         </CardHeader>
@@ -196,7 +196,7 @@ export default function SettingsPage() {
       {/* Billing Settings */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+          <CardTitle className="flex items-center gap-2 text-base font-bold text-[#001F3F]">
             <CreditCard size={16} className="text-blue-600" /> Billing & Currency
           </CardTitle>
         </CardHeader>
@@ -288,7 +288,7 @@ export default function SettingsPage() {
       {/* Authorized Digital Signature */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+          <CardTitle className="flex items-center gap-2 text-base font-bold text-[#001F3F]">
             <FileSignature size={16} className="text-emerald-600" /> Authorized Stamp & Digital Signature
           </CardTitle>
         </CardHeader>
@@ -371,7 +371,7 @@ export default function SettingsPage() {
       {/* System Alert & Notification Dispatch Settings */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+          <CardTitle className="flex items-center gap-2 text-base font-bold text-[#001F3F]">
             <Bell size={16} className="text-amber-500" /> Admin Notifications &amp; System Alerts
           </CardTitle>
         </CardHeader>
@@ -414,7 +414,7 @@ export default function SettingsPage() {
       {/* Website / Social */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+          <CardTitle className="flex items-center gap-2 text-base font-bold text-[#001F3F]">
             <Globe size={16} className="text-blue-600" /> Website & Social Media
           </CardTitle>
         </CardHeader>

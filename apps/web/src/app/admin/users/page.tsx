@@ -290,7 +290,7 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-[#001F3F] tracking-tight">Users & Roles</h1>
+          <h1 className="text-2xl font-bold text-[#001F3F] tracking-tight">Users & Roles</h1>
           <p className="text-slate-500 mt-0.5 text-sm font-medium">
             Manage staff accounts and their access levels
           </p>
@@ -360,7 +360,7 @@ export default function UsersPage() {
                         <div className="flex items-center gap-3">
                           <div
                             className={cn(
-                              'w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm flex-shrink-0',
+                              'w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm flex-shrink-0',
                               roleCfg ? roleCfg.color : 'bg-slate-500 text-white'
                             )}
                           >
@@ -504,7 +504,7 @@ export default function UsersPage() {
                     <div className="flex items-center gap-3">
                       <div
                         className={cn(
-                          'w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg flex-shrink-0',
+                          'w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0',
                           roleCfg ? roleCfg.color : 'bg-slate-500 text-white'
                         )}
                       >
@@ -610,7 +610,7 @@ export default function UsersPage() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col max-h-[95vh] overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-slate-100">
-              <h2 className="font-black text-lg text-[#001F3F]">
+              <h2 className="font-bold text-lg text-[#001F3F]">
                 {editUser ? 'Edit User' : 'Add New User'}
               </h2>
               <button

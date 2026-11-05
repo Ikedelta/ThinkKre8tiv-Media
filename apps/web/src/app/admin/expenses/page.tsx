@@ -173,7 +173,7 @@ export default function ExpensesPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-black text-rose-600 text-right">
+                      <td className="px-6 py-4 font-bold text-rose-600 text-right">
                         {fmt(expense.amount)}
                       </td>
                       <td className="px-6 py-4 text-right">
@@ -224,7 +224,7 @@ export default function ExpensesPage() {
                       <h4 className="font-bold text-slate-900 text-sm">{expense.vendor_name || 'General Expense'}</h4>
                       <p className="text-xs text-slate-500">{expense.date?.split('T')[0]}</p>
                     </div>
-                    <span className="font-black text-rose-600 text-base">{fmt(expense.amount)}</span>
+                    <span className="font-bold text-rose-600 text-base">{fmt(expense.amount)}</span>
                   </div>
 
                   <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100">

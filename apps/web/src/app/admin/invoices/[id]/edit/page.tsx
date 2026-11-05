@@ -174,7 +174,7 @@ export default function EditInvoicePage() {
       </div>
 
       <div>
-        <h1 className="text-2xl font-black text-[#001F3F] tracking-tight">Edit Invoice</h1>
+        <h1 className="text-2xl font-bold text-[#001F3F] tracking-tight">Edit Invoice</h1>
         <p className="text-sm text-slate-500 font-medium mt-0.5">Update invoice {invoice?.invoice_number}</p>
       </div>
 
@@ -364,7 +364,7 @@ export default function EditInvoicePage() {
                   </div>
                   <span className="font-bold text-[#001F3F]">{fmt(vatAmount)}</span>
                 </div>
-                <div className="flex justify-between font-black text-[#001F3F] border-t border-slate-200 pt-3 mt-1">
+                <div className="flex justify-between font-bold text-[#001F3F] border-t border-slate-200 pt-3 mt-1">
                   <span>Total</span>
                   <span className="text-xl">{fmt(total)}</span>
                 </div>

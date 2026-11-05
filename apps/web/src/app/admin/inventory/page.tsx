@@ -443,7 +443,7 @@ export default function InventoryPage() {
               <Package className="w-3.5 h-3.5" /> Refine Materials &amp; Stock Engine
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mt-1 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1 tracking-tight">
             Inventory &amp; Consumables Management
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -490,7 +490,7 @@ export default function InventoryPage() {
           <CardContent className="p-4 sm:p-5 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total Tracked SKUs</p>
-              <p className="text-2xl font-black text-slate-900 dark:text-white mt-1">
+              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
                 {metrics.total_sku_count}
               </p>
               <p className="text-xs text-slate-400 mt-0.5">Printing, vinyl &amp; board materials</p>
@@ -505,7 +505,7 @@ export default function InventoryPage() {
           <CardContent className="p-4 sm:p-5 flex items-center justify-between">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Warehouse Valuation</p>
-              <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">
                 {fmt(metrics.total_valuation)}
               </p>
               <p className="text-xs text-slate-400 mt-0.5">Current on-hand cost evaluation</p>
@@ -528,7 +528,7 @@ export default function InventoryPage() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
                 <AlertTriangle size={13} /> Low Stock Warnings
               </p>
-              <p className="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">
                 {metrics.low_stock_count}
               </p>
               <p className="text-xs text-slate-400 mt-0.5">Items near minimum threshold</p>
@@ -551,7 +551,7 @@ export default function InventoryPage() {
               <p className="text-[11px] font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">
                 Depleted / Out of Stock
               </p>
-              <p className="text-2xl font-black text-rose-600 dark:text-rose-400 mt-1">
+              <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 mt-1">
                 {metrics.out_of_stock_count}
               </p>
               <p className="text-xs text-slate-400 mt-0.5">Immediate re-order needed</p>
@@ -682,7 +682,7 @@ export default function InventoryPage() {
                         <tr key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
                           <td className="px-5 py-4">
                             <div>
-                              <span className="font-mono text-[11px] font-black text-[#D22630] block">
+                              <span className="font-mono text-[11px] font-bold text-[#D22630] block">
                                 {item.sku}
                               </span>
                               <p className="font-bold text-slate-900 dark:text-white text-xs mt-0.5">
@@ -703,7 +703,7 @@ export default function InventoryPage() {
                           <td className="px-5 py-4 text-center">
                             <div className="inline-flex flex-col items-center">
                               <span className={cn(
-                                "font-mono font-black text-sm px-2.5 py-0.5 rounded-lg border",
+                                "font-mono font-bold text-sm px-2.5 py-0.5 rounded-lg border",
                                 isOut ? "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:border-rose-900/60" :
                                 isLow ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:border-amber-900/60" :
                                 "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:border-emerald-900/60"
@@ -725,7 +725,7 @@ export default function InventoryPage() {
                           <td className="px-5 py-4 text-right font-mono text-xs text-slate-600 dark:text-slate-300 font-semibold">
                             {fmt(item.cost_price)}
                           </td>
-                          <td className="px-5 py-4 text-right font-mono text-xs font-black text-slate-900 dark:text-white">
+                          <td className="px-5 py-4 text-right font-mono text-xs font-bold text-slate-900 dark:text-white">
                             {fmt(valuation)}
                           </td>
                           <td className="px-5 py-4">
@@ -823,7 +823,7 @@ export default function InventoryPage() {
                         )}>
                           {isAddition ? `+${tx.quantity}` : `-${tx.quantity}`} {tx.unit}
                         </td>
-                        <td className="px-5 py-4 text-right font-mono font-black text-xs text-slate-900 dark:text-white">
+                        <td className="px-5 py-4 text-right font-mono font-bold text-xs text-slate-900 dark:text-white">
                           {tx.balance_after} {tx.unit}
                         </td>
                         <td className="px-5 py-4 text-xs text-slate-600 dark:text-slate-400">
@@ -1050,7 +1050,7 @@ export default function InventoryPage() {
             >
               <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/30 flex justify-between items-center">
                 <span className="text-slate-500 font-semibold">Current On-Hand Balance:</span>
-                <span className="font-mono font-black text-sm text-slate-900 dark:text-white">
+                <span className="font-mono font-bold text-sm text-slate-900 dark:text-white">
                   {adjustingItem.quantity_on_hand} {adjustingItem.unit}
                 </span>
               </div>

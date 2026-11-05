@@ -114,7 +114,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl md:text-3xl font-montserrat font-black text-[#001F3F]">
+        <h1 className="text-2xl md:text-3xl font-bold text-[#001F3F]">
           My Profile
         </h1>
         <p className="text-slate-500 mt-1 text-sm">Manage your personal information and password</p>
@@ -124,11 +124,11 @@ export default function ProfilePage() {
       <Card className="border-none shadow-sm">
         <CardContent className="p-6">
           <div className="flex items-center gap-5 mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl flex-shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
               {session?.user?.name?.[0]?.toUpperCase() || 'A'}
             </div>
             <div>
-              <h2 className="font-montserrat font-black text-xl text-[#001F3F]">
+              <h2 className="font-bold text-xl text-[#001F3F]">
                 {profile?.name || session?.user?.name}
               </h2>
               <p className="text-slate-500 text-sm">{profile?.email || session?.user?.email}</p>
@@ -149,19 +149,19 @@ export default function ProfilePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                 Joined
               </p>
               <p className="text-sm font-bold text-slate-700">{joinDate}</p>
             </div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                 Role
               </p>
               <p className="text-sm font-bold text-slate-700">{roleCfg.label}</p>
             </div>
             <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-0.5">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                 Status
               </p>
               <p className="text-sm font-bold text-green-600">Active</p>
@@ -173,14 +173,14 @@ export default function ProfilePage() {
       {/* Edit Profile */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+          <CardTitle className="flex items-center gap-2 text-base font-bold text-[#001F3F]">
             <User size={16} className="text-blue-600" /> Personal Information
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <form onSubmit={handleProfileSave} className="space-y-4">
             <div>
-              <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                 Full Name
               </label>
               <input
@@ -191,7 +191,7 @@ export default function ProfilePage() {
               />
             </div>
             <div>
-              <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                 <span className="flex items-center gap-1">
                   <Mail size={11} /> Email Address (read-only)
                 </span>
@@ -204,7 +204,7 @@ export default function ProfilePage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                   <span className="flex items-center gap-1">
                     <Phone size={11} /> Phone
                   </span>
@@ -217,7 +217,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                   <span className="flex items-center gap-1">
                     <Briefcase size={11} /> Position
                   </span>
@@ -245,14 +245,14 @@ export default function ProfilePage() {
       {/* Change Password */}
       <Card className="border-none shadow-sm">
         <CardHeader className="pb-0">
-          <CardTitle className="flex items-center gap-2 text-base font-montserrat font-bold text-[#001F3F]">
+          <CardTitle className="flex items-center gap-2 text-base font-bold text-[#001F3F]">
             <Lock size={16} className="text-blue-600" /> Change Password
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <form onSubmit={handlePasswordSave} className="space-y-4">
             <div>
-              <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                 Current Password
               </label>
               <input
@@ -266,7 +266,7 @@ export default function ProfilePage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                   New Password
                 </label>
                 <input
@@ -279,7 +279,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div>
-                <label className="text-xs font-black text-slate-600 uppercase tracking-wider block mb-1.5">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5">
                   Confirm New Password
                 </label>
                 <input

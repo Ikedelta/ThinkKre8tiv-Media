@@ -552,7 +552,7 @@ export default function AdminDashboardPage() {
                         <td className="px-5 py-3.5 text-xs uppercase font-medium text-slate-500">
                           {ex.payment_method || 'Cash'}
                         </td>
-                        <td className="px-5 py-3.5 text-right font-black text-rose-600 dark:text-rose-400">
+                        <td className="px-5 py-3.5 text-right font-bold text-rose-600 dark:text-rose-400">
                           {fmt(ex.amount)}
                         </td>
                       </tr>
@@ -578,7 +578,7 @@ export default function AdminDashboardPage() {
                         <h4 className="font-bold text-slate-900 dark:text-white text-xs">{ex.vendor_name || 'General Supplier'}</h4>
                         <p className="text-[10px] text-slate-400">{ex.date ? new Date(ex.date).toLocaleDateString() : '—'}</p>
                       </div>
-                      <span className="font-black text-rose-600 dark:text-rose-400 text-xs">{fmt(ex.amount)}</span>
+                      <span className="font-bold text-rose-600 dark:text-rose-400 text-xs">{fmt(ex.amount)}</span>
                     </div>
                     <div className="flex justify-between items-center text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 dark:border-slate-700/60">
                       <span>{ex.account_name || 'Supplies'}</span>

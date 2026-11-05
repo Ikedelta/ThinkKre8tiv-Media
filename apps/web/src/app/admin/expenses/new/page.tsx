@@ -149,7 +149,7 @@ export default function RecordExpensePage() {
       </div>
 
       <div>
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Record Expense</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">Record Expense</h1>
         <p className="text-sm text-slate-500 font-medium mt-0.5">Log cash outflows and categorize your business spending</p>
       </div>
 
@@ -170,7 +170,7 @@ export default function RecordExpensePage() {
                     step="0.01"
                     value={amount}
                     onChange={(e) => setAmount(Number(e.target.value))}
-                    className={`${inputClass} pl-12 font-black text-xl sm:text-2xl text-rose-600 border-rose-200 focus:ring-rose-500/20 focus:border-rose-500`}
+                    className={`${inputClass} pl-12 font-bold text-xl sm:text-2xl text-rose-600 border-rose-200 focus:ring-rose-500/20 focus:border-rose-500`}
                     placeholder="0.00"
                   />
                 </div>

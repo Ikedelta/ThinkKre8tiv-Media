@@ -128,7 +128,7 @@ export default function CustomersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Customers</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Customers</h1>
           <p className="text-slate-500 mt-1 text-sm">Manage your client database</p>
         </div>
         <Link href="/admin/customers/new">
@@ -181,7 +181,7 @@ export default function CustomersPage() {
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
                   {stat.label}
                 </p>
-                <p className="text-xl font-black text-slate-800 dark:text-white">{stat.display}</p>
+                <p className="text-xl font-bold text-slate-800 dark:text-white">{stat.display}</p>
               </CardContent>
             </Card>
           ))}
@@ -263,7 +263,7 @@ export default function CustomersPage() {
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
-                        'w-11 h-11 rounded-xl flex items-center justify-center text-white font-black text-base flex-shrink-0',
+                        'w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-base flex-shrink-0',
                         [
                           'bg-blue-500',
                           'bg-purple-500',
@@ -365,17 +365,17 @@ export default function CustomersPage() {
                       <p className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center justify-center gap-1">
                         <FileText size={9} /> Invoices
                       </p>
-                      <p className="font-black text-slate-800 dark:text-white text-sm">{customer.invoice_count}</p>
+                      <p className="font-bold text-slate-800 dark:text-white text-sm">{customer.invoice_count}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-[10px] text-slate-400 uppercase tracking-wider">Paid</p>
-                      <p className="font-black text-green-600 text-sm">{fmt(customer.total_paid)}</p>
+                      <p className="font-bold text-green-600 text-sm">{fmt(customer.total_paid)}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-[10px] text-slate-400 uppercase tracking-wider">Owed</p>
                       <p
                         className={cn(
-                          'font-black text-sm',
+                          'font-bold text-sm',
                           Number(customer.total_outstanding) > 0 ? 'text-red-500' : 'text-slate-450 dark:text-slate-500'
                         )}
                       >
@@ -389,7 +389,7 @@ export default function CustomersPage() {
                       <FileText size={11} className="text-slate-400" />
                       Orders &amp; Invoices
                     </span>
-                    <span className="font-black text-slate-800 dark:text-white px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs">
+                    <span className="font-bold text-slate-800 dark:text-white px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs">
                       {customer.invoice_count}
                     </span>
                   </div>

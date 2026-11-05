@@ -174,7 +174,7 @@ export default function EditExpensePage() {
       </div>
 
       <div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight">Edit Expense</h1>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Edit Expense</h1>
         <p className="text-sm text-slate-500 font-medium mt-0.5">Update expense details</p>
       </div>
 

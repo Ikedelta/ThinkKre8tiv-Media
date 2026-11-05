@@ -80,7 +80,7 @@ export function DocumentViewer({
         voucherLabel: 'Receipt Voucher',
         bannerBg: 'bg-emerald-50/90 border-emerald-300',
         bannerIcon: 'text-emerald-800',
-        bannerTitle: 'text-emerald-950 font-black',
+        bannerTitle: 'text-emerald-950 font-bold',
         bannerTitleText: 'Payment Cleared & Confirmed',
         bannerSubtext: 'text-emerald-900 font-bold',
         bannerTotalLabel: 'text-emerald-900',
@@ -96,7 +96,7 @@ export function DocumentViewer({
         voucherLabel: isInvoice ? 'Invoice Reference' : 'Estimate Reference',
         bannerBg: 'bg-red-50/90 border-red-300',
         bannerIcon: isPaid ? 'text-emerald-800' : 'text-[#B71C1C]',
-        bannerTitle: isPaid ? 'text-emerald-950 font-black' : 'text-red-950 font-black',
+        bannerTitle: isPaid ? 'text-emerald-950 font-bold' : 'text-red-950 font-bold',
         bannerTitleText: isPaid ? 'Invoice Settled (Paid Full)' : 'Invoice Billing & Settlement Due',
         bannerSubtext: isPaid ? 'text-emerald-900 font-bold' : 'text-red-900 font-bold',
         bannerTotalLabel: isPaid ? 'text-emerald-900' : 'text-red-900',
@@ -125,7 +125,7 @@ export function DocumentViewer({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase">
+                <span className="text-xl sm:text-2xl font-bold tracking-tight text-white uppercase">
                   THINK <span className={isReceipt ? "text-emerald-300" : "text-amber-300"}>KRE8TIV</span>
                 </span>
                 <span className={cn("text-[9px] font-bold uppercase px-2 py-0.5 rounded tracking-wider border", themeStyles.badgeBg)}>
@@ -140,7 +140,7 @@ export function DocumentViewer({
 
           <div className="text-left sm:text-right bg-black/25 border border-white/20 rounded-xl px-4 py-2.5">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">{themeStyles.voucherLabel}</p>
-            <p className="text-lg font-mono font-black text-white">{docNumber}</p>
+            <p className="text-lg font-mono font-bold text-white">{docNumber}</p>
           </div>
         </div>
       </div>
@@ -166,7 +166,7 @@ export function DocumentViewer({
 
         {isPaid && isInvoice && (
           <div className="absolute top-1/3 right-10 -rotate-12 pointer-events-none z-0 opacity-15">
-            <div className="text-5xl font-black text-emerald-600 border-4 border-emerald-600 rounded-2xl px-6 py-2 uppercase tracking-widest">
+            <div className="text-5xl font-bold text-emerald-600 border-4 border-emerald-600 rounded-2xl px-6 py-2 uppercase tracking-widest">
               PAID FULL
             </div>
           </div>
@@ -178,7 +178,7 @@ export function DocumentViewer({
             {/* Main Top Summary Card */}
             <div className={cn("border rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs", themeStyles.bannerBg)}>
               <div className="space-y-1.5">
-                <span className={cn("text-sm font-black uppercase tracking-wider flex items-center gap-2", themeStyles.bannerTitle)}>
+                <span className={cn("text-sm font-bold uppercase tracking-wider flex items-center gap-2", themeStyles.bannerTitle)}>
                   <CheckCircle2 size={18} className={themeStyles.bannerIcon} />
                   <span>{themeStyles.bannerTitleText}</span>
                 </span>
@@ -194,7 +194,7 @@ export function DocumentViewer({
                 <span className={cn("text-[11px] font-bold uppercase tracking-wider block", themeStyles.bannerTotalLabel)}>
                   {isReceipt ? 'Total Amount Paid' : 'Total Amount Due'}
                 </span>
-                <span className={cn("text-3xl sm:text-4xl font-black font-mono tracking-tight", themeStyles.bannerTotalValue)}>
+                <span className={cn("text-3xl sm:text-4xl font-bold font-mono tracking-tight", themeStyles.bannerTotalValue)}>
                   {fmt(isReceipt ? document.amount : (document.total_amount || document.amount))}
                 </span>
               </div>
@@ -247,7 +247,7 @@ export function DocumentViewer({
             <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-xs">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="bg-slate-100/90 text-slate-800 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
+                  <tr className="bg-slate-100/90 text-slate-800 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200">
                     <th className="py-3.5 px-5">Description</th>
                     <th className="py-3.5 px-3 text-center w-20">Qty</th>
                     <th className="py-3.5 px-4 text-right w-32">Rate</th>
@@ -285,7 +285,7 @@ export function DocumentViewer({
                       </td>
                       <td className="py-5 px-3 text-center font-medium text-slate-700 text-xs">1</td>
                       <td className="py-5 px-4 text-right font-medium text-slate-600 text-xs">{fmt(document.amount || document.total_amount)}</td>
-                      <td className="py-5 px-5 text-right font-black font-mono text-sm text-slate-900">
+                      <td className="py-5 px-5 text-right font-bold font-mono text-sm text-slate-900">
                         {fmt(document.amount || document.total_amount)}
                       </td>
                     </tr>
@@ -301,7 +301,7 @@ export function DocumentViewer({
             <div className="sm:col-span-6 bg-slate-50/70 rounded-2xl p-4 sm:p-5 border border-slate-200 space-y-2.5 text-xs">
               <div className="flex items-center gap-1.5 border-b border-slate-200 pb-2">
                 <CreditCard size={15} className={isReceipt ? "text-emerald-700" : "text-[#D22630]"} />
-                <span className="text-[11px] font-black uppercase tracking-wider text-slate-900">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-slate-900">
                   Payment Channels
                 </span>
               </div>
@@ -346,7 +346,7 @@ export function DocumentViewer({
                       <div className="flex justify-between items-center pt-2.5 border-t border-slate-200 text-xs">
                         <span className="font-bold text-slate-900">Remaining Balance:</span>
                         <span className={cn(
-                          "font-mono font-black text-base",
+                          "font-mono font-bold text-base",
                           remainingBalance > 0 ? "text-[#D22630]" : "text-emerald-700"
                         )}>
                           {fmt(remainingBalance)}
@@ -382,8 +382,8 @@ export function DocumentViewer({
                     </div>
                   )}
                   <div className="flex justify-between items-center py-2 border-y border-slate-900 text-slate-950">
-                    <span className="text-xs font-black uppercase tracking-wider">Total</span>
-                    <span className="text-lg font-black font-mono">{fmt(document.total_amount || document.amount)}</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">Total</span>
+                    <span className="text-lg font-bold font-mono">{fmt(document.total_amount || document.amount)}</span>
                   </div>
                   {document.amount_paid !== undefined && Number(document.amount_paid) > 0 && (
                     <div className="flex justify-between items-center text-slate-600 text-xs">
@@ -393,9 +393,9 @@ export function DocumentViewer({
                   )}
                   {document.balance_due !== undefined && (
                     <div className="flex justify-between items-center py-2 bg-white px-3 rounded-xl border border-slate-200">
-                      <span className="text-[11px] font-black uppercase tracking-wider text-slate-800">Balance Due</span>
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-800">Balance Due</span>
                       <span className={cn(
-                        "text-base font-black font-mono",
+                        "text-base font-bold font-mono",
                         Number(document.balance_due) > 0 ? "text-[#D22630]" : "text-emerald-700"
                       )}>
                         {fmt(document.balance_due)}

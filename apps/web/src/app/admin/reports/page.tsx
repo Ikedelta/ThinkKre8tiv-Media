@@ -134,7 +134,7 @@ export default function ReportsPage() {
         <div className="w-16 h-16 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 flex items-center justify-center mb-4 border border-rose-100 dark:border-rose-900">
           <Lock size={28} />
         </div>
-        <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">
           Administrator Access Required
         </h2>
         <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mb-6">
@@ -239,7 +239,7 @@ export default function ReportsPage() {
       {/* Top Header & Export Action */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5 print:hidden">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
             Financial & Operational Reports
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
@@ -267,7 +267,7 @@ export default function ReportsPage() {
                 <img src="/logo.png" alt="Think Kre8tiv Logo" className="w-full h-full object-contain" />
               </div>
               <div>
-                <h1 className="text-xl font-black tracking-tight text-slate-950 uppercase">
+                <h1 className="text-xl font-bold tracking-tight text-slate-950 uppercase">
                   THINK <span className="text-[#D22630]">KRE8TIV</span> MEDIA
                 </h1>
                 <p className="text-[11px] font-semibold text-slate-600">
@@ -280,11 +280,11 @@ export default function ReportsPage() {
             </div>
 
             <div className="text-right">
-              <span className="inline-block bg-slate-900 text-white text-[9px] font-black uppercase px-2.5 py-1 rounded tracking-widest mb-1">
+              <span className="inline-block bg-slate-900 text-white text-[9px] font-bold uppercase px-2.5 py-1 rounded tracking-widest mb-1">
                 EXECUTIVE AUDIT REPORT
               </span>
               <p className="text-xs font-bold text-slate-800">
-                Period: <span className="text-[#D22630] font-black">{selectedRange === 'custom' && appliedCustom ? `${appliedCustom.start} to ${appliedCustom.end}` : rangeButtons.find((btn) => btn.id === selectedRange)?.label || selectedRange}</span>
+                Period: <span className="text-[#D22630] font-bold">{selectedRange === 'custom' && appliedCustom ? `${appliedCustom.start} to ${appliedCustom.end}` : rangeButtons.find((btn) => btn.id === selectedRange)?.label || selectedRange}</span>
               </p>
               <p className="text-[10px] text-slate-500">
                 Generated: {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -296,28 +296,28 @@ export default function ReportsPage() {
         {/* Executive KPI Summary Cards */}
         <div className="grid grid-cols-5 gap-3 mb-6">
           <div className="border border-slate-300 bg-slate-50/80 p-3 rounded-lg text-center">
-            <span className="text-[9px] font-black uppercase tracking-wider text-slate-600 block mb-0.5">Total Billed</span>
-            <span className="text-sm font-black text-slate-900 font-mono">{fmt(rev?.total_billed ?? 0)}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider text-slate-600 block mb-0.5">Total Billed</span>
+            <span className="text-sm font-bold text-slate-900 font-mono">{fmt(rev?.total_billed ?? 0)}</span>
             <span className="text-[9px] text-slate-500 block mt-0.5">{rev?.total_invoices ?? 0} invoices</span>
           </div>
           <div className="border border-emerald-300 bg-emerald-50/70 p-3 rounded-lg text-center">
-            <span className="text-[9px] font-black uppercase tracking-wider text-emerald-800 block mb-0.5">Total Collected</span>
-            <span className="text-sm font-black text-emerald-900 font-mono">{fmt(pay?.total_collected ?? rev?.total_revenue ?? 0)}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 block mb-0.5">Total Collected</span>
+            <span className="text-sm font-bold text-emerald-900 font-mono">{fmt(pay?.total_collected ?? rev?.total_revenue ?? 0)}</span>
             <span className="text-[9px] text-emerald-700 block mt-0.5">{pay?.total_payments ?? rev?.paid_invoices ?? 0} settlements</span>
           </div>
           <div className="border border-amber-300 bg-amber-50/70 p-3 rounded-lg text-center">
-            <span className="text-[9px] font-black uppercase tracking-wider text-amber-800 block mb-0.5">Receivables Due</span>
-            <span className="text-sm font-black text-amber-900 font-mono">{fmt(rev?.total_outstanding ?? 0)}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider text-amber-800 block mb-0.5">Receivables Due</span>
+            <span className="text-sm font-bold text-amber-900 font-mono">{fmt(rev?.total_outstanding ?? 0)}</span>
             <span className="text-[9px] text-amber-700 block mt-0.5">Outstanding</span>
           </div>
           <div className="border border-rose-300 bg-rose-50/70 p-3 rounded-lg text-center">
-            <span className="text-[9px] font-black uppercase tracking-wider text-rose-800 block mb-0.5">Total Expenses</span>
-            <span className="text-sm font-black text-rose-900 font-mono">{fmt(exp?.total_expenses ?? 0)}</span>
+            <span className="text-[9px] font-bold uppercase tracking-wider text-rose-800 block mb-0.5">Total Expenses</span>
+            <span className="text-sm font-bold text-rose-900 font-mono">{fmt(exp?.total_expenses ?? 0)}</span>
             <span className="text-[9px] text-rose-700 block mt-0.5">{exp?.total_records ?? 0} disbursements</span>
           </div>
           <div className={cn("border p-3 rounded-lg text-center", isProfitable ? "border-blue-300 bg-blue-50/70" : "border-rose-300 bg-rose-50/70")}>
-            <span className="text-[9px] font-black uppercase tracking-wider block mb-0.5 text-slate-700">Net Profit</span>
-            <span className={cn("text-sm font-black font-mono", isProfitable ? "text-blue-900" : "text-rose-900")}>
+            <span className="text-[9px] font-bold uppercase tracking-wider block mb-0.5 text-slate-700">Net Profit</span>
+            <span className={cn("text-sm font-bold font-mono", isProfitable ? "text-blue-900" : "text-rose-900")}>
               {fmt(Math.abs(profitGross))}
             </span>
             <span className="text-[9px] text-slate-600 block mt-0.5">{isProfitable ? `+${data?.profit?.netMarginPct || 0}% margin` : 'Deficit'}</span>
@@ -329,7 +329,7 @@ export default function ReportsPage() {
           {/* Recent Invoices Table */}
           <div>
             <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-300">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
                 Invoices &amp; Receivables Audit ({data?.detailedInvoices?.length || 0} records)
               </h3>
               <span className="text-[10px] text-slate-500 font-medium">Currency: GHS (GH₵)</span>
@@ -371,7 +371,7 @@ export default function ReportsPage() {
           {/* Expenses Table */}
           <div>
             <div className="flex justify-between items-center mb-2 pb-1 border-b border-slate-300">
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
                 Operational Expenses Audit ({data?.detailedExpenses?.length || 0} disbursements)
               </h3>
             </div>
@@ -482,12 +482,12 @@ export default function ReportsPage() {
           <Card key={card.label} className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs hover:shadow-sm transition-all rounded-xl print:shadow-none print:break-inside-avoid">
             <CardContent className="p-4 sm:p-5">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">{card.label}</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{card.label}</span>
                 <div className={cn('p-2 rounded-lg shrink-0', card.color)}>
                   <card.icon size={15} />
                 </div>
               </div>
-              <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+              <p className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                 {card.value}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">{card.sub}</p>
@@ -684,7 +684,7 @@ export default function ReportsPage() {
                             <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                               {pm.payment_method.replace('_', ' ')}
                             </span>
-                            <span className="font-extrabold text-slate-900 dark:text-white">
+                            <span className="font-bold text-slate-900 dark:text-white">
                               {fmt(pm.total)} <span className="font-normal text-slate-400">({pct}%)</span>
                             </span>
                           </div>
@@ -739,7 +739,7 @@ export default function ReportsPage() {
                 ) : (
                   (data?.detailedInvoices ?? []).map((inv) => (
                     <tr key={inv.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
-                      <td className="px-6 py-4 font-extrabold text-slate-900 dark:text-white">
+                      <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
                         {inv.invoice_number}
                       </td>
                       <td className="px-6 py-4 font-medium text-slate-700 dark:text-slate-300">
@@ -748,7 +748,7 @@ export default function ReportsPage() {
                       <td className="px-6 py-4 text-slate-500">
                         {new Date(inv.created_at).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 text-right font-extrabold text-slate-900 dark:text-white">
+                      <td className="px-6 py-4 text-right font-bold text-slate-900 dark:text-white">
                         {fmt(inv.total_amount)}
                       </td>
                       <td className="px-6 py-4 text-right font-bold text-[#E04D1B]">
@@ -823,7 +823,7 @@ export default function ReportsPage() {
                       <td className="px-6 py-4 font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wider text-[11px]">
                         {expense.payment_method?.replace('_', ' ') || 'Cash / Bank'}
                       </td>
-                      <td className="px-6 py-4 text-right font-extrabold text-rose-600 dark:text-rose-400">
+                      <td className="px-6 py-4 text-right font-bold text-rose-600 dark:text-rose-400">
                         {fmt(expense.amount)}
                       </td>
                     </tr>

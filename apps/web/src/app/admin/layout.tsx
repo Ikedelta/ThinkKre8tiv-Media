@@ -271,7 +271,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     isExpanded ? 'opacity-100 max-h-6' : 'opacity-0 max-h-0 pointer-events-none'
                   )}
                 >
-                  <h3 className="text-[10px] font-black tracking-widest uppercase text-slate-400 dark:text-slate-500 truncate">
+                  <h3 className="text-[10px] font-bold tracking-wider uppercase text-slate-400 dark:text-slate-500 truncate">
                     {section.title}
                   </h3>
                 </div>
@@ -389,7 +389,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 className="cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/30 text-amber-900 dark:text-amber-300 hover:bg-amber-100/70 transition-all text-xs font-semibold shadow-2xs"
               >
                 <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span className="text-[10px] uppercase font-black tracking-wider text-amber-700 dark:text-amber-400">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-amber-700 dark:text-amber-400">
                   SMS:
                 </span>
                 <span className="font-mono font-bold">{smsData?.balance ?? '—'}</span>

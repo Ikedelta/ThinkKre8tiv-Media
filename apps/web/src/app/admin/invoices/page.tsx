@@ -208,7 +208,7 @@ function InvoicesPageContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Invoices</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Invoices</h1>
           <p className="text-slate-500 mt-0.5 text-sm font-medium">
             Manage and track customer billing
           </p>
@@ -312,7 +312,7 @@ function InvoicesPageContent() {
                     {count} {count === 1 ? 'doc' : 'docs'}
                   </span>
                 </div>
-                <p className="text-2xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                <p className="text-2xl font-bold text-slate-900 dark:text-white font-mono tracking-tight">
                   {fmt(total)}
                 </p>
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 font-medium">
@@ -704,7 +704,7 @@ function InvoicesPageContent() {
                   <div className="flex items-start justify-between mb-3">
                     <div className="cursor-pointer" onClick={() => setSelectedInvoiceId(invoice.id)}>
                       <div className="flex items-center gap-2">
-                        <p className="font-black text-blue-600 text-sm hover:underline">{invoice.invoice_number}</p>
+                        <p className="font-bold text-blue-600 text-sm hover:underline">{invoice.invoice_number}</p>
                         {isPending && (
                           <span className="text-[9px] font-bold bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded uppercase">
                             Pending
@@ -729,7 +729,7 @@ function InvoicesPageContent() {
                       <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">
                         Total
                       </p>
-                      <p className="font-black text-[#001F3F] text-sm">
+                      <p className="font-bold text-[#001F3F] text-sm">
                         {fmt(invoice.total_amount)}
                       </p>
                     </div>
@@ -739,7 +739,7 @@ function InvoicesPageContent() {
                       </p>
                       <p
                         className={cn(
-                          'font-black text-sm',
+                          'font-bold text-sm',
                           Number(invoice.balance_due) > 0 ? 'text-red-500' : 'text-green-600'
                         )}
                       >

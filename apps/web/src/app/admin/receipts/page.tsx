@@ -123,7 +123,7 @@ export default function ReceiptsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Receipts</h1>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white tracking-tight">Receipts</h1>
           <p className="text-slate-500 mt-0.5 text-sm font-medium">
             Manage payments, print receipts, and issue new receipts
           </p>
@@ -399,7 +399,7 @@ export default function ReceiptsPage() {
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-black text-emerald-600 text-sm">{receipt.receipt_number}</p>
+                        <p className="font-bold text-emerald-600 text-sm">{receipt.receipt_number}</p>
                       </div>
                       <p className="font-bold text-[#001F3F] text-sm mt-0.5">
                         {receipt.customer_name}
@@ -417,7 +417,7 @@ export default function ReceiptsPage() {
                       <p className="text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-0.5">
                         Amount
                       </p>
-                      <p className="font-black text-[#001F3F] text-sm">
+                      <p className="font-bold text-[#001F3F] text-sm">
                         {fmt(receipt.amount)}
                       </p>
                     </div>

@@ -221,7 +221,7 @@ export default function SmsPage() {
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 shadow-xs">
             <Coins className="w-4 h-4 text-amber-600 dark:text-amber-400" />
             <span className="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Live Balance:</span>
-            <span className="font-mono font-black text-sm">{balance}</span>
+            <span className="font-mono font-bold text-sm">{balance}</span>
             <span className="text-[10px] text-amber-600 font-semibold">credits</span>
           </div>
 
@@ -486,7 +486,7 @@ export default function SmsPage() {
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
                   <Coins className="w-4 h-4 text-[#E04D1B]" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                     Live Point &amp; Cost Estimation
                   </h3>
                 </div>
@@ -502,13 +502,13 @@ export default function SmsPage() {
                   </div>
                   <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
                     <span className="text-slate-500">Total Points to Deduct:</span>
-                    <span className="font-mono font-black text-[#E04D1B] text-sm">{totalCreditsNeeded} credits</span>
+                    <span className="font-mono font-bold text-[#E04D1B] text-sm">{totalCreditsNeeded} credits</span>
                   </div>
                   <div className="flex justify-between items-center py-1">
                     <span className="text-slate-500">Estimated Balance After:</span>
                     <span
                       className={cn(
-                        'font-mono font-black text-sm',
+                        'font-mono font-bold text-sm',
                         balance - totalCreditsNeeded >= 0 ? 'text-emerald-600' : 'text-rose-600'
                       )}
                     >
@@ -531,7 +531,7 @@ export default function SmsPage() {
               <CardContent className="p-5 space-y-3">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
                   <Sparkles className="w-4 h-4 text-amber-500" />
-                  <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                     Festive &amp; Campaign Presets
                   </h3>
                 </div>
@@ -631,7 +631,7 @@ export default function SmsPage() {
                           </p>
                         </td>
                         <td className="px-5 py-4 whitespace-nowrap text-center">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black font-mono bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/60">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold font-mono bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-900/60">
                             <Coins className="w-3 h-3 text-amber-600" />
                             {log.credits_used ?? 1} pt{(log.credits_used ?? 1) > 1 ? 's' : ''}
                           </span>

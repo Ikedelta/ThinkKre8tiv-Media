@@ -173,15 +173,15 @@ export default function ServicesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Total Offerings</p>
-          <p className="text-3xl font-black text-slate-800 dark:text-white">{services.length}</p>
+          <p className="text-3xl font-bold text-slate-800 dark:text-white">{services.length}</p>
         </div>
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Active Now</p>
-          <p className="text-3xl font-black text-emerald-600 dark:text-emerald-500">{activeServices}</p>
+          <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-500">{activeServices}</p>
         </div>
         <div className="bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800/60 rounded-xl p-5 hover:border-slate-300 dark:hover:border-slate-700 transition-colors shadow-sm dark:shadow-none">
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Categories</p>
-          <p className="text-3xl font-black text-indigo-600 dark:text-indigo-400">{categoriesCount}</p>
+          <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">{categoriesCount}</p>
         </div>
       </div>
 

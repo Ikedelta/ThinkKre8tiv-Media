@@ -187,7 +187,7 @@ export default function SuppliersPage() {
           <CardContent className="p-4 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Suppliers</p>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mt-1">{suppliers.length}</h3>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{suppliers.length}</h3>
               <p className="text-xs text-slate-400 mt-0.5">Active vendor accounts</p>
             </div>
             <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600">
