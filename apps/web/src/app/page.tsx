@@ -27,6 +27,7 @@ import PublicNav from '@/components/PublicNav';
 import PublicFooter from '@/components/PublicFooter';
 import { cn } from '@/lib/utils';
 import { EXPERTISE as DEFAULT_EXPERTISE, GALLERY_ITEMS, siteInfo as DEFAULT_SITEINFO } from '@/data/content';
+import INITIAL_CMS_CONTENT from '@/data/initial-cms.json';
 import { useQuery } from '@tanstack/react-query';
 
 // Corporate Partner Logos with Real World Representation
@@ -66,15 +67,16 @@ const HERO_SLIDES = [
 ];
 
 export default function HomePage() {
-  const { data: cmsContent, isLoading: isCmsLoading } = useQuery({
+  const { data: cmsContent } = useQuery({
     queryKey: ['cms'],
     queryFn: async () => {
       const res = await fetch('/api/cms', { cache: 'no-store' });
       return res.json();
     },
+    initialData: INITIAL_CMS_CONTENT,
     staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
-    refetchOnMount: false,
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
 
@@ -112,6 +114,7 @@ export default function HomePage() {
           title = parts[1].trim();
         }
         return {
+          id: s.id,
           src: s.image_url || '/images/1.jpg',
           tag,
           title,
