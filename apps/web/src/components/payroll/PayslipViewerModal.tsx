@@ -19,44 +19,44 @@ export function PayslipViewerModal({ payslip, onClose }: PayslipViewerModalProps
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-      <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col my-auto max-h-[94vh]">
-        
-        {/* Top Control Bar (Hidden on print) */}
-        <div className="p-4 sm:px-6 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700/80 flex items-center justify-between print:hidden">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#D22630]/10 text-[#D22630] flex items-center justify-center font-bold">
-              PS
-            </div>
-            <div>
-              <p className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                Ghana Statutory Payslip
-              </p>
-              <p className="text-[11px] text-slate-500 font-mono">
-                {payslip.payslip_number} &bull; {payslip.period_label || 'Current Period'}
-              </p>
-            </div>
+    <div className="document-modal-overlay fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex flex-col items-center justify-start overflow-hidden print:bg-white print:block">
+      {/* Top Control Bar (Hidden on print) */}
+      <div className="w-full bg-[#0F172A] border-b border-slate-800 p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 shrink-0 print:hidden shadow-lg z-50 max-w-7xl mx-auto rounded-b-xl">
+        <div className="flex items-center gap-2 text-white">
+          <div className="w-6 h-6 rounded-lg bg-[#D22630]/20 text-[#D22630] flex items-center justify-center font-bold text-xs">
+            PS
           </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handlePrint}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#001F3F] text-white hover:bg-[#001730] transition text-xs font-semibold shadow-xs"
-            >
-              <Printer size={14} />
-              <span>Print / Save PDF</span>
-            </button>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
-            >
-              <X size={18} />
-            </button>
+          <div>
+            <p className="text-xs font-bold text-white uppercase tracking-wider">
+              Ghana Statutory Payslip &bull; {payslip.payslip_number}
+            </p>
+            <p className="text-[10px] text-slate-400 font-mono">
+              Period: {payslip.period_label || 'Current Cycle'}
+            </p>
           </div>
         </div>
 
-        {/* Printable Payslip Body */}
-        <div className="p-6 sm:p-10 overflow-y-auto bg-white text-slate-900 print:p-0 print:m-0 print:overflow-visible">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button
+            onClick={handlePrint}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#D22630] to-amber-500 text-white hover:opacity-95 transition text-xs font-bold shadow-xs"
+          >
+            <Printer size={14} />
+            <span>Print / Save A4 PDF</span>
+          </button>
+          <button
+            onClick={onClose}
+            className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition text-xs font-semibold"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+
+      {/* Printable Payslip Body Wrapped in Responsive A4 Viewport */}
+      <div className="flex-1 w-full overflow-y-auto p-4 sm:p-6 md:p-8 flex justify-center items-start print:p-0 print:m-0 print:overflow-visible print:block">
+        <div className="document-preview-wrapper w-full max-w-[760px] my-auto py-2 scale-[0.85] sm:scale-[0.90] md:scale-[0.95] origin-top transition-transform print:max-w-none print:w-full print:scale-100 print:m-0 print:p-0">
+          <div className="document-viewer-a4 bg-white text-slate-900 shadow-2xl rounded-2xl print:rounded-none overflow-hidden border border-slate-200/90 print:border-none p-6 sm:p-8 print:p-8">
           
           {/* Header Banner */}
           <div className="border-b-2 border-slate-900 pb-6 mb-6">
@@ -292,7 +292,7 @@ export function PayslipViewerModal({ payslip, onClose }: PayslipViewerModalProps
           </div>
 
         </div>
-
+        </div>
       </div>
     </div>
   );
