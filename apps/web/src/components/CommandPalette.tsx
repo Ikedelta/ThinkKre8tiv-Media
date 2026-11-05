@@ -25,11 +25,11 @@ import {
   Command,
   Package,
   Settings,
-  DollarSign,
   ArrowLeft,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { GhanaCediIcon } from '@/components/icons/GhanaCediIcon';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -248,7 +248,7 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
         title: 'Payroll & Salaries Management',
         subtitle: 'GRA PAYE tax, SSNIT statutory compliance, and payslips',
         category: 'Navigation',
-        icon: DollarSign,
+        icon: GhanaCediIcon,
         onSelect: () => {
           router.push('/admin/payroll');
           onClose();

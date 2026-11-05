@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Users, DollarSign, Calendar, Plus, Search, Filter, ShieldCheck,
+  Users, Calendar, Plus, Search, Filter, ShieldCheck,
   FileText, CheckCircle2, AlertCircle, Eye, Printer, Edit2, Trash2,
   Download, ArrowUpRight, ChevronRight, UserPlus, Building, CreditCard
 } from 'lucide-react';
+import { GhanaCediIcon } from '@/components/icons/GhanaCediIcon';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { authClient } from '@/lib/auth-client';
@@ -202,7 +203,7 @@ export default function PayrollAdminPage() {
         <div>
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-2xl bg-[#D22630]/10 text-[#D22630] flex items-center justify-center font-bold">
-              <DollarSign size={20} />
+              <GhanaCediIcon size={20} />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -258,7 +259,7 @@ export default function PayrollAdminPage() {
         <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xs">
           <div className="flex justify-between items-center text-slate-500">
             <span className="text-xs font-semibold uppercase tracking-wider">Base Salary Commitment</span>
-            <DollarSign size={18} className="text-emerald-500" />
+            <GhanaCediIcon size={18} className="text-emerald-500" />
           </div>
           <p className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-2">
             {fmt(totalMonthlyPayrollCommitment)}

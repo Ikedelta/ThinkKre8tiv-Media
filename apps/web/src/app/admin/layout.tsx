@@ -24,7 +24,6 @@ import {
   Package,
   BarChart3,
   Building2,
-  DollarSign,
   Sun,
   Moon,
   Search,
@@ -39,6 +38,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useTheme } from 'next-themes';
 import { CommandPalette } from '@/components/CommandPalette';
+import { GhanaCediIcon } from '@/components/icons/GhanaCediIcon';
 
 interface NavItem {
   name: string;
@@ -72,7 +72,7 @@ const navSections: NavSection[] = [
     title: 'Finance & Supply',
     items: [
       { name: 'Expenses', href: '/admin/expenses', icon: CreditCard },
-      { name: 'Payroll & Salaries', href: '/admin/payroll', icon: DollarSign, requiresAdmin: true },
+      { name: 'Payroll & Salaries', href: '/admin/payroll', icon: GhanaCediIcon, requiresAdmin: true },
       { name: 'Inventory & Materials', href: '/admin/inventory', icon: Package },
       { name: 'Suppliers (Vendors)', href: '/admin/suppliers', icon: Building2 },
       { name: 'Executive Reports', href: '/admin/reports', icon: BarChart3, requiresAdmin: true },
