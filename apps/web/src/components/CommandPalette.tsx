@@ -25,6 +25,7 @@ import {
   Command,
   Package,
   Settings,
+  DollarSign,
   ArrowLeft,
   X,
 } from 'lucide-react';
@@ -242,6 +243,17 @@ export function CommandPalette({ isOpen, onClose, isAdmin = false }: CommandPale
   // Admin-only nav
   if (isAdmin) {
     baseItems.push(
+      {
+        id: 'nav-payroll',
+        title: 'Payroll & Salaries Management',
+        subtitle: 'GRA PAYE tax, SSNIT statutory compliance, and payslips',
+        category: 'Navigation',
+        icon: DollarSign,
+        onSelect: () => {
+          router.push('/admin/payroll');
+          onClose();
+        },
+      },
       {
         id: 'nav-reports',
         title: 'Financial & Operational Reports',
